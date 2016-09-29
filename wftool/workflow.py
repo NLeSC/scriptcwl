@@ -19,6 +19,10 @@ class WorkflowGenerator(object):
     def load(self, steps):
         self.steps_library = steps
 
+    def list_steps(self):
+        for name, step in self.steps_library.iteritems():
+            print 'Step "{}": {}'.format(name, step)
+
     def _add_step(self, step):
         self.steps[step.name] = step.to_obj()
 

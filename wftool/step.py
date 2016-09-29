@@ -11,6 +11,7 @@ class Step:
 
         bn = os.path.basename(fname)
         self.name = os.path.splitext(bn)[0]
+        self.python_name = python_name(self.name)
 
         self.inputs = {}
 
@@ -46,3 +47,16 @@ class Step:
         obj['out'] = [self.output_names[0]]
 
         return obj
+
+    def __str__(self):
+        template = '{} = {}({})'
+        return template.format(', '.join(self.output_names), self.python_name,
+                               ', '.join(self.input_names))
+
+
+def python_name(name):
+    """Transform cwl step name into a python method name.
+    """
+    name = name.replace('-', '_')
+
+    return name
