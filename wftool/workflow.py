@@ -38,6 +38,14 @@ class WorkflowGenerator(object):
 
         self.outputs[output_name] = obj
 
+    def _get_step(self, name):
+        s = self.steps_library.get(name)
+        if s is None:
+            msg = '"{}" not found in steps library. Please check your ' \
+                  'spelling or load additional steps'
+            raise ValueError(msg.format(name))
+        return s
+
     def to_obj(self):
         obj = {}
         obj['cwlVersion'] = 'v1.0'
@@ -48,11 +56,8 @@ class WorkflowGenerator(object):
         return obj
 
     def _make_step(self, name, **kwargs):
-        s = self.steps_library.get(name)
-        if s is None:
-            msg = '"{}" not found in steps library. Please check your ' \
-                  'spelling or load additional steps'
-            raise ValueError(msg.format(name))
+        s = self._get_step(name)
+
         for k in s.input_names:
             if k not in kwargs.keys():
                 raise ValueError(
