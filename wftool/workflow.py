@@ -13,8 +13,10 @@ class WorkflowGenerator(object):
         try:
             return super(self.__class__, self).__getattr__(name)
         except AttributeError:
-            method_name = name.replace('_', '-')
-            return partial(self._make_step, method_name, **kwargs)
+            print name
+            name = cwl_name(name)
+            print name
+            return partial(self._make_step, name, **kwargs)
 
     def load(self, steps):
         self.steps_library = steps
@@ -61,3 +63,11 @@ class WorkflowGenerator(object):
         if len(outputs) == 1:
             return outputs[0]
         return outputs
+
+
+def cwl_name(name):
+    """Transform python name to cwl name.
+    """
+    name = name.replace('_', '-')
+
+    return name
