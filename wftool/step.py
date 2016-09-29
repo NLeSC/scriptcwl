@@ -14,7 +14,7 @@ class Step:
         self.name = os.path.splitext(bn)[0]
         self.python_name = python_name(self.name)
 
-        self.inputs = {}
+        self.step_inputs = {}
 
         with open(fname) as f:
             s = yaml.load(f)
@@ -27,14 +27,14 @@ class Step:
 
             self.output_names = [i['id'] for i in s['outputs']]
 
-            self.outputs = {}
+            self.step_outputs = {}
             for o in s['outputs']:
-                self.outputs[o['id']] = o['type']
+                self.step_outputs[o['id']] = o['type']
 
     def set_input(self, name, value):
         if name not in self.input_names:
             raise ValueError('Invalid input "{}"'.format(name))
-        self.inputs[name] = value
+        self.step_inputs[name] = value
 
     def get_input(self, name):
         if name not in self.input_names:
@@ -49,7 +49,7 @@ class Step:
     def to_obj(self):
         obj = {}
         obj['run'] = self.run
-        obj['in'] = self.inputs
+        obj['in'] = self.step_inputs
         obj['out'] = [self.output_names[0]]
 
         return obj
@@ -59,7 +59,7 @@ class Step:
         return template.format(', '.join(self.output_names), self.python_name,
                                ', '.join(self.input_names))
 
-    def inputs(self):
+    def list_inputs(self):
         doc = []
         for inp, typ in self.input_types.iteritems():
             if isinstance(typ, six.string_types):

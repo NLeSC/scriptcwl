@@ -4,9 +4,9 @@ from functools import partial
 class WorkflowGenerator(object):
 
     def __init__(self):
-        self.steps = {}
-        self.inputs = {}
-        self.outputs = {}
+        self.wf_steps = {}
+        self.wf_inputs = {}
+        self.wf_outputs = {}
         self.steps_library = {}
 
     def __getattr__(self, name, **kwargs):
@@ -25,18 +25,24 @@ class WorkflowGenerator(object):
         for name, step in self.steps_library.iteritems():
             print 'Step "{}": {}'.format(name, step)
 
+    def inputs(self, name):
+        """List input names and types of a step in the steps library.
+        """
+        s = self._get_step(name)
+        print s.list_inputs()
+
     def _add_step(self, step):
-        self.steps[step.name] = step.to_obj()
+        self.wf_steps[step.name] = step.to_obj()
 
     def _add_input(self, name, typ):
-        self.inputs[name] = typ
+        self.wf_inputs[name] = typ
 
     def _add_output(self, output_name, source_name, step):
         obj = {}
         obj['type'] = step.outputs[source_name]
         obj['outputSource'] = step.output_to_input(source_name)
 
-        self.outputs[output_name] = obj
+        self.wf_outputs[output_name] = obj
 
     def _get_step(self, name):
         s = self.steps_library.get(name)
@@ -50,9 +56,9 @@ class WorkflowGenerator(object):
         obj = {}
         obj['cwlVersion'] = 'v1.0'
         obj['class'] = 'Workflow'
-        obj['inputs'] = self.inputs
-        obj['outputs'] = self.outputs
-        obj['steps'] = self.steps
+        obj['inputs'] = self.wf_inputs
+        obj['outputs'] = self.wf_outputs
+        obj['steps'] = self.wf_steps
         return obj
 
     def _make_step(self, name, **kwargs):
