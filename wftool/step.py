@@ -1,5 +1,6 @@
 import yaml
 import os
+import six
 
 
 class Step:
@@ -18,7 +19,12 @@ class Step:
         with open(fname) as f:
             s = yaml.load(f)
 
-            self.input_names = [i['id'] for i in s['inputs']]
+            self.input_names = []
+            self.input_types = {}
+            for inp in s['inputs']:
+                self.input_names.append(inp['id'])
+                self.input_types[inp['id']] = inp['type']
+
             self.output_names = [i['id'] for i in s['outputs']]
 
             self.outputs = {}
@@ -52,6 +58,14 @@ class Step:
         template = '{} = {}({})'
         return template.format(', '.join(self.output_names), self.python_name,
                                ', '.join(self.input_names))
+
+    def inputs(self):
+        doc = []
+        for inp, typ in self.input_types.iteritems():
+            if isinstance(typ, six.string_types):
+                typ = "'{}'".format(typ)
+            doc.append('{}: {}'.format(inp, typ))
+        return '\n'.join(doc)
 
 
 def python_name(name):
