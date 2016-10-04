@@ -13,9 +13,7 @@ class WorkflowGenerator(object):
         try:
             return super(self.__class__, self).__getattr__(name)
         except AttributeError:
-            print name
             name = cwl_name(name)
-            print name
             return partial(self._make_step, name, **kwargs)
 
     def load(self, steps):
