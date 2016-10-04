@@ -37,13 +37,23 @@ class WorkflowGenerator(object):
     def _add_step(self, step):
         self.wf_steps[step.name] = step.to_obj()
 
-    def add_input(self, name, typ):
-        """Add workflow input with name name and type typ.
+    def add_inputs(self, **kwargs):
+        """Add workflow inputs.
+        kwargs is a dict with `name=type`, where name is the name (id) of the
+        workflow input (e.g., `dir_in`) and type is the type of the input
+        (e.g., `'Directory'`). The type of input parameters can be learned from
+        `step.inputs(step_name=input_name)`.
 
-        Returns: name
+        Returns: list of names
         """
-        self.wf_inputs[name] = typ
-        return name
+        names = []
+        for name, typ in kwargs.iteritems():
+            self.wf_inputs[name] = typ
+            names.append(name)
+
+        if len(names) == 1:
+            return names[0]
+        return names
 
     def add_output(self, **kwargs):
         """Add workflow outputs.
