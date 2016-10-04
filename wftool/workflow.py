@@ -32,8 +32,13 @@ class WorkflowGenerator(object):
     def _add_step(self, step):
         self.wf_steps[step.name] = step.to_obj()
 
-    def _add_input(self, name, typ):
+    def add_input(self, name, typ):
+        """Add workflow input with name name and type typ.
+
+        Returns: name
+        """
         self.wf_inputs[name] = typ
+        return name
 
     def _add_output(self, output_name, source_name, step):
         obj = {}
