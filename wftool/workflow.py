@@ -1,3 +1,7 @@
+import yaml
+import os
+import codecs
+
 from functools import partial
 
 
@@ -98,6 +102,15 @@ class WorkflowGenerator(object):
         if len(outputs) == 1:
             return outputs[0]
         return outputs
+
+    def save(self, fname, encoding='utf-8'):
+        dirname = os.path.dirname(os.path.abspath(fname))
+
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+
+        with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
+            yaml.dump(self.to_obj(), yaml_file, default_flow_style=False)
 
 
 def cwl_name(name):
