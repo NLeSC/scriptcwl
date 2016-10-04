@@ -7,6 +7,7 @@ class WorkflowGenerator(object):
         self.wf_steps = {}
         self.wf_inputs = {}
         self.wf_outputs = {}
+        self.step_output_types = {}
         self.steps_library = {}
 
     def __getattr__(self, name, **kwargs):
@@ -14,7 +15,11 @@ class WorkflowGenerator(object):
             return super(self.__class__, self).__getattr__(name)
         except AttributeError:
             name = cwl_name(name)
-            return partial(self._make_step, name, **kwargs)
+            step = self._get_step(name)
+            for n in step.output_names:
+                oname = step.output_to_input(n)
+                self.step_output_types[oname] = step.step_outputs[n]
+            return partial(self._make_step, step, **kwargs)
 
     def load(self, steps):
         self.steps_library = steps
@@ -40,12 +45,20 @@ class WorkflowGenerator(object):
         self.wf_inputs[name] = typ
         return name
 
-    def _add_output(self, output_name, source_name, step):
-        obj = {}
-        obj['type'] = step.outputs[source_name]
-        obj['outputSource'] = step.output_to_input(source_name)
+    def add_output(self, **kwargs):
+        """Add workflow outputs.
 
-        self.wf_outputs[output_name] = obj
+        kwargs is a dict of name=source name. name is the name of the workflow
+        output (e.g., `txt_files`) and source name is the name of the step that
+        produced this output plus the output name (e.g.,
+        `saf-to-txt/out_files`). The output type is added automatically, based
+        on the steps in the steps library.
+        """
+        for name, source_name in kwargs.iteritems():
+            obj = {}
+            obj['outputSource'] = source_name
+            obj['type'] = self.step_output_types[source_name]
+            self.wf_outputs[name] = obj
 
     def _get_step(self, name):
         s = self.steps_library.get(name)
@@ -64,16 +77,14 @@ class WorkflowGenerator(object):
         obj['steps'] = self.wf_steps
         return obj
 
-    def _make_step(self, name, **kwargs):
-        s = self._get_step(name)
-
-        for k in s.input_names:
+    def _make_step(self, step, **kwargs):
+        for k in step.input_names:
             if k not in kwargs.keys():
                 raise ValueError(
                     'Expecting "{}" as a keyword argument.'.format(k))
-            s.set_input(k, kwargs[k])
-        self._add_step(s)
-        outputs = [s.output_to_input(n) for n in s.output_names]
+            step.set_input(k, kwargs[k])
+        self._add_step(step)
+        outputs = [step.output_to_input(n) for n in step.output_names]
         if len(outputs) == 1:
             return outputs[0]
         return outputs
