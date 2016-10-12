@@ -4,6 +4,8 @@ import codecs
 
 from functools import partial
 
+from .step import Step
+
 
 class WorkflowGenerator(object):
 
@@ -90,6 +92,34 @@ class WorkflowGenerator(object):
         obj['outputs'] = self.wf_outputs
         obj['steps'] = self.wf_steps
         return obj
+
+    def to_script(self, wf_name='wf'):
+        params = []
+        returns = []
+        for name, typ in self.wf_inputs.iteritems():
+            params.append('{}={}'.format(name, typ))
+            returns.append(name)
+        print '{} = {}.add_inputs({})'.format(', '.join(returns), wf_name, ', '.join(params))
+
+        returns = []
+        for name, step in self.wf_steps.iteritems():
+            s = Step(step['run'])
+            returns = ['{}/{}'.format(s.name, o) for o in step['out']]
+            #print ', '.join(returns)
+            #print '='
+            #print s.python_name
+            #print '('
+            params = ['{}={}'.format(name, param) for name, param in step['in'].iteritems()]
+            #print ', '.join(params)
+            #print ')'
+            print '{} = {}.{}({})'.format(', '.join(returns), wf_name, s.python_name, ', '.join(params))
+            #print step
+            #print
+            #
+        params = []
+        for name, details in self.wf_outputs.iteritems():
+            params.append('{}={}'.format(name, details['outputSource']))
+        print '{}.add_outputs({})'.format(wf_name, ', '.join(params))
 
     def _make_step(self, step, **kwargs):
         for k in step.input_names:
