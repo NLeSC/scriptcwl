@@ -1,2 +1,2 @@
 from .workflow import WorkflowGenerator
-from .wftool import load_steps
+from .scriptcwl import load_steps
