@@ -22,15 +22,12 @@ class WorkflowGenerator(object):
             self.load(steps)
 
     def __getattr__(self, name, **kwargs):
-        try:
-            return super(self.__class__, self).__getattr__(name)
-        except AttributeError:
-            name = cwl_name(name)
-            step = self._get_step(name)
-            for n in step.output_names:
-                oname = step.output_to_input(n)
-                self.step_output_types[oname] = step.step_outputs[n]
-            return partial(self._make_step, step, **kwargs)
+        name = cwl_name(name)
+        step = self._get_step(name)
+        for n in step.output_names:
+            oname = step.output_to_input(n)
+            self.step_output_types[oname] = step.step_outputs[n]
+        return partial(self._make_step, step, **kwargs)
 
     def load(self, steps):
         self.steps_library = steps
