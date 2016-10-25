@@ -4,17 +4,22 @@ import codecs
 
 from functools import partial
 
+from .scriptcwl import load_steps
 from .step import Step
 
 
 class WorkflowGenerator(object):
 
-    def __init__(self):
+    def __init__(self, steps_dir=None):
         self.wf_steps = {}
         self.wf_inputs = {}
         self.wf_outputs = {}
         self.step_output_types = {}
         self.steps_library = {}
+
+        if steps_dir is not None:
+            steps = load_steps(steps_dir)
+            self.load(steps)
 
     def __getattr__(self, name, **kwargs):
         try:
