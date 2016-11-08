@@ -15,21 +15,27 @@ class Step:
         self.python_name = python_name(self.name)
 
         self.step_inputs = {}
+        self.input_names = []
+        self.input_types = {}
+        self.output_names = []
+        self.step_outputs = {}
 
         with open(fname) as f:
             s = yaml.load(f)
 
-            self.input_names = []
-            self.input_types = {}
-            for inp in s['inputs']:
-                self.input_names.append(inp['id'])
-                self.input_types[inp['id']] = inp['type']
+            if s['class'] == 'CommandLineTool':
+                for inp in s['inputs']:
+                    self.input_names.append(inp['id'])
+                    self.input_types[inp['id']] = inp['type']
 
-            self.output_names = [i['id'] for i in s['outputs']]
+                    self.output_names = [i['id'] for i in s['outputs']]
 
-            self.step_outputs = {}
-            for o in s['outputs']:
-                self.step_outputs[o['id']] = o['type']
+                    for o in s['outputs']:
+                        self.step_outputs[o['id']] = o['type']
+            else:
+                # TODO: deal with subworkflows (issue #4)
+                msg = 'Warning: "{}" is a Workflow, not a CommandLineTool'
+                print msg.format(self.name)
 
     def set_input(self, name, value):
         if name not in self.input_names:
