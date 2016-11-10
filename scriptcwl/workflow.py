@@ -6,6 +6,7 @@ from functools import partial
 
 from .scriptcwl import load_steps
 from .step import Step
+from .yamlmultiline import str_presenter
 
 
 class WorkflowGenerator(object):
@@ -78,6 +79,9 @@ class WorkflowGenerator(object):
             obj['type'] = self.step_output_types[source_name]
             self.wf_outputs[name] = obj
 
+    def set_documentation(self, doc):
+        self.documentation = doc
+
     def _get_step(self, name):
         s = self.steps_library.get(name)
         if s is None:
@@ -90,6 +94,7 @@ class WorkflowGenerator(object):
         obj = {}
         obj['cwlVersion'] = 'v1.0'
         obj['class'] = 'Workflow'
+        obj['doc'] = self.documentation
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
         obj['steps'] = self.wf_steps
@@ -141,6 +146,7 @@ class WorkflowGenerator(object):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
+        yaml.add_representer(str, str_presenter)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
             yaml.dump(self.to_obj(), yaml_file, default_flow_style=False)
 
