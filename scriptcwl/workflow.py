@@ -31,7 +31,11 @@ class WorkflowGenerator(object):
         return partial(self._make_step, step, **kwargs)
 
     def load(self, steps):
-        self.steps_library = steps
+        for n, step in steps.iteritems():
+            if n in self.steps_library.keys():
+                print 'WARNING: step "{}" already in steps library'.format(n)
+            else:
+                self.steps_library[n] = step
 
     def list_steps(self):
         for name, step in self.steps_library.iteritems():
