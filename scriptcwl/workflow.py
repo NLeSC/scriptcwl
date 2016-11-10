@@ -94,7 +94,10 @@ class WorkflowGenerator(object):
         obj = {}
         obj['cwlVersion'] = 'v1.0'
         obj['class'] = 'Workflow'
-        obj['doc'] = self.documentation
+        try:
+            obj['doc'] = self.documentation
+        except (AttributeError, ValueError):
+            pass
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
         obj['steps'] = self.wf_steps
