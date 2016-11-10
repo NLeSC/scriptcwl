@@ -5,8 +5,8 @@ import codecs
 from functools import partial
 
 from .scriptcwl import load_steps
-from .step import Step
-from .yamlmultiline import str_presenter
+from .step import Step, python_name
+from .yamlmultiline import str_presenter, is_multiline
 
 
 class WorkflowGenerator(object):
@@ -64,7 +64,7 @@ class WorkflowGenerator(object):
             return names[0]
         return names
 
-    def add_output(self, **kwargs):
+    def add_outputs(self, **kwargs):
         """Add workflow outputs.
 
         kwargs is a dict of name=source name. name is the name of the workflow
@@ -101,31 +101,38 @@ class WorkflowGenerator(object):
         return obj
 
     def to_script(self, wf_name='wf'):
+
+        # Workflow documentation
+        if self.documentation:
+            if is_multiline(self.documentation):
+                print 'doc = """'
+                print self.documentation
+                print '"""'
+                print '{}.set_documentation(doc)'.format(wf_name)
+            else:
+                print '{}.set_documentation(\'{}\')'.format(wf_name, self.documentation)
+
+        # Workflow inputs
         params = []
         returns = []
         for name, typ in self.wf_inputs.iteritems():
-            params.append('{}={}'.format(name, typ))
+            params.append('{}=\'{}\''.format(name, typ))
             returns.append(name)
-        print '{} = {}.add_inputs({})'.format(', '.join(returns), wf_name, ', '.join(params))
+        print '{} = {}.add_inputs({})'.format(', '.join(returns), wf_name,
+                                              ', '.join(params))
 
+        # Workflow steps
         returns = []
         for name, step in self.wf_steps.iteritems():
             s = Step(step['run'])
-            returns = ['{}/{}'.format(s.name, o) for o in step['out']]
-            #print ', '.join(returns)
-            #print '='
-            #print s.python_name
-            #print '('
-            params = ['{}={}'.format(name, param) for name, param in step['in'].iteritems()]
-            #print ', '.join(params)
-            #print ')'
+            returns = ['{}_{}'.format(python_name(s.name), o) for o in step['out']]
+            params = ['{}={}'.format(name, python_name(param)) for name, param in step['in'].iteritems()]
             print '{} = {}.{}({})'.format(', '.join(returns), wf_name, s.python_name, ', '.join(params))
-            #print step
-            #print
-            #
+
+        # Workflow outputs
         params = []
         for name, details in self.wf_outputs.iteritems():
-            params.append('{}={}'.format(name, details['outputSource']))
+            params.append('{}={}'.format(name, python_name(details['outputSource'])))
         print '{}.add_outputs({})'.format(wf_name, ', '.join(params))
 
     def _make_step(self, step, **kwargs):
