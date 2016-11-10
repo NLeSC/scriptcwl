@@ -17,13 +17,26 @@ steps = load_steps('/path/to/cwl/steps/')
 wf = WorkflowGenerator()
 wf.load(steps)
 
+doc = """Workflow that replaces named entities in text files.
+
+Input:
+  txt_dir: directory containing text files
+
+Output:
+  ner_stats: csv-file containing statistics about named entities in the text files
+  txt: text files with named enities replaced
+"""
+wf.set_documentation(doc)
+
 txt_dir = wf.add_inputs(txt_dir='Directory')
+
 frogout = wf.frog_dir(dir_in=txt_dir)
 saf = wf.frog_to_saf(in_files=frogout)
 ner_stats = wf.save_ner_data(in_files=saf)
 new_saf = wf.replace_ner(metadata=ner_stats, in_files=saf)
 txt = wf.saf_to_txt(in_files=new_saf)
-wf.add_output(ner_stats=ner_stats, txt=txt)
+
+wf.add_outputs(ner_stats=ner_stats, txt=txt)
 
 wf.save('anonymize.cwl')
 ```
