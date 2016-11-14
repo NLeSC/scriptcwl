@@ -18,9 +18,7 @@ class WorkflowGenerator(object):
         self.step_output_types = {}
         self.steps_library = {}
 
-        if steps_dir is not None:
-            steps = load_steps(steps_dir)
-            self.load(steps)
+        self.load(steps_dir)
 
     def __getattr__(self, name, **kwargs):
         name = cwl_name(name)
@@ -30,7 +28,8 @@ class WorkflowGenerator(object):
             self.step_output_types[oname] = step.step_outputs[n]
         return partial(self._make_step, step, **kwargs)
 
-    def load(self, steps):
+    def load(self, steps_dir=None, step_file=None):
+        steps = load_steps(steps_dir=steps_dir, step_file=step_file)
         for n, step in steps.iteritems():
             if n in self.steps_library.keys():
                 print 'WARNING: step "{}" already in steps library'.format(n)
