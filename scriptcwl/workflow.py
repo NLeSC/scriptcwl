@@ -142,11 +142,12 @@ class WorkflowGenerator(object):
         print '{}.add_outputs({})'.format(wf_name, ', '.join(params))
 
     def _make_step(self, step, **kwargs):
-        for k in step.input_names:
-            if k not in kwargs.keys():
+        for k in step.get_input_names():
+            if k not in kwargs.keys() and k not in step.optional_input_names:
                 raise ValueError(
                     'Expecting "{}" as a keyword argument.'.format(k))
-            step.set_input(k, kwargs[k])
+            if kwargs.get(k):
+                step.set_input(k, kwargs[k])
         self._add_step(step)
         outputs = [step.output_to_input(n) for n in step.output_names]
         if len(outputs) == 1:

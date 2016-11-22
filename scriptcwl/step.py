@@ -17,6 +17,8 @@ class Step:
         self.step_inputs = {}
         self.input_names = []
         self.input_types = {}
+        self.optional_input_names = []
+        self.optional_input_types = {}
         self.output_names = []
         self.step_outputs = {}
 
@@ -25,8 +27,12 @@ class Step:
 
             if s['class'] == 'CommandLineTool':
                 for inp in s['inputs']:
-                    self.input_names.append(inp['id'])
-                    self.input_types[inp['id']] = inp['type']
+                    if self._input_optional(inp):
+                        self.optional_input_names.append(inp['id'])
+                        self.optional_input_types[inp['id']] = inp['type']
+                    else:
+                        self.input_names.append(inp['id'])
+                        self.input_types[inp['id']] = inp['type']
 
                     self.output_names = [i['id'] for i in s['outputs']]
 
@@ -37,13 +43,16 @@ class Step:
                 msg = 'Warning: "{}" is a Workflow, not a CommandLineTool'
                 print msg.format(self.name)
 
+    def get_input_names(self):
+        return self.input_names + self.optional_input_names
+
     def set_input(self, name, value):
-        if name not in self.input_names:
+        if name not in self.get_input_names():
             raise ValueError('Invalid input "{}"'.format(name))
         self.step_inputs[name] = value
 
     def get_input(self, name):
-        if name not in self.input_names:
+        if name not in self.get_input_names():
             raise ValueError('Invalid input "{}"'.format(name))
         return ''.join(self.name, '/', )
 
@@ -51,6 +60,17 @@ class Step:
         if name not in self.output_names:
             raise ValueError('Invalid output "{}"'.format(name))
         return ''.join([self.name, '/', name])
+
+    def _input_optional(self, inp):
+        """Returns True if a step input parameter is optional."""
+        typ = inp.get('type')
+        if isinstance(typ, six.string_types):
+            return typ.endswith('?')
+        elif isinstance(typ, dict):
+            # TODO: handle case when input is a dict
+            return False
+        else:
+            raise ValueError('Invalid input "{}"'.format(inp.get['id']))
 
     def to_obj(self):
         obj = {}
@@ -61,9 +81,13 @@ class Step:
         return obj
 
     def __str__(self):
-        template = '{} = {}({})'
+        if len(self.optional_input_names) > 0:
+            template = '{} = {}({}[, {}])'
+        else:
+            template = '{} = {}({})'
         return template.format(', '.join(self.output_names), self.python_name,
-                               ', '.join(self.input_names))
+                               ', '.join(self.input_names),
+                               ', '.join(self.optional_input_names))
 
     def list_inputs(self):
         doc = []
