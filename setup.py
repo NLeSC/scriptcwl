@@ -20,6 +20,8 @@ setup(
     # The project's main homepage.
     url='https://github.com/nlesc/scriptcwl',
 
+    download_url='https://github.com/nlesc/scriptcwl/tarball/v0.1.0-beta',
+
     # Author details
     author='Janneke van der Zwaan',
     author_email='j.vanderzwaan@esciencecenter.nl',
