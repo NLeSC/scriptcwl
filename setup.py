@@ -10,7 +10,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.0',
+    version='0.1.0',
 
     description='Tool to generate and edit CWL workflows',
     long_description="""Tool to generate and edit workflows in common
@@ -18,7 +18,7 @@ setup(
 """,
 
     # The project's main homepage.
-    url='https://github.com/WhatWorksWhenForWhom',
+    url='https://github.com/nlesc/scriptcwl',
 
     # Author details
     author='Janneke van der Zwaan',
