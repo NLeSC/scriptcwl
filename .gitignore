@@ -8,5 +8,7 @@
 
 !requirements.txt
 
+dist
+
 bower_components
 node_modules
