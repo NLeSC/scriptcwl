@@ -17,6 +17,7 @@ class WorkflowGenerator(object):
         self.wf_outputs = {}
         self.step_output_types = {}
         self.steps_library = {}
+        self.has_workflow_step = False
 
         self.load(steps_dir)
 
@@ -47,6 +48,7 @@ class WorkflowGenerator(object):
         print s.list_inputs()
 
     def _add_step(self, step):
+        self.has_workflow_step = self.has_workflow_step or step.is_workflow
         self.wf_steps[step.name] = step.to_obj()
 
     def add_inputs(self, **kwargs):
@@ -101,6 +103,8 @@ class WorkflowGenerator(object):
             obj['doc'] = self.documentation
         except (AttributeError, ValueError):
             pass
+        if self.has_workflow_step:
+            obj['requirements'] = [{'class': 'SubworkflowFeatureRequirement'}]
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
         obj['steps'] = self.wf_steps

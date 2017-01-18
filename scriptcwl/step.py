@@ -23,6 +23,7 @@ class Step:
         self.optional_input_types = {}
         self.output_names = []
         self.step_outputs = {}
+        self.is_workflow = False
 
         # Fetching, preprocessing and validating cwl
         (document_loader, workflowobj, uri) = fetch_document(fname)
@@ -31,6 +32,7 @@ class Step:
 
         valid_classes = ('CommandLineTool', 'Workflow')
         if 'class' in s and s['class'] in valid_classes:
+            self.is_workflow = s['class'] == 'Workflow'
             for inp in s['inputs']:
                 # Due to preprocessing of cwltool the id has become an absolute iri,
                 # for ease of use we keep only the fragment

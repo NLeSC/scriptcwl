@@ -15,10 +15,14 @@ class TestWithCommandLineTool(object):
     def step(self):
         return Step('tests/data/tools/echo.cwl')
 
+    def test_is_workflow(self, step):
+        assert not step.is_workflow
+
     def test_get_input_names(self, step):
         names = step.get_input_names()
         assert len(names) == 1
-        assert names[0].endswith('echo.cwl#message')
+        firstname = names[0]
+        assert firstname.endswith('message')
 
 
 class TestWithWorkflow(object):
@@ -26,7 +30,11 @@ class TestWithWorkflow(object):
     def step(self):
         return Step('tests/data/workflows/echo-wc.cwl')
 
+    def test_is_workflow(self, step):
+        assert step.is_workflow
+
     def test_get_input_names(self, step):
         names = step.get_input_names()
         assert len(names) == 1
-        assert names[0].endswith('echo-wc.cwl#wfmessage')
+        firstname = names[0]
+        assert firstname.endswith('wfmessage')
