@@ -64,4 +64,6 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['pyyaml', 'six'],
 
+    # Test will be run by pytest
+    setup_requires=['pytest-runner'],
 )
