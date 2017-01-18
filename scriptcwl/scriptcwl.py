@@ -1,4 +1,7 @@
 import glob
+import logging
+from schema_salad.validate import ValidationException
+
 from .step import Step
 
 
@@ -12,6 +15,10 @@ def load_steps(steps_dir=None, step_file=None):
 
     steps = {}
     for f in step_files:
-        s = Step(f)
-        steps[s.name] = s
+        try:
+            s = Step(f)
+            steps[s.name] = s
+        except (NotImplementedError, ValidationException) as e:
+            logging.warning(e)
+
     return steps
