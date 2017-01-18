@@ -63,7 +63,4 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['pyyaml', 'six', 'cwltool'],
-
-    # Test will be run by pytest
-    setup_requires=['pytest-runner'],
 )

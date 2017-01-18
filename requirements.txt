@@ -1,5 +1,5 @@
 --index-url https://pypi.python.org/simple/
-
+'setuptools>=18.5'
 -e .
 pytest
 pytest-cov
