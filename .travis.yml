@@ -1,7 +1,10 @@
 language: python
-install: 
+install:
 - pip install 'setuptools>=18.5'
 - pip install -r requirements.txt
 script: py.test --cov
+after_success:
+  - coverage xml
+  - python-codacy-coverage -r coverage.xml
 sudo: false
 cache: pip
