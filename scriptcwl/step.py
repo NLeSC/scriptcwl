@@ -1,6 +1,8 @@
-import yaml
 import os
 import six
+from urlparse import urlparse
+
+from cwltool.load_tool import fetch_document, validate_document
 
 
 class Step:
@@ -21,27 +23,34 @@ class Step:
         self.optional_input_types = {}
         self.output_names = []
         self.step_outputs = {}
+        self.is_workflow = False
 
-        with open(fname) as f:
-            s = yaml.load(f)
+        # Fetching, preprocessing and validating cwl
+        (document_loader, workflowobj, uri) = fetch_document(fname)
+        (document_loader, avsc_names, processobj, metadata, uri) = validate_document(document_loader, workflowobj, uri)
+        s = processobj
 
-            if s['class'] == 'CommandLineTool':
-                for inp in s['inputs']:
-                    if self._input_optional(inp):
-                        self.optional_input_names.append(inp['id'])
-                        self.optional_input_types[inp['id']] = inp['type']
-                    else:
-                        self.input_names.append(inp['id'])
-                        self.input_types[inp['id']] = inp['type']
+        valid_classes = ('CommandLineTool', 'Workflow')
+        if 'class' in s and s['class'] in valid_classes:
+            self.is_workflow = s['class'] == 'Workflow'
+            for inp in s['inputs']:
+                # Due to preprocessing of cwltool the id has become an absolute iri,
+                # for ease of use we keep only the fragment
+                short_id = iri2fragment(inp['id'])
+                if self._input_optional(inp):
+                    self.optional_input_names.append(short_id)
+                    self.optional_input_types[short_id] = inp['type']
+                else:
+                    self.input_names.append(short_id)
+                    self.input_types[short_id] = inp['type']
 
-                    self.output_names = [i['id'] for i in s['outputs']]
-
-                    for o in s['outputs']:
-                        self.step_outputs[o['id']] = o['type']
-            else:
-                # TODO: deal with subworkflows (issue #4)
-                msg = 'Warning: "{}" is a Workflow, not a CommandLineTool'
-                print msg.format(self.name)
+            for o in s['outputs']:
+                short_id = iri2fragment(o['id'])
+                self.output_names.append(short_id)
+                self.step_outputs[short_id] = o['type']
+        else:
+            msg = '"{}" is a unsupported'
+            raise NotImplementedError(msg.format(self.name))
 
     def get_input_names(self):
         return self.input_names + self.optional_input_names
@@ -89,6 +98,9 @@ class Step:
                                ', '.join(self.input_names),
                                ', '.join(self.optional_input_names))
 
+    def __repr__(self):
+        return str(self)
+
     def list_inputs(self):
         doc = []
         for inp, typ in self.input_types.iteritems():
@@ -96,6 +108,11 @@ class Step:
                 typ = "'{}'".format(typ)
             doc.append('{}: {}'.format(inp, typ))
         return '\n'.join(doc)
+
+
+def iri2fragment(iri):
+    o = urlparse(iri)
+    return o.fragment
 
 
 def python_name(name):

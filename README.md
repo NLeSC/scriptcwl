@@ -49,3 +49,8 @@ cd scriptcwl
 git checkout develop
 python setup.py develop
 ```
+
+Run tests (including coverage) with:
+```
+pytest --cov
+```
