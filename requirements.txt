@@ -3,4 +3,4 @@
 -e .
 pytest
 pytest-cov
-python-codacy-coverage
+codacy-coverage
