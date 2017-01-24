@@ -15,12 +15,10 @@ For example, to generate the [anonymize pipeline](https://github.com/WhatWorksWh
 
 ```
 import scriptcwl
-from scriptcwl import WorkflowGenerator, load_steps
-
-steps = load_steps('/path/to/cwl/steps/')
+from scriptcwl import WorkflowGenerator
 
 wf = WorkflowGenerator()
-wf.load(steps)
+wf.load('/path/to/dir/with/cwl/steps/')
 
 doc = """Workflow that replaces named entities in text files.
 
