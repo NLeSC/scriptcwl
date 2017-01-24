@@ -53,7 +53,7 @@ Or
 
 ```
 chmod +x anonymize.cwl
-./anonymize --txt_dir=/path/to/txt/dir
+./anonymize.cwl --txt_dir=/path/to/txt/dir
 ```
 
 ## Installation
