@@ -55,3 +55,20 @@ class TestWorkflowGenerator(object):
         expected = load_yaml(expected_wf_filename, '../workflows')
 
         assert actual == expected
+
+    def test_add_shebang_to_saved_cwl_file(self, tmpdir):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_inputs(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        wf_filename = tmpdir.join('echo-wc.cwl').strpath
+        wf.save(wf_filename)
+
+        with open(wf_filename) as f:
+            shebang = f.readline()
+
+        assert shebang == '#!/usr/bin/env cwl-runner\n'
