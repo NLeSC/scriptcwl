@@ -75,6 +75,9 @@ class Step:
         typ = inp.get('type')
         if isinstance(typ, six.string_types):
             return typ.endswith('?')
+        elif isinstance(typ, dict):
+            # TODO: handle case where iput type is dict
+            return False
         elif isinstance(typ, list):
             # The cwltool validation expands optional arguments to
             # [u'null', <type>]
