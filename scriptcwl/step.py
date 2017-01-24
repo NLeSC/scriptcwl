@@ -5,7 +5,7 @@ from urlparse import urlparse
 from cwltool.load_tool import fetch_document, validate_document
 
 
-class Step:
+class Step(object):
     def __init__(self, fname, abspath=True, start=os.curdir):
         if abspath:
             self.run = os.path.abspath(fname)
@@ -63,7 +63,7 @@ class Step:
     def get_input(self, name):
         if name not in self.get_input_names():
             raise ValueError('Invalid input "{}"'.format(name))
-        return ''.join(self.name, '/', )
+        return ''.join(self.name, '/')
 
     def output_to_input(self, name):
         if name not in self.output_names:
@@ -81,10 +81,7 @@ class Step:
         elif isinstance(typ, list):
             # The cwltool validation expands optional arguments to
             # [u'null', <type>]
-            if u'null' in typ:
-                return True
-            else:
-                return False
+            return bool(u'null' in typ)
         else:
             raise ValueError('Invalid input "{}"'.format(inp.get['id']))
 
