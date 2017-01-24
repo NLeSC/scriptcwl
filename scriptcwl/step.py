@@ -75,9 +75,13 @@ class Step:
         typ = inp.get('type')
         if isinstance(typ, six.string_types):
             return typ.endswith('?')
-        elif isinstance(typ, dict):
-            # TODO: handle case when input is a dict
-            return False
+        elif isinstance(typ, list):
+            # The cwltool validation expands optional arguments to
+            # [u'null', <type>]
+            if u'null' in typ:
+                return True
+            else:
+                return False
         else:
             raise ValueError('Invalid input "{}"'.format(inp.get['id']))
 

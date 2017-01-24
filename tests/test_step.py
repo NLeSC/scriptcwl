@@ -38,3 +38,16 @@ class TestWithWorkflow(object):
         assert len(names) == 1
         firstname = names[0]
         assert firstname.endswith('wfmessage')
+
+
+class TestInputOptional(object):
+    @pytest.fixture
+    def step(self):
+        return Step('tests/data/tools/echo.cwl')
+
+    def test_argument_is_optional(self, step):
+        assert step._input_optional({'type': 'string?'})
+        assert step._input_optional({'type': [u'null', 'string']})
+
+    def test_argument_is_not_optional(self, step):
+        assert not step._input_optional({'type': 'string'})
