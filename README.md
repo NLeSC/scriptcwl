@@ -44,6 +44,18 @@ wf.add_outputs(ner_stats=ner_stats, txt=txt)
 wf.save('anonymize.cwl')
 ```
 
+The resulting workflow can be run with:
+```
+cwl-runnner anonymize.cwl --txt_dir=/path/to/txt/dir
+```
+
+Or
+
+```
+chmod +x anonymize.cwl
+./anonymize --txt_dir=/path/to/txt/dir
+```
+
 ## Installation
 
 Install using pip:
