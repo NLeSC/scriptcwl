@@ -24,6 +24,8 @@ class Step(object):
         self.output_names = []
         self.step_outputs = {}
         self.is_workflow = False
+        self.is_scattered = False
+        self.scattered_inputs = []
 
         # Fetching, preprocessing and validating cwl
         (document_loader, workflowobj, uri) = fetch_document(fname)
@@ -90,6 +92,9 @@ class Step(object):
         obj['run'] = self.run
         obj['in'] = self.step_inputs
         obj['out'] = [self.output_names[0]]
+        if self.is_scattered:
+            obj['scatter'] = self.scattered_inputs
+            obj['scatterMethod'] = self.scatter_method
 
         return obj
 

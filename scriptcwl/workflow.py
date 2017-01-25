@@ -1,6 +1,8 @@
 import yaml
 import os
 import codecs
+import six
+import copy
 
 from functools import partial
 
@@ -106,15 +108,13 @@ class WorkflowGenerator(object):
         self.step_output_types = {}
         self.steps_library = {}
         self.has_workflow_step = False
+        self.has_scatter_requirement = False
 
         self.load(steps_dir)
 
     def __getattr__(self, name, **kwargs):
         name = cwl_name(name)
         step = self._get_step(name)
-        for n in step.output_names:
-            oname = step.output_to_input(n)
-            self.step_output_types[oname] = step.step_outputs[n]
         return partial(self._make_step, step, **kwargs)
 
     def load(self, steps_dir=None, step_file=None):
@@ -143,13 +143,22 @@ class WorkflowGenerator(object):
         for name, step in self.steps_library.iteritems():
             print 'Step "{}": {}'.format(name, step)
 
+    def _has_requirements(self):
+        """Returns True if the workflow needs a requirements section.
+
+        Returns:
+            bool: True if the workflow needs a requirements section, False
+                otherwise.
+        """
+        return bool(self.has_workflow_step or self.has_scatter_requirement)
+
     def inputs(self, name):
         """List input names and types of a step in the steps library.
 
         Args:
             name (str): name of a step in the steps library.
         """
-        s = self._get_step(name)
+        s = self._get_step(name, make_copy=False)
         print s.list_inputs()
 
     def _add_step(self, step):
@@ -209,11 +218,17 @@ class WorkflowGenerator(object):
         """
         self.documentation = doc
 
-    def _get_step(self, name):
+    def _get_step(self, name, make_copy=True):
         """Return step from steps library.
+
+        Optionally, the step returned is a deep copy from the step in the steps
+        library, so additional information (e.g., about whether the step was
+        scattered) can be stored in the copy.
 
         Args:
             name (str): name of the step in the steps library.
+            make_copy (bool): whether a deep copy of the step should be
+                returned or not (default: True).
 
         Returns:
             Step from steps library.
@@ -227,6 +242,8 @@ class WorkflowGenerator(object):
             msg = '"{}" not found in steps library. Please check your ' \
                   'spelling or load additional steps'
             raise ValueError(msg.format(name))
+        if make_copy:
+            s = copy.deepcopy(s)
         return s
 
     def to_obj(self):
@@ -244,8 +261,12 @@ class WorkflowGenerator(object):
             obj['doc'] = self.documentation
         except (AttributeError, ValueError):
             pass
+        if self._has_requirements():
+            obj['requirements'] = []
         if self.has_workflow_step:
-            obj['requirements'] = [{'class': 'SubworkflowFeatureRequirement'}]
+            obj['requirements'].append({'class': 'SubworkflowFeatureRequirement'})
+        if self.has_scatter_requirement:
+            obj['requirements'].append({'class': 'ScatterFeatureRequirement'})
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
         obj['steps'] = self.wf_steps
@@ -299,8 +320,50 @@ class WorkflowGenerator(object):
                     'Expecting "{}" as a keyword argument.'.format(k))
             if kwargs.get(k):
                 step.set_input(k, kwargs[k])
+
+        if 'scatter' in kwargs.keys() or 'scatter_method' in kwargs.keys():
+            # Check whether both required keyword arguments are present
+            msg = 'Expecting "{}" as a keyword argument.'
+            if not kwargs.get('scatter'):
+                raise ValueError(msg.format('scatter'))
+            if not kwargs.get('scatter_method'):
+                raise ValueError(msg.format('scatter_method'))
+
+            # Check validity of scatterMethod
+            scatter_methods = ['dotproduct', 'nested_crossproduct',
+                               'flat_crossproduct']
+            m = kwargs.get('scatter_method')
+            if m not in scatter_methods:
+                msg = 'Invalid scatterMethod "{}". Please use one of ({}).'
+                raise ValueError(msg.format(m, ', '.join(scatter_methods)))
+            step.scatter_method = m
+
+            # Check whether the scatter variables are valid for this step
+            scatter_vars = kwargs.get('scatter')
+            if isinstance(scatter_vars, six.string_types):
+                scatter_vars = [scatter_vars]
+
+            for var in scatter_vars:
+                if var not in step.get_input_names():
+                    msg = 'Invalid variable "{}" for scatter.'
+                    raise ValueError(msg.format(var))
+                step.scattered_inputs.append(var)
+
+            # Update step output types (outputs are now arrays)
+            for name, typ in step.step_outputs.iteritems():
+                step.step_outputs[name] = {'type': 'array', 'items': typ}
+
+            self.has_scatter_requirement = True
+            step.is_scattered = True
+
+        outputs = []
+        for n in step.output_names:
+            oname = step.output_to_input(n)
+            self.step_output_types[oname] = step.step_outputs[n]
+            outputs.append(step.output_to_input(n))
+
         self._add_step(step)
-        outputs = [step.output_to_input(n) for n in step.output_names]
+
         if len(outputs) == 1:
             return outputs[0]
         return outputs
