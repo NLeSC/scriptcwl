@@ -6,6 +6,11 @@ from cwltool.load_tool import fetch_document, validate_document
 
 
 class Step(object):
+    """Representation of a CWL step.
+
+    The Step can be a CommandLineTool or a Workflow. Steps are read from file
+    and validated using `cwltool`.
+    """
     def __init__(self, fname, abspath=True, start=os.curdir):
         if abspath:
             self.run = os.path.abspath(fname)
@@ -55,20 +60,57 @@ class Step(object):
             raise NotImplementedError(msg.format(self.name))
 
     def get_input_names(self):
+        """Return the Step's input names (including optional input names).
+
+        Returns:
+            list of strings.
+        """
         return self.input_names + self.optional_input_names
 
     def set_input(self, name, value):
+        """Set a Step's input variable to a certain value.
+
+        The value comes either from a workflow input or output of a previous
+            step.
+
+        Args:
+            name (str): the name of the Step input
+            value (str): the name of the output variable that provides the
+                value for this input.
+
+        Raises:
+            ValueError: The name provided is not a valid input name for this
+                Step.
+        """
         if name not in self.get_input_names():
             raise ValueError('Invalid input "{}"'.format(name))
         self.step_inputs[name] = value
 
     def output_to_input(self, name):
+        """Convert the name of an output to an input for a next Step.
+
+        For a Step named `echo` that has an output called `echoed`, the input
+        name `echo/echoed` is returned.
+
+        Args:
+            name (str): the name of the Step output
+        Raises:
+            ValueError: The name provided is not a valid ouput name for this
+                Step.
+        """
         if name not in self.output_names:
             raise ValueError('Invalid output "{}"'.format(name))
         return ''.join([self.name, '/', name])
 
     def _input_optional(self, inp):
-        """Returns True if a step input parameter is optional."""
+        """Returns True if a step input parameter is optional.
+
+        Args:
+            inp (dict): a dictionary representation of an input.
+
+        Raises:
+            ValueError: The inp provided is not valid.
+        """
         typ = inp.get('type')
         if isinstance(typ, six.string_types):
             return typ.endswith('?')
@@ -83,6 +125,11 @@ class Step(object):
             raise ValueError('Invalid input "{}"'.format(inp.get['id']))
 
     def to_obj(self):
+        """Return the step as an dict that can be written to a yaml file.
+
+        Returns:
+            dict: yaml representation of the step.
+        """
         obj = {}
         obj['run'] = self.run
         obj['in'] = self.step_inputs
@@ -106,6 +153,14 @@ class Step(object):
         return str(self)
 
     def list_inputs(self):
+        """Return a string listing all the Step's input names and their types.
+
+        The types are returned in a copy/pastable format, so if the type is
+        `string`, `'string'` (with single quotes) is returned.
+
+        Returns:
+            str containing all input names and types.
+        """
         doc = []
         for inp, typ in self.input_types.iteritems():
             if isinstance(typ, six.string_types):
@@ -115,12 +170,26 @@ class Step(object):
 
 
 def iri2fragment(iri):
+    """Return the fragment of an IRI.
+
+    Args:
+        iri (str): the iri.
+
+    Returns:
+        str: the fragment of the iri.
+    """
     o = urlparse(iri)
     return o.fragment
 
 
 def python_name(name):
     """Transform cwl step name into a python method name.
+
+    Args:
+        name (str): CWL step name to convert.
+
+    Returns:
+        str: converted name.
     """
     name = name.replace('-', '_')
 

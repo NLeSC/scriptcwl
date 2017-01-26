@@ -6,6 +6,16 @@ from .step import Step
 
 
 def load_steps(steps_dir=None, step_file=None):
+    """Return a dictionary containing Steps read from file.
+
+    Args:
+        steps_dir (str, optional): path to directory containing CWL files.
+        step_file (str, optional): path to a single CWL file.
+
+    Return:
+        dict containing (name, Step) entries.
+
+    """
     if steps_dir is not None:
         step_files = glob.glob('{}/*.cwl'.format(steps_dir))
     elif step_file is not None:
