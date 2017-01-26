@@ -62,11 +62,6 @@ class Step(object):
             raise ValueError('Invalid input "{}"'.format(name))
         self.step_inputs[name] = value
 
-    def get_input(self, name):
-        if name not in self.get_input_names():
-            raise ValueError('Invalid input "{}"'.format(name))
-        return ''.join(self.name, '/')
-
     def output_to_input(self, name):
         if name not in self.output_names:
             raise ValueError('Invalid output "{}"'.format(name))
