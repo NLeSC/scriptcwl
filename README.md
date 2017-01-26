@@ -45,18 +45,6 @@ wf.add_outputs(ner_stats=ner_stats, txt=txt)
 wf.save('anonymize.cwl')
 ```
 
-The resulting workflow can be run with:
-```
-cwl-runnner anonymize.cwl --txt_dir=/path/to/txt/dir
-```
-
-Or
-
-```
-chmod +x anonymize.cwl
-./anonymize.cwl --txt_dir=/path/to/txt/dir
-```
-
 ## Installation
 
 Install using pip:
@@ -78,4 +66,37 @@ python setup.py develop
 Run tests (including coverage) with:
 ```
 pytest --cov
+```
+
+## Running workflows
+
+Workflows created with scriptcwl can be run with:
+```
+cwl-runnner workflow.cwl <arguments>
+```
+
+Or
+
+```
+chmod +x workflow.cwl
+./workflow.cwl <arguments>
+```
+
+## Scattering steps
+
+Scriptcwl supports scattering steps. To scatter a step, keyword arguments
+`scatter` and `scatter_method` must be provided when a step is added to the
+workflow. To scatter a step called `echo`, which has a single input argument
+`message`, this would look like:
+
+```
+output = wf.echo(message=input1, scatter='message', scatter_method='nested_crossproduct')
+```
+
+The type of `message`, should be an array (e.g., an array of strings).
+
+To scatter over multiple variables, `scatter` also accepts a list of input names:
+
+```
+output = wf.echo(message1=input1, message2=input2, scatter=['message1', 'message2'], scatter_method='nested_crossproduct')
 ```
