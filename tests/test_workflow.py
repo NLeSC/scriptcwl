@@ -135,7 +135,7 @@ class TestWorkflowGeneratorWithScatteredStep(object):
         msgs = wf.add_inputs(wfmessages='string[]')
 
         for method in scatter_methods:
-            echoed = wf.echo(message=msgs, scatter='message', scatter_method='nested_crossproduct')
+            echoed = wf.echo(message=msgs, scatter='message', scatter_method=method)
             assert echoed == 'echo/echoed'
 
     def test_missing_scatter_argument(self):
