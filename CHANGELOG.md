@@ -1,5 +1,21 @@
 # Change Log
 
+## 0.2.0
+
+### Added
+
+* Documentation for WorkflowGenerator and Step (#15).
+* Allow step to be scattered (#17)
+* Tests (#9)
+* Shebang to saved CWL file (#14)
+* Preprocess shortcuts in CWL steps (#12)
+* Allow workflows to be used as steps (subworkflows) (#4)
+* Take into account optional arguments (#6)
+
+### Removed
+
+* Step.get_input() because it was not used (#21)
+
 ## 0.1.0
 
 ### Added
