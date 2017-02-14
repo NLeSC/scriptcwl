@@ -1,6 +1,6 @@
 import pytest
 import os
-import yaml
+from ruamel import yaml
 
 from scriptcwl import WorkflowGenerator
 
