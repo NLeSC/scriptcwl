@@ -1,10 +1,11 @@
-from ruamel import yaml
 import os
 import codecs
 import six
 import copy
 
 from functools import partial
+from ruamel import yaml
+from ruamel.yaml.comments import CommentedMap
 
 from .scriptcwl import load_steps
 from .step import Step, python_name
@@ -102,9 +103,9 @@ class WorkflowGenerator(object):
     """
 
     def __init__(self, steps_dir=None):
-        self.wf_steps = {}
-        self.wf_inputs = {}
-        self.wf_outputs = {}
+        self.wf_steps = CommentedMap()
+        self.wf_inputs = CommentedMap()
+        self.wf_outputs = CommentedMap()
         self.step_output_types = {}
         self.steps_library = {}
         self.has_workflow_step = False
@@ -254,7 +255,7 @@ class WorkflowGenerator(object):
         Returns:
             A yaml-compatible dict representing the workflow.
         """
-        obj = {}
+        obj = CommentedMap()
         obj['cwlVersion'] = 'v1.0'
         obj['class'] = 'Workflow'
         try:

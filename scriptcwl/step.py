@@ -1,6 +1,7 @@
 import os
 import six
 from urlparse import urlparse
+from ruamel.yaml.comments import CommentedMap
 
 from cwltool.load_tool import fetch_document, validate_document
 
@@ -130,7 +131,7 @@ class Step(object):
         Returns:
             dict: yaml representation of the step.
         """
-        obj = {}
+        obj = CommentedMap()
         obj['run'] = self.run
         obj['in'] = self.step_inputs
         obj['out'] = [self.output_names[0]]
