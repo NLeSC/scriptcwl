@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.3.0
+
+### Changed
+
+* Replace pyyaml by ruamel (fixes compatibility with cwltool)
+
 ## 0.2.0
 
 ### Added

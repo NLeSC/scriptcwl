@@ -10,7 +10,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.2.0',
+    version='0.3.0',
 
     description='Tool to generate and edit CWL workflows',
     long_description="""Tool to generate and edit workflows in common
@@ -62,5 +62,5 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['pyyaml', 'six', 'cwltool'],
+    install_requires=['ruamel.yaml', 'six', 'cwltool'],
 )
