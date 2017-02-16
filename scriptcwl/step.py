@@ -38,7 +38,7 @@ class Step(object):
         (document_loader, avsc_names, processobj, metadata, uri) = validate_document(document_loader, workflowobj, uri)
         s = processobj
 
-        valid_classes = ('CommandLineTool', 'Workflow')
+        valid_classes = ('CommandLineTool', 'Workflow', 'ExpressionTool')
         if 'class' in s and s['class'] in valid_classes:
             self.is_workflow = s['class'] == 'Workflow'
             for inp in s['inputs']:
