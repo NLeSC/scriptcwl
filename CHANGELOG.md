@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.3.1
+
+### Added
+
+* Load ExpressionTools as steps
+
+### Changed
+
+* Preserve the order in which steps were added to the workflow
+
 ## 0.3.0
 
 ### Changed
