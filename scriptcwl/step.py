@@ -143,12 +143,12 @@ class Step(object):
 
     def __str__(self):
         if len(self.optional_input_names) > 0:
-            template = '{} = {}({}[, {}])'
+            template = u'{} = wf.{}({}[, {}])'
         else:
-            template = '{} = {}({})'
-        return template.format(', '.join(self.output_names), self.python_name,
-                               ', '.join(self.input_names),
-                               ', '.join(self.optional_input_names))
+            template = u'{} = wf.{}({})'
+        return template.format(u', '.join(self.output_names), self.python_name,
+                               u', '.join(self.input_names),
+                               u', '.join(self.optional_input_names))
 
     def __repr__(self):
         return str(self)
