@@ -51,3 +51,12 @@ class TestInputOptional(object):
 
     def test_argument_is_not_optional(self, step):
         assert not step._input_optional({'type': 'string'})
+
+
+class TestMultipleOutputArgs(object):
+        @pytest.fixture
+        def step(self):
+            return Step('tests/data/tools/multiple-out-args.cwl')
+
+        def test_has_multiple_out_args(self, step):
+            assert len(step.to_obj()['out']) == 2

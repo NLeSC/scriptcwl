@@ -17,7 +17,7 @@ class TestWorkflowGenerator(object):
 
         step_keys = wf.steps_library.keys()
         step_keys.sort()
-        assert step_keys == ['echo', 'wc']
+        assert step_keys == ['echo', 'multiple-out-args', 'wc']
 
     def test_save_with_tools(self, tmpdir):
         wf = WorkflowGenerator()

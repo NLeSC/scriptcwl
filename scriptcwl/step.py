@@ -134,7 +134,7 @@ class Step(object):
         obj = CommentedMap()
         obj['run'] = self.run
         obj['in'] = self.step_inputs
-        obj['out'] = [self.output_names[0]]
+        obj['out'] = self.output_names
         if self.is_scattered:
             obj['scatter'] = self.scattered_inputs
             obj['scatterMethod'] = self.scatter_method
