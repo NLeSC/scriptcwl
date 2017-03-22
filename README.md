@@ -83,7 +83,7 @@ wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
 
 To load a single cwl file, do:
 ```
-wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
+wf.load(step_file='/path/to/workflow.cwl')
 ```
 
 There are some software packages that help with generating CWL `CommandLineTool`s
@@ -96,7 +96,7 @@ for existing command line tools written in Python:
 
 Workflows created with scriptcwl can be run with:
 ```
-cwl-runnner workflow.cwl <arguments>
+cwl-runner workflow.cwl <arguments>
 ```
 
 Or
