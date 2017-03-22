@@ -14,7 +14,7 @@ be done interactively using [Jupyter Notebooks](http://jupyter.org/).
 For example, to generate the [anonymize pipeline](https://github.com/WhatWorksWhenForWhom/nlppln/blob/develop/cwl/anonymize.cwl) (from the
 [nlppln](https://github.com/WhatWorksWhenForWhom/nlppln) package), you'd have to write:
 
-```
+```python
 import scriptcwl
 from scriptcwl import WorkflowGenerator
 
@@ -74,7 +74,7 @@ In order to be able to create workflows using `scriptcwl`, you need to provide
 the `WorkflowGenerator` object with steps (i.e., `CommandLineTool`s,
 `ExpressionTool`s and/or (sub)`Workflow`s). To load a directory of .cwl files, type:
 
-```
+```python
 from scriptcwl import WorkflowGenerator
 
 wf = WorkflowGenerator()
@@ -82,7 +82,7 @@ wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
 ```
 
 To load a single cwl file, do:
-```
+```python
 wf.load(step_file='/path/to/workflow.cwl')
 ```
 
