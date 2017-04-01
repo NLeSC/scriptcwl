@@ -107,12 +107,12 @@ class TestWorkflowGeneratorWithScatteredStep(object):
         scatter_methods = ['dotproduct', 'nested_crossproduct',
                            'flat_crossproduct']
 
-        wf = WorkflowGenerator()
-        wf.load('tests/data/tools')
-
-        msgs = wf.add_inputs(wfmessages='string[]')
-
         for method in scatter_methods:
+            wf = WorkflowGenerator()
+            wf.load('tests/data/tools')
+
+            msgs = wf.add_inputs(wfmessages='string[]')
+
             echoed = wf.echo(message=msgs, scatter='message', scatter_method=method)
             assert echoed == 'echo/echoed'
 
@@ -129,12 +129,12 @@ class TestWorkflowGeneratorWithScatteredStep(object):
         scatter_methods = ['dotproduct', 'nested_crossproduct',
                            'flat_crossproduct']
 
-        wf = WorkflowGenerator()
-        wf.load('tests/data/tools')
-
-        msgs = wf.add_inputs(wfmessages='string[]')
-
         for method in scatter_methods:
+            wf = WorkflowGenerator()
+            wf.load('tests/data/tools')
+
+            msgs = wf.add_inputs(wfmessages='string[]')
+
             echoed = wf.echo(message=msgs, scatter='message', scatter_method=method)
             assert echoed == 'echo/echoed'
 
