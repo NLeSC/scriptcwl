@@ -155,3 +155,23 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
         with pytest.raises(ValueError):
             wf.echo(message=msgs, scatter='message')
+
+
+class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
+    def test_generate_step_name(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_inputs(wfmessage='string')
+
+        name = wf._generate_step_name('echo')
+        echoed = wf.echo(message=wfmessage)
+
+        assert name == 'echo'
+        assert name == echoed.split('/')[0]
+
+        name = wf._generate_step_name('echo')
+        echoed2 = wf.echo(message=wfmessage)
+
+        assert name != 'echo'
+        assert name == echoed2.split('/')[0]
