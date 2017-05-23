@@ -2,6 +2,8 @@
 
 ## 0.4.0
 
+# Added
+
 * Generate unique names for steps that are added to the workflow more than once (#31)
 * Pass all outputs from a step, instead of just one (#27)
 * Improve listing of workflow steps
