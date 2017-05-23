@@ -87,6 +87,9 @@ class Step(object):
             raise ValueError('Invalid input "{}"'.format(name))
         self.step_inputs[name] = value
 
+    def _set_name_in_workflow(self, name):
+        self.name_in_workflow = name
+
     def output_to_input(self, name):
         """Convert the name of an output to an input for a next Step.
 
@@ -101,7 +104,7 @@ class Step(object):
         """
         if name not in self.output_names:
             raise ValueError('Invalid output "{}"'.format(name))
-        return ''.join([self.name, '/', name])
+        return ''.join([self.name_in_workflow, '/', name])
 
     def _input_optional(self, inp):
         """Returns True if a step input parameter is optional.
@@ -134,7 +137,7 @@ class Step(object):
         obj = CommentedMap()
         obj['run'] = self.run
         obj['in'] = self.step_inputs
-        obj['out'] = [self.output_names[0]]
+        obj['out'] = self.output_names
         if self.is_scattered:
             obj['scatter'] = self.scattered_inputs
             obj['scatterMethod'] = self.scatter_method
@@ -143,12 +146,12 @@ class Step(object):
 
     def __str__(self):
         if len(self.optional_input_names) > 0:
-            template = '{} = {}({}[, {}])'
+            template = u'{} = wf.{}({}[, {}])'
         else:
-            template = '{} = {}({})'
-        return template.format(', '.join(self.output_names), self.python_name,
-                               ', '.join(self.input_names),
-                               ', '.join(self.optional_input_names))
+            template = u'{} = wf.{}({})'
+        return template.format(u', '.join(self.output_names), self.python_name,
+                               u', '.join(self.input_names),
+                               u', '.join(self.optional_input_names))
 
     def __repr__(self):
         return str(self)

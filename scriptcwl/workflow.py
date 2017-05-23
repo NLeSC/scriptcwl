@@ -139,10 +139,20 @@ class WorkflowGenerator(object):
                 self.steps_library[n] = step
 
     def list_steps(self):
-        """Prints the signature of all steps in the steps library.
+        """Return string with the signature of all steps in the steps library.
         """
+        steps = []
+        workflows = []
+        template = u'  {:.<25} {}'
         for name, step in self.steps_library.iteritems():
-            print 'Step "{}": {}'.format(name, step)
+            if step.is_workflow:
+                workflows.append(template.format(name, step))
+            else:
+                steps.append(template.format(name, step))
+
+        result = [u'Steps\n', u'\n'.join(steps), u'\n\nWorkflows\n',
+                  u'\n'.join(workflows)]
+        return u''.join(result)
 
     def _has_requirements(self):
         """Returns True if the workflow needs a requirements section.
@@ -169,7 +179,7 @@ class WorkflowGenerator(object):
             step (Step): a step from the steps library.
         """
         self.has_workflow_step = self.has_workflow_step or step.is_workflow
-        self.wf_steps[step.name] = step.to_obj()
+        self.wf_steps[step.name_in_workflow] = step.to_obj()
 
     def add_inputs(self, **kwargs):
         """Add workflow inputs.
@@ -246,6 +256,16 @@ class WorkflowGenerator(object):
         if make_copy:
             s = copy.deepcopy(s)
         return s
+
+    def _generate_step_name(self, step_name):
+        name = step_name
+        i = 1
+
+        while name in self.wf_steps.keys():
+            name = '{}-{}'.format(step_name, i)
+            i += 1
+
+        return name
 
     def to_obj(self):
         """Return the created workflow as a dict.
@@ -356,6 +376,11 @@ class WorkflowGenerator(object):
 
             self.has_scatter_requirement = True
             step.is_scattered = True
+
+        # Make sure the step has a unique name in the workflow (so command line
+        # tools can be added to the same workflow multiple times).
+        name_in_wf = self._generate_step_name(step.name)
+        step._set_name_in_workflow(name_in_wf)
 
         outputs = []
         for n in step.output_names:

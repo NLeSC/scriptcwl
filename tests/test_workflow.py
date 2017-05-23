@@ -17,7 +17,7 @@ class TestWorkflowGenerator(object):
 
         step_keys = wf.steps_library.keys()
         step_keys.sort()
-        assert step_keys == ['echo', 'wc']
+        assert step_keys == ['echo', 'multiple-out-args', 'wc']
 
     def test_save_with_tools(self, tmpdir):
         wf = WorkflowGenerator()
@@ -107,12 +107,12 @@ class TestWorkflowGeneratorWithScatteredStep(object):
         scatter_methods = ['dotproduct', 'nested_crossproduct',
                            'flat_crossproduct']
 
-        wf = WorkflowGenerator()
-        wf.load('tests/data/tools')
-
-        msgs = wf.add_inputs(wfmessages='string[]')
-
         for method in scatter_methods:
+            wf = WorkflowGenerator()
+            wf.load('tests/data/tools')
+
+            msgs = wf.add_inputs(wfmessages='string[]')
+
             echoed = wf.echo(message=msgs, scatter='message', scatter_method=method)
             assert echoed == 'echo/echoed'
 
@@ -129,12 +129,12 @@ class TestWorkflowGeneratorWithScatteredStep(object):
         scatter_methods = ['dotproduct', 'nested_crossproduct',
                            'flat_crossproduct']
 
-        wf = WorkflowGenerator()
-        wf.load('tests/data/tools')
-
-        msgs = wf.add_inputs(wfmessages='string[]')
-
         for method in scatter_methods:
+            wf = WorkflowGenerator()
+            wf.load('tests/data/tools')
+
+            msgs = wf.add_inputs(wfmessages='string[]')
+
             echoed = wf.echo(message=msgs, scatter='message', scatter_method=method)
             assert echoed == 'echo/echoed'
 
@@ -155,3 +155,23 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
         with pytest.raises(ValueError):
             wf.echo(message=msgs, scatter='message')
+
+
+class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
+    def test_generate_step_name(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_inputs(wfmessage='string')
+
+        name = wf._generate_step_name('echo')
+        echoed = wf.echo(message=wfmessage)
+
+        assert name == 'echo'
+        assert name == echoed.split('/')[0]
+
+        name = wf._generate_step_name('echo')
+        echoed2 = wf.echo(message=wfmessage)
+
+        assert name != 'echo'
+        assert name == echoed2.split('/')[0]
