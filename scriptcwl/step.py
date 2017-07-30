@@ -1,6 +1,6 @@
 import os
 import six
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 from ruamel.yaml.comments import CommentedMap
 
 from cwltool.load_tool import fetch_document, validate_document
@@ -166,7 +166,7 @@ class Step(object):
             str containing all input names and types.
         """
         doc = []
-        for inp, typ in self.input_types.iteritems():
+        for inp, typ in self.input_types.items():
             if isinstance(typ, six.string_types):
                 typ = "'{}'".format(typ)
             doc.append('{}: {}'.format(inp, typ))

@@ -132,9 +132,9 @@ class WorkflowGenerator(object):
                 added to the steps library.
         """
         steps = load_steps(steps_dir=steps_dir, step_file=step_file)
-        for n, step in steps.iteritems():
+        for n, step in steps.items():
             if n in self.steps_library.keys():
-                print 'WARNING: step "{}" already in steps library'.format(n)
+                print('WARNING: step "{}" already in steps library'.format(n))
             else:
                 self.steps_library[n] = step
 
@@ -144,7 +144,7 @@ class WorkflowGenerator(object):
         steps = []
         workflows = []
         template = u'  {:.<25} {}'
-        for name, step in self.steps_library.iteritems():
+        for name, step in self.steps_library.items():
             if step.is_workflow:
                 workflows.append(template.format(name, step))
             else:
@@ -170,7 +170,7 @@ class WorkflowGenerator(object):
             name (str): name of a step in the steps library.
         """
         s = self._get_step(name, make_copy=False)
-        print s.list_inputs()
+        print(s.list_inputs())
 
     def _add_step(self, step):
         """Add a step to the workflow.
@@ -195,7 +195,7 @@ class WorkflowGenerator(object):
             list of inputnames
         """
         names = []
-        for name, typ in kwargs.iteritems():
+        for name, typ in kwargs.items():
             self.wf_inputs[name] = typ
             names.append(name)
 
@@ -215,7 +215,7 @@ class WorkflowGenerator(object):
                 name is the name of the step that produced this output plus the
                 output name (e.g., `saf-to-txt/out_files`).
         """
-        for name, source_name in kwargs.iteritems():
+        for name, source_name in kwargs.items():
             obj = {}
             obj['outputSource'] = source_name
             obj['type'] = self.step_output_types[source_name]
@@ -304,35 +304,35 @@ class WorkflowGenerator(object):
         # Workflow documentation
         if self.documentation:
             if is_multiline(self.documentation):
-                print 'doc = """'
-                print self.documentation
-                print '"""'
-                print '{}.set_documentation(doc)'.format(wf_name)
+                print('doc = """')
+                print(self.documentation)
+                print('"""')
+                print('{}.set_documentation(doc)'.format(wf_name))
             else:
-                print '{}.set_documentation(\'{}\')'.format(wf_name, self.documentation)
+                print('{}.set_documentation(\'{}\')'.format(wf_name, self.documentation))
 
         # Workflow inputs
         params = []
         returns = []
-        for name, typ in self.wf_inputs.iteritems():
+        for name, typ in self.wf_inputs.items():
             params.append('{}=\'{}\''.format(name, typ))
             returns.append(name)
-        print '{} = {}.add_inputs({})'.format(', '.join(returns), wf_name,
-                                              ', '.join(params))
+        print('{} = {}.add_inputs({})'.format(', '.join(returns), wf_name,
+                                              ', '.join(params)))
 
         # Workflow steps
         returns = []
-        for name, step in self.wf_steps.iteritems():
+        for name, step in self.wf_steps.items():
             s = Step(step['run'])
             returns = ['{}_{}'.format(python_name(s.name), o) for o in step['out']]
-            params = ['{}={}'.format(name, python_name(param)) for name, param in step['in'].iteritems()]
-            print '{} = {}.{}({})'.format(', '.join(returns), wf_name, s.python_name, ', '.join(params))
+            params = ['{}={}'.format(name, python_name(param)) for name, param in step['in'].items()]
+            print('{} = {}.{}({})'.format(', '.join(returns), wf_name, s.python_name, ', '.join(params)))
 
         # Workflow outputs
         params = []
-        for name, details in self.wf_outputs.iteritems():
+        for name, details in self.wf_outputs.items():
             params.append('{}={}'.format(name, python_name(details['outputSource'])))
-        print '{}.add_outputs({})'.format(wf_name, ', '.join(params))
+        print('{}.add_outputs({})'.format(wf_name, ', '.join(params)))
 
     def _make_step(self, step, **kwargs):
         for k in step.get_input_names():
@@ -371,7 +371,7 @@ class WorkflowGenerator(object):
                 step.scattered_inputs.append(var)
 
             # Update step output types (outputs are now arrays)
-            for name, typ in step.step_outputs.iteritems():
+            for name, typ in step.step_outputs.items():
                 step.step_outputs[name] = {'type': 'array', 'items': typ}
 
             self.has_scatter_requirement = True
