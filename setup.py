@@ -67,5 +67,5 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['ruamel.yaml', 'six', 'cwltool'],
+    install_requires=['ruamel.yaml', 'six', 'cwltool>=1.0.20170727112954'],
 )
