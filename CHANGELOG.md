@@ -1,8 +1,14 @@
 # Change Log
 
+## 0.5.0
+
+### Added
+
+* Python 3 compatibility (and testing with [tox](https://tox.readthedocs.io/en/latest/))
+
 ## 0.4.0
 
-# Added
+### Added
 
 * Generate unique names for steps that are added to the workflow more than once (#31)
 * Pass all outputs from a step, instead of just one (#27)
