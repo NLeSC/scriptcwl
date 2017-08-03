@@ -150,6 +150,8 @@ class WorkflowGenerator(object):
             else:
                 steps.append(template.format(name, step))
 
+        steps.sort()
+        workflows.sort()
         result = [u'Steps\n', u'\n'.join(steps), u'\n\nWorkflows\n',
                   u'\n'.join(workflows)]
         return u''.join(result)

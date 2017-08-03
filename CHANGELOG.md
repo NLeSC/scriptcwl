@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased (develop branch)
+
+### Added
+
+* List of steps and workflows in steps library is ordered alphabetically
+
 ## 0.5.0
 
 ### Added
