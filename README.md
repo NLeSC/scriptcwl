@@ -46,6 +46,13 @@ wf.add_outputs(ner_stats=ner_stats, txt=txt)
 wf.save('anonymize.cwl')
 ```
 
+When adding an input parameter to a workflow, you can set a default value:
+
+```python
+wf = WorkflowGenerator()
+input1 = wf.add_inputs(input1='string', default='Hello world!')
+```
+
 ## Installation
 
 Install using pip:
