@@ -192,14 +192,40 @@ class WorkflowGenerator(object):
                 the type of the input (e.g., `'Directory'`). The type of input
                 parameters can be learned from
                 `step.inputs(step_name=input_name)`.
+                Allows for setting default values by adding a `default=value`
+                pair. If the `default` keyword argument is used, it is not
+                allowed to add multiple input parameters at once.
 
         Returns:
             list of inputnames
+
+        Raises:
+            ValueError: the `default` keyword argument is used without a
+            parameter name or with multiple parameter names.
         """
+        arg_names = list(kwargs.keys())
         names = []
-        for name, typ in kwargs.items():
-            self.wf_inputs[name] = typ
+        if 'default' in arg_names:
+            arg_names.remove('default')
+            if len(arg_names) == 0:
+                msg = 'No parameter the default value can be assigned to.'
+                raise ValueError(msg)
+            elif len(arg_names) > 1:
+                msg = 'Unclear to which parameter the default value should ' \
+                      'be assigned: "{}"\nPlease add a single parameter ' \
+                      'only when using "default".'
+                raise ValueError(msg.format('" or "'.join(arg_names)))
+            name = arg_names[0]
+            inp = CommentedMap()
+            inp['type'] = kwargs.get(name)
+            inp['default'] = kwargs.get('default')
+            self.wf_inputs[name] = inp
+
             names.append(name)
+        else:
+            for name, typ in kwargs.items():
+                self.wf_inputs[name] = typ
+                names.append(name)
 
         if len(names) == 1:
             return names[0]

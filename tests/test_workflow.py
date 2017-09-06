@@ -175,3 +175,25 @@ class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
 
         assert name != 'echo'
         assert name == echoed2.split('/')[0]
+
+
+class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
+    def test_default_value_for_workflow_input(self):
+        wf = WorkflowGenerator()
+
+        wf.add_inputs(input1='string', default='test')
+        obj = wf.to_obj()['inputs']['input1']
+        assert obj['type'] == 'string'
+        assert obj['default'] == 'test'
+
+    def test_only_default_for_workflow_input(self):
+        wf = WorkflowGenerator()
+
+        with pytest.raises(ValueError):
+            wf.add_inputs(default='test')
+
+    def test_add_multiple_inputs_and_default(self):
+        wf = WorkflowGenerator()
+
+        with pytest.raises(ValueError):
+            wf.add_inputs(input1='string', input2='string', default='test')
