@@ -1,9 +1,10 @@
 # Change Log
 
-## Unreleased (develop branch)
+## 0.5.1
 
 ### Added
 
+* Allow addition of default values to workflow inputs (#32)
 * List of steps and workflows in steps library is ordered alphabetically
 
 ## 0.5.0
