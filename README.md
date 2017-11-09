@@ -7,7 +7,7 @@
 [![PyPI](https://img.shields.io/pypi/pyversions/scriptcwl.svg)](https://pypi.python.org/pypi/scriptcwl)
 
 
-scriptcwl is a Python package to create and edit workflows in
+scriptcwl is a Python package to create workflows in
 [common workflow language](http://www.commonwl.org/). If you give it a set of CWL
 `CommandLineTool`s, you can create a workflow by writing a Python script. This can
 be done interactively using [Jupyter Notebooks](http://jupyter.org/).
