@@ -12,7 +12,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.5.1',
 
-    description='Tool to generate and edit CWL workflows',
+    description='Tool to generate CWL workflows',
     long_description="""Tool to generate and edit workflows in common
     workflow language.
 """,
