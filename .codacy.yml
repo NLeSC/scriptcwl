@@ -1,0 +1,7 @@
+# codacy configuration file
+
+---
+
+exclude_paths: [
+    'tests/**',
+]

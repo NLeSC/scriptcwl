@@ -4,6 +4,12 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
+
+def read(fname):
+    # define read function to read README.md in long description
+    return open(path.join(path.dirname(__file__), fname)).read()
+
+
 setup(
     name='scriptcwl',
 
@@ -13,21 +19,18 @@ setup(
     version='0.5.1',
 
     description='Tool to generate CWL workflows',
-    long_description="""Tool to generate and edit workflows in common
-    workflow language.
-""",
-
+    long_description=read('README.md'),
     # The project's main homepage.
     url='https://github.com/nlesc/scriptcwl',
 
-    download_url='https://github.com/nlesc/scriptcwl/tarball/v0.1.0-beta',
+    download_url='https://github.com/NLeSC/scriptcwl/archive/0.5.1.tar.gz',
 
     # Author details
     author='Janneke van der Zwaan',
     author_email='j.vanderzwaan@esciencecenter.nl',
 
     # Choose your license
-    license='Apache',
+    license='Apache 2.0',
 
     include_package_data=True,
 
@@ -67,5 +70,5 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['ruamel.yaml', 'six', 'cwltool>=1.0.20170727112954'],
+    install_requires=['six', 'cwltool>=1.0.20170727112954'],
 )
