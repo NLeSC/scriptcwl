@@ -244,7 +244,7 @@ class WorkflowGenerator(object):
         names = []
         if 'default' in arg_names:
             arg_names.remove('default')
-            if len(arg_names) == 0:
+            if not arg_names:
                 msg = 'No parameter the default value can be assigned to.'
                 raise ValueError(msg)
             elif len(arg_names) > 1:
@@ -424,12 +424,13 @@ class WorkflowGenerator(object):
             if k in kwargs.keys():
                 if isinstance(kwargs[k], six.string_types):
                     step.set_input(k, kwargs[k])
-                else: raise ValueError(
-                    'Incorrect type (should be string) for keyword argument {}'
-                    .format(k))
-            elif k not in step.optional_input_names:
+                else:
                     raise ValueError(
-                        'Expecting "{}" as a keyword argument.'.format(k))
+                        'Incorrect type (should be string) for keyword '
+                        'argument {}'.format(k))
+            elif k not in step.optional_input_names:
+                raise ValueError(
+                    'Expecting "{}" as a keyword argument.'.format(k))
 
         if 'scatter' in kwargs.keys() or 'scatter_method' in kwargs.keys():
             # Check whether both required keyword arguments are present

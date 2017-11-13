@@ -53,12 +53,12 @@ class TestInputOptional(object):
 
 
 class TestMultipleOutputArgs(object):
-        @pytest.fixture
-        def step(self):
-            return Step('tests/data/tools/multiple-out-args.cwl')
+    @pytest.fixture
+    def step(self):
+        return Step('tests/data/tools/multiple-out-args.cwl')
 
-        def test_has_multiple_out_args(self, step):
-            assert len(step.to_obj()['out']) == 2
+    def test_has_multiple_out_args(self, step):
+        assert len(step.to_obj()['out']) == 2
 
 
 class TestStepNameInWorkflow(object):

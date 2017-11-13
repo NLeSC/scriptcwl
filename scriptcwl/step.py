@@ -56,15 +56,16 @@ class Step(object):
 
         # Fetching, preprocessing and validating cwl
         (document_loader, workflowobj, uri) = fetch_document(fname)
-        (document_loader, avsc_names, processobj, metadata, uri) = validate_document(document_loader, workflowobj, uri)
+        (document_loader, avsc_names, processobj, metadata, uri) = \
+            validate_document(document_loader, workflowobj, uri)
         s = processobj
 
         valid_classes = ('CommandLineTool', 'Workflow', 'ExpressionTool')
         if 'class' in s and s['class'] in valid_classes:
             self.is_workflow = s['class'] == 'Workflow'
             for inp in s['inputs']:
-                # Due to preprocessing of cwltool the id has become an absolute iri,
-                # for ease of use we keep only the fragment
+                # Due to preprocessing of cwltool the id has become an
+                # absolute iri, for ease of use we keep only the fragment
                 short_id = iri2fragment(inp['id'])
                 if self._input_optional(inp):
                     self.optional_input_names.append(short_id)
@@ -167,7 +168,7 @@ class Step(object):
         return obj
 
     def __str__(self):
-        if len(self.optional_input_names) > 0:
+        if not self.optional_input_names:
             template = u'{} = wf.{}({}[, {}])'
         else:
             template = u'{} = wf.{}({})'

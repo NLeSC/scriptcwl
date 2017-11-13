@@ -63,7 +63,10 @@ class TestWorkflowGenerator(object):
         wf.load('tests/data/tools')
 
         msgs = wf.add_inputs(wfmessages='string[]')
-        echoed = wf.echo(message=msgs, scatter='message', scatter_method='nested_crossproduct')
+        echoed = wf.echo(
+            message=msgs,
+            scatter='message',
+            scatter_method='nested_crossproduct')
         wf.add_outputs(out_files=echoed)
 
         wf_filename = tmpdir.join('echo-scattered.cwl').strpath
@@ -99,9 +102,7 @@ class TestWorkflowGenerator(object):
         x = wf.add_inputs(msg='string')
         x = 3
         with pytest.raises(ValueError):
-            wf.echo(message = x)
-        
-        
+            wf.echo(message=x)
 
 
 class TestWorkflowGeneratorWithScatteredStep(object):
@@ -115,8 +116,9 @@ class TestWorkflowGeneratorWithScatteredStep(object):
             wf.echo(message=msgs, scatter='message', scatter_method='blah')
 
     def test_scatter_method_correct(self):
-        scatter_methods = ['dotproduct', 'nested_crossproduct',
-                           'flat_crossproduct']
+        scatter_methods = [
+            'dotproduct', 'nested_crossproduct', 'flat_crossproduct'
+        ]
 
         for method in scatter_methods:
             wf = WorkflowGenerator()
@@ -124,7 +126,8 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
             msgs = wf.add_inputs(wfmessages='string[]')
 
-            echoed = wf.echo(message=msgs, scatter='message', scatter_method=method)
+            echoed = wf.echo(
+                message=msgs, scatter='message', scatter_method=method)
             assert echoed == 'echo/echoed'
 
     def test_scatter_variable_incorrect(self):
@@ -134,11 +137,15 @@ class TestWorkflowGeneratorWithScatteredStep(object):
         msgs = wf.add_inputs(wfmessages='string[]')
 
         with pytest.raises(ValueError):
-            wf.echo(message=msgs, scatter='incorrect', scatter_method='nested_crossproduct')
+            wf.echo(
+                message=msgs,
+                scatter='incorrect',
+                scatter_method='nested_crossproduct')
 
     def test_scatter_variable_correct(self):
-        scatter_methods = ['dotproduct', 'nested_crossproduct',
-                           'flat_crossproduct']
+        scatter_methods = [
+            'dotproduct', 'nested_crossproduct', 'flat_crossproduct'
+        ]
 
         for method in scatter_methods:
             wf = WorkflowGenerator()
@@ -146,7 +153,8 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
             msgs = wf.add_inputs(wfmessages='string[]')
 
-            echoed = wf.echo(message=msgs, scatter='message', scatter_method=method)
+            echoed = wf.echo(
+                message=msgs, scatter='message', scatter_method=method)
             assert echoed == 'echo/echoed'
 
     def test_missing_scatter_argument(self):
@@ -213,8 +221,8 @@ class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
 class TestWorkflowGeneratorAsContextManager(object):
     def test_use_workflow_generator_as_context_manager(self):
         with WorkflowGenerator() as wf:
-            assert wf._wf_closed == False
-        assert wf._wf_closed == True
+            assert wf._wf_closed is False
+        assert wf._wf_closed is True
 
     def test_error_on_using_closed_workflow_generator(self):
         with WorkflowGenerator() as wf:
