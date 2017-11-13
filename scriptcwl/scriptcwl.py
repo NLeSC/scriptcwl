@@ -1,3 +1,4 @@
+import os
 import glob
 import logging
 from schema_salad.validate import ValidationException
@@ -5,12 +6,14 @@ from schema_salad.validate import ValidationException
 from .step import Step
 
 
-def load_steps(steps_dir=None, step_file=None):
+def load_steps(steps_dir=None, step_file=None, step_list=None):
     """Return a dictionary containing Steps read from file.
 
     Args:
         steps_dir (str, optional): path to directory containing CWL files.
-        step_file (str, optional): path to a single CWL file.
+        step_file (str, optional): path or http(s) url to a single CWL file.
+        step_list (list, optional): a list of directories, urls or local file 
+                                    paths to CWL files or directories containing CWL files
 
     Return:
         dict containing (name, Step) entries.
@@ -20,6 +23,11 @@ def load_steps(steps_dir=None, step_file=None):
         step_files = glob.glob('{}/*.cwl'.format(steps_dir))
     elif step_file is not None:
         step_files = [step_file]
+    elif step_list is not None: 
+        for path in step_list:
+            if os.path.isdir(path):
+                path = glob.glob('{}/*.cwl'.format(steps_dir))
+        step_files = step_list
     else:
         step_files = []
 

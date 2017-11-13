@@ -141,7 +141,7 @@ class WorkflowGenerator(object):
         if self._wf_closed:
             raise ValueError('Operation on closed WorkflowGenerator.')
 
-    def load(self, steps_dir=None, step_file=None):
+    def load(self, steps_dir=None, step_file=None, step_list=None):
         """Load CWL steps into the WorkflowGenerator's steps library.
 
         Adds steps (command line tools and workflows) to the
@@ -156,7 +156,7 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        steps = load_steps(steps_dir=steps_dir, step_file=step_file)
+        steps = load_steps(steps_dir=steps_dir, step_file=step_file, step_list=step_list)
         for n, step in steps.items():
             if n in self.steps_library.keys():
                 print('WARNING: step "{}" already in steps library'.format(n))
