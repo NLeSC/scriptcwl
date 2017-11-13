@@ -92,6 +92,16 @@ class TestWorkflowGenerator(object):
 
         assert shebang == '#!/usr/bin/env cwltool\n'
 
+    def test_detect_wrong_type(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+        x = wf.add_inputs(msg='string')
+        x = 3
+        with pytest.raises(ValueError):
+            wf.echo(message = x)
+        
+        
+
 
 class TestWorkflowGeneratorWithScatteredStep(object):
     def test_scatter_method_incorrect(self):

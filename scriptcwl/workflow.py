@@ -364,11 +364,15 @@ class WorkflowGenerator(object):
 
     def _make_step(self, step, **kwargs):
         for k in step.get_input_names():
-            if k not in kwargs.keys() and k not in step.optional_input_names:
-                raise ValueError(
-                    'Expecting "{}" as a keyword argument.'.format(k))
-            if kwargs.get(k):
-                step.set_input(k, kwargs[k])
+            if k in kwargs.keys():
+                if isinstance(kwargs[k], six.string_types):
+                    step.set_input(k, kwargs[k])
+                else: raise ValueError(
+                    'Incorrect type (should be string) for keyword argument {}'
+                    .format(k))
+            elif k not in step.optional_input_names:
+                    raise ValueError(
+                        'Expecting "{}" as a keyword argument.'.format(k))
 
         if 'scatter' in kwargs.keys() or 'scatter_method' in kwargs.keys():
             # Check whether both required keyword arguments are present
