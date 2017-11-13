@@ -25,14 +25,15 @@ class WorkflowGenerator(object):
     ```
     from scriptcwl import WorkflowGenerator
 
-    wf = WorkflowGenerator()
-    wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
+    with WorkflowGenerator() as wf:
+        wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
     ```
 
     Or a single CWL file:
 
     ```
-    wf.load(step_file='/path/to/cwl/step/file')
+    with WorkflowGenerator() as wf:
+        wf.load(step_file='/path/to/cwl/step/file')
     ```
 
     `wf.load` can be called multiple times. Step files are added to the steps
