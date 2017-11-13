@@ -12,7 +12,7 @@ scriptcwl is a Python package to create workflows in
 `CommandLineTool`s, you can create a workflow by writing a Python script. This can
 be done interactively using [Jupyter Notebooks](http://jupyter.org/).
 
-As a first example we can make a Hello World workflow. We use a commanlinetool (hello.cwl) which runs the echo command and looks like this in CWL:
+As a first example we can make a Hello World workflow. We use a commanlinetool (`hello.cwl`) which runs the echo command and looks like this in CWL:
 ```
 #!/usr/bin/env cwl-runner
 
@@ -27,13 +27,13 @@ inputs:
 outputs: []
 ```
 
-It takes a viable message and runs the echo command. To run the commandlinetool one needs to specify the message input variable using a yml file (echo-job.cwl):
+It takes a variable `message` and runs the echo command. To run the commandlinetool one needs to specify the message input variable using a yml file (`echo-job.cwl`):
 
 ```
 hello_message: Hello world!
 ```
 
-You can incorporate the hello.cwl commandlinetool from above in a workflow using scriptcwl in this way:
+You can incorporate the `hello.cwl` commandlinetool from above in a workflow using scriptcwl in this way:
 ```python
 from scriptcwl import WorkflowGenerator
 
@@ -49,7 +49,7 @@ hello = wf.hello(message=hello_message)
 wf.save('python_cwl_test.cwl')
 ```
 
-You load the WorkflowGenerator and make an instance of it. You can load commandlinetools and workflows using wf.load(). The loaded cwl files can be showj using wf.list_steps(). Inputs of the workflow can be made using wf.add_inputs(). In the example above we add an input named `hello_message` which is of the type string. Next we create a step in the workflow named `hello` using `wf.hello(message=hello_message)`. The input of the step (`message`) is linked to the workflow input `hello_message` created before. The created workflow is saved to a cwl file using `wf.save`. Now you can run the workflow with `cwl-runner python_cwl_test.cwl echo-job.cwl`.
+You load the `WorkflowGenerator` and make an instance of it. You can load commandlinetools and workflows using `wf.load()`. The loaded cwl files can be shown using `wf.list_steps()`. Inputs of the workflow can be made using `wf.add_inputs()`. In the example above we add an input named `hello_message` which is of the type string. Next we create a step in the workflow named `hello` using `wf.hello(message=hello_message)`. The input of the step (`message`) is linked to the workflow input `hello_message` created before. The created workflow is saved to a cwl file using `wf.save()`. Now you can run the workflow with `cwl-runner python_cwl_test.cwl echo-job.cwl`.
 
 A more usefull example using nlppln is to generate the [anonymize pipeline](https://github.com/WhatWorksWhenForWhom/nlppln/blob/develop/cwl/anonymize.cwl), which [replaces named entities with their type](https://github.com/WhatWorksWhenForWhom/nlppln#anonymize), (from the
 [nlppln](https://github.com/WhatWorksWhenForWhom/nlppln) package), you'd have to write:
