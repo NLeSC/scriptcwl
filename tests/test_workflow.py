@@ -19,6 +19,19 @@ class TestWorkflowGenerator(object):
         step_keys = sorted(step_keys)
         assert step_keys == ['echo', 'multiple-out-args', 'wc']
 
+    def test_load_with_list(self):
+        wf = WorkflowGenerator()
+        wf.load(step_list=[\
+            'https://raw.githubusercontent.com/WhatWorksWhenForWhom/nlppln/develop/cwl/anonymize.cwl',\
+            'tests/data/workflows/echo-wc.cwl',\
+            'tests/data/tools'])
+
+        step_keys = wf.steps_library.keys()
+        step_keys = sorted(step_keys)
+        print(step_keys)
+        
+        assert step_keys == ['anonymize', 'echo', 'echo-wc', 'multiple-out-args', 'wc']
+
     def test_save_with_tools(self, tmpdir):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
