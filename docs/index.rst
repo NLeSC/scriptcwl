@@ -10,6 +10,7 @@ Welcome to scriptcwl's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   scriptcwl
 
 
 Indices and tables

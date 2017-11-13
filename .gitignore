@@ -17,3 +17,8 @@ node_modules
 
 .coverage
 .tox
+
+docs/_build
+docs/apidocs
+docs/modules.rst
+docs/scriptcwl.rst

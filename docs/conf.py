@@ -16,10 +16,11 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+from recommonmark.parser import CommonMarkParser
 
 # -- General configuration ------------------------------------------------
 
@@ -38,8 +39,11 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_parsers = {
+    '.md': CommonMarkParser,
+}
+source_suffix = ['.rst', '.md']
+#source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
@@ -76,6 +80,23 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
 
+# Also document constructors.
+autoclass_content = 'both'
+
+
+# -- Run apidoc plug-in manually, as readthedocs doesn't support it -------
+# See https://github.com/rtfd/readthedocs.org/issues/1139
+def run_apidoc(_):
+    from sphinx.apidoc import main
+    cur_dir = os.path.abspath(os.path.dirname(__file__))
+    sys.path.append(os.path.join(cur_dir, '..', 'scriptcwl'))
+    module = os.path.join(cur_dir, '..', 'scriptcwl')
+    output_dir = os.path.join(cur_dir, 'apidocs')
+    main(['-e', '-o', output_dir, module, '--force'])
+
+
+def setup(app):
+    app.connect('builder-inited', run_apidoc)
 
 # -- Options for HTML output ----------------------------------------------
 
@@ -163,6 +184,3 @@ texinfo_documents = [
      author, 'scriptcwl', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
