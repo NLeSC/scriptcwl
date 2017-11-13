@@ -2,8 +2,27 @@ import os
 import six
 from six.moves.urllib.parse import urlparse
 from ruamel.yaml.comments import CommentedMap
+import sys
+from contextlib import contextmanager
 
-from cwltool.load_tool import fetch_document, validate_document
+
+# Helper function to make the import of cwltool.load_tool quiet
+@contextmanager
+def quiet():
+    # Divert stdout and stderr to devnull
+    sys.stdout = sys.stderr = open(os.devnull, "w")
+    try:
+        yield
+    finally:
+        # Revert back to standard stdout/stderr
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+
+
+# import cwltool.load_tool functions
+with quiet():
+    # all is quiet in this scope
+    from cwltool.load_tool import fetch_document, validate_document
 
 
 class Step(object):
