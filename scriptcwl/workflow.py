@@ -156,9 +156,9 @@ class WorkflowGenerator(object):
         self._closed()
 
         steps = load_steps(steps_dir=steps_dir, step_file=step_file)
-        for n, step in steps.iteritems():
+        for n, step in steps.items():
             if n in self.steps_library.keys():
-                print 'WARNING: step "{}" already in steps library'.format(n)
+                print('WARNING: step "{}" already in steps library'.format(n))
             else:
                 self.steps_library[n] = step
 
@@ -170,12 +170,14 @@ class WorkflowGenerator(object):
         steps = []
         workflows = []
         template = u'  {:.<25} {}'
-        for name, step in self.steps_library.iteritems():
+        for name, step in self.steps_library.items():
             if step.is_workflow:
                 workflows.append(template.format(name, step))
             else:
                 steps.append(template.format(name, step))
 
+        steps.sort()
+        workflows.sort()
         result = [u'Steps\n', u'\n'.join(steps), u'\n\nWorkflows\n',
                   u'\n'.join(workflows)]
         return u''.join(result)
@@ -200,7 +202,7 @@ class WorkflowGenerator(object):
         self._closed()
 
         s = self._get_step(name, make_copy=False)
-        print s.list_inputs()
+        print(s.list_inputs())
 
     def _add_step(self, step):
         """Add a step to the workflow.
@@ -211,7 +213,7 @@ class WorkflowGenerator(object):
         self._closed()
 
         self.has_workflow_step = self.has_workflow_step or step.is_workflow
-        self.wf_steps[step.name] = step.to_obj()
+        self.wf_steps[step.name_in_workflow] = step.to_obj()
 
     def add_inputs(self, **kwargs):
         """Add workflow inputs.
@@ -222,16 +224,42 @@ class WorkflowGenerator(object):
                 the type of the input (e.g., `'Directory'`). The type of input
                 parameters can be learned from
                 `step.inputs(step_name=input_name)`.
+                Allows for setting default values by adding a `default=value`
+                pair. If the `default` keyword argument is used, it is not
+                allowed to add multiple input parameters at once.
 
         Returns:
             list of inputnames
+
+        Raises:
+            ValueError: the `default` keyword argument is used without a
+            parameter name or with multiple parameter names.
         """
         self._closed()
 
+        arg_names = list(kwargs.keys())
         names = []
-        for name, typ in kwargs.iteritems():
-            self.wf_inputs[name] = typ
+        if 'default' in arg_names:
+            arg_names.remove('default')
+            if len(arg_names) == 0:
+                msg = 'No parameter the default value can be assigned to.'
+                raise ValueError(msg)
+            elif len(arg_names) > 1:
+                msg = 'Unclear to which parameter the default value should ' \
+                      'be assigned: "{}"\nPlease add a single parameter ' \
+                      'only when using "default".'
+                raise ValueError(msg.format('" or "'.join(arg_names)))
+            name = arg_names[0]
+            inp = CommentedMap()
+            inp['type'] = kwargs.get(name)
+            inp['default'] = kwargs.get('default')
+            self.wf_inputs[name] = inp
+
             names.append(name)
+        else:
+            for name, typ in kwargs.items():
+                self.wf_inputs[name] = typ
+                names.append(name)
 
         if len(names) == 1:
             return names[0]
@@ -251,7 +279,7 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        for name, source_name in kwargs.iteritems():
+        for name, source_name in kwargs.items():
             obj = {}
             obj['outputSource'] = source_name
             obj['type'] = self.step_output_types[source_name]
@@ -297,6 +325,16 @@ class WorkflowGenerator(object):
             s = copy.deepcopy(s)
         return s
 
+    def _generate_step_name(self, step_name):
+        name = step_name
+        i = 1
+
+        while name in self.wf_steps.keys():
+            name = '{}-{}'.format(step_name, i)
+            i += 1
+
+        return name
+
     def to_obj(self):
         """Return the created workflow as a dict.
 
@@ -337,35 +375,35 @@ class WorkflowGenerator(object):
         # Workflow documentation
         if self.documentation:
             if is_multiline(self.documentation):
-                print 'doc = """'
-                print self.documentation
-                print '"""'
-                print '{}.set_documentation(doc)'.format(wf_name)
+                print('doc = """')
+                print(self.documentation)
+                print('"""')
+                print('{}.set_documentation(doc)'.format(wf_name))
             else:
-                print '{}.set_documentation(\'{}\')'.format(wf_name, self.documentation)
+                print('{}.set_documentation(\'{}\')'.format(wf_name, self.documentation))
 
         # Workflow inputs
         params = []
         returns = []
-        for name, typ in self.wf_inputs.iteritems():
+        for name, typ in self.wf_inputs.items():
             params.append('{}=\'{}\''.format(name, typ))
             returns.append(name)
-        print '{} = {}.add_inputs({})'.format(', '.join(returns), wf_name,
-                                              ', '.join(params))
+        print('{} = {}.add_inputs({})'.format(', '.join(returns), wf_name,
+                                              ', '.join(params)))
 
         # Workflow steps
         returns = []
-        for name, step in self.wf_steps.iteritems():
+        for name, step in self.wf_steps.items():
             s = Step(step['run'])
             returns = ['{}_{}'.format(python_name(s.name), o) for o in step['out']]
-            params = ['{}={}'.format(name, python_name(param)) for name, param in step['in'].iteritems()]
-            print '{} = {}.{}({})'.format(', '.join(returns), wf_name, s.python_name, ', '.join(params))
+            params = ['{}={}'.format(name, python_name(param)) for name, param in step['in'].items()]
+            print('{} = {}.{}({})'.format(', '.join(returns), wf_name, s.python_name, ', '.join(params)))
 
         # Workflow outputs
         params = []
-        for name, details in self.wf_outputs.iteritems():
+        for name, details in self.wf_outputs.items():
             params.append('{}={}'.format(name, python_name(details['outputSource'])))
-        print '{}.add_outputs({})'.format(wf_name, ', '.join(params))
+        print('{}.add_outputs({})'.format(wf_name, ', '.join(params)))
 
     def _make_step(self, step, **kwargs):
         self._closed()
@@ -406,11 +444,16 @@ class WorkflowGenerator(object):
                 step.scattered_inputs.append(var)
 
             # Update step output types (outputs are now arrays)
-            for name, typ in step.step_outputs.iteritems():
+            for name, typ in step.step_outputs.items():
                 step.step_outputs[name] = {'type': 'array', 'items': typ}
 
             self.has_scatter_requirement = True
             step.is_scattered = True
+
+        # Make sure the step has a unique name in the workflow (so command line
+        # tools can be added to the same workflow multiple times).
+        name_in_wf = self._generate_step_name(step.name)
+        step._set_name_in_workflow(name_in_wf)
 
         outputs = []
         for n in step.output_names:

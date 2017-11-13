@@ -4,9 +4,10 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/8f383bca18384d8187c10c27affa9d53)](https://www.codacy.com/app/j-vanderzwaan/scriptcwl?utm_source=github.com&utm_medium=referral&utm_content=NLeSC/scriptcwl&utm_campaign=Badge_Coverage)
 [![Build Status](https://travis-ci.org/NLeSC/scriptcwl.svg?branch=master)](https://travis-ci.org/NLeSC/scriptcwl)
 [![PyPI version](https://badge.fury.io/py/scriptcwl.svg)](https://badge.fury.io/py/scriptcwl)
+[![PyPI](https://img.shields.io/pypi/pyversions/scriptcwl.svg)](https://pypi.python.org/pypi/scriptcwl)
 
 
-scriptcwl is a Python package to create and edit workflows in
+scriptcwl is a Python package to create workflows in
 [common workflow language](http://www.commonwl.org/). If you give it a set of CWL
 `CommandLineTool`s, you can create a workflow by writing a Python script. This can
 be done interactively using [Jupyter Notebooks](http://jupyter.org/).
@@ -14,7 +15,7 @@ be done interactively using [Jupyter Notebooks](http://jupyter.org/).
 For example, to generate the [anonymize pipeline](https://github.com/WhatWorksWhenForWhom/nlppln/blob/develop/cwl/anonymize.cwl) (from the
 [nlppln](https://github.com/WhatWorksWhenForWhom/nlppln) package), you'd have to write:
 
-```
+```python
 import scriptcwl
 from scriptcwl import WorkflowGenerator
 
@@ -43,6 +44,13 @@ txt = wf.saf_to_txt(in_files=new_saf)
 wf.add_outputs(ner_stats=ner_stats, txt=txt)
 
 wf.save('anonymize.cwl')
+```
+
+When adding an input parameter to a workflow, you can set a default value:
+
+```python
+wf = WorkflowGenerator()
+input1 = wf.add_inputs(input1='string', default='Hello world!')
 ```
 
 ## Installation
@@ -74,7 +82,7 @@ In order to be able to create workflows using `scriptcwl`, you need to provide
 the `WorkflowGenerator` object with steps (i.e., `CommandLineTool`s,
 `ExpressionTool`s and/or (sub)`Workflow`s). To load a directory of .cwl files, type:
 
-```
+```python
 from scriptcwl import WorkflowGenerator
 
 wf = WorkflowGenerator()
@@ -82,8 +90,8 @@ wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
 ```
 
 To load a single cwl file, do:
-```
-wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
+```python
+wf.load(step_file='/path/to/workflow.cwl')
 ```
 
 There are some software packages that help with generating CWL `CommandLineTool`s
@@ -91,6 +99,7 @@ for existing command line tools written in Python:
 
 * [argparse2tool](https://github.com/erasche/argparse2tool#cwl-specific-functionality): Generate CWL CommandLineTool wrappers (and/or Galaxy tool descriptions) from Python programs that use argparse. Also supports the [click](http://click.pocoo.org) argument parser.
 * [pypi2cwl](https://github.com/common-workflow-language/pypi2cwl): Automatically run argparse2cwl on any package in PyPi.
+* [python-cwlgen](https://github.com/common-workflow-language/python-cwlgen): Generate CommandLineTool and DockerRequirement programmatically
 
 ## Listing available steps
 
@@ -104,7 +113,7 @@ print wf.list_steps()
 
 Workflows created with scriptcwl can be run with:
 ```
-cwl-runnner workflow.cwl <arguments>
+cwl-runner workflow.cwl <arguments>
 ```
 
 Or

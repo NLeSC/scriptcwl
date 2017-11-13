@@ -60,3 +60,17 @@ class TestMultipleOutputArgs(object):
 
         def test_has_multiple_out_args(self, step):
             assert len(step.to_obj()['out']) == 2
+
+
+class TestStepNameInWorkflow(object):
+    @pytest.fixture
+    def step(self):
+        return Step('tests/data/tools/echo.cwl')
+
+    def test_no_name_in_workflow(self, step):
+        with pytest.raises(AttributeError):
+            step.name_in_workflow == 'echo'
+
+    def test_set_name_in_workflow(self, step):
+        step._set_name_in_workflow('echo')
+        assert step.name_in_workflow == 'echo'
