@@ -168,7 +168,7 @@ class Step(object):
         return obj
 
     def __str__(self):
-        if not self.optional_input_names:
+        if self.optional_input_names:
             template = u'{} = wf.{}({}[, {}])'
         else:
             template = u'{} = wf.{}({})'
