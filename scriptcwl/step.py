@@ -28,7 +28,7 @@ class Step(object):
         self.optional_input_names = []
         self.optional_input_types = {}
         self.output_names = []
-        self.step_outputs = {}
+        self.output_types = {}
         self.is_workflow = False
         self.is_scattered = False
         self.scattered_inputs = []
@@ -55,7 +55,7 @@ class Step(object):
             for o in s['outputs']:
                 short_id = iri2fragment(o['id'])
                 self.output_names.append(short_id)
-                self.step_outputs[short_id] = o['type']
+                self.output_types[short_id] = o['type']
         else:
             msg = '"{}" is a unsupported'
             raise NotImplementedError(msg.format(self.name))
@@ -90,16 +90,17 @@ class Step(object):
     def _set_name_in_workflow(self, name):
         self.name_in_workflow = name
 
-    def output_to_input(self, name):
-        """Convert the name of an output to an input for a next Step.
+    def output_reference(self, name):
+        """Return a reference to the given output for use in an input
+            of a next Step.
 
-        For a Step named `echo` that has an output called `echoed`, the input
-        name `echo/echoed` is returned.
+        For a Step named `echo` that has an output called `echoed`, the
+        reference `echo/echoed` is returned.
 
         Args:
             name (str): the name of the Step output
         Raises:
-            ValueError: The name provided is not a valid ouput name for this
+            ValueError: The name provided is not a valid output name for this
                 Step.
         """
         if name not in self.output_names:
