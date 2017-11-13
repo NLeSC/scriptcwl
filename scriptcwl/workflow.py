@@ -503,7 +503,7 @@ class WorkflowGenerator(object):
 
         yaml.add_representer(str, str_presenter)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
-            yaml_file.write('#!/usr/bin/env cwl-runner\n')
+            yaml_file.write('#!/usr/bin/env cwltool\n')
             yaml_file.write(yaml.dump(self.to_obj(),
                                       Dumper=yaml.RoundTripDumper))
 
