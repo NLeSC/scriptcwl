@@ -27,10 +27,10 @@ inputs:
 outputs: []
 ```
 
-It takes a variable `message` and runs the echo command. To run the commandlinetool one needs to specify the message input variable using a yml file (`echo-job.cwl`):
+It takes a variable `message` and runs the echo command. To run the commandlinetool one needs to specify the message input variable using a yml file (`echo-job.yml`):
 
 ```
-hello_message: Hello world!
+message: Hello world!
 ```
 
 You can incorporate the `hello.cwl` commandlinetool from above in a workflow using scriptcwl in this way:
@@ -42,9 +42,9 @@ wf.load(step_file="hello.cwl")
 
 print(wf.list_steps())
 
-hello_message = wf.add_inputs(hello_message="string")
+workflow_message = wf.add_inputs(workflow_message="string")
 
-hello = wf.hello(message=hello_message)
+hello = wf.hello(message=workflow_message)
 
 wf.save('python_cwl_test.cwl')
 ```
