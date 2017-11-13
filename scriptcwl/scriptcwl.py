@@ -12,7 +12,7 @@ def load_steps(steps_dir=None, step_file=None, step_list=None):
     Args:
         steps_dir (str, optional): path to directory containing CWL files.
         step_file (str, optional): path or http(s) url to a single CWL file.
-        step_list (list, optional): a list of directories, urls or local file 
+        step_list (list, optional): a list of directories, urls or local file
                                     paths to CWL files or directories containing CWL files
 
     Return:
@@ -23,7 +23,7 @@ def load_steps(steps_dir=None, step_file=None, step_list=None):
         step_files = glob.glob('{}/*.cwl'.format(steps_dir))
     elif step_file is not None:
         step_files = [step_file]
-    elif step_list is not None: 
+    elif step_list is not None:
         for path in step_list:
             if os.path.isdir(path):
                 path = glob.glob('{}/*.cwl'.format(steps_dir))
