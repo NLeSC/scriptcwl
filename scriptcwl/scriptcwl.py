@@ -24,10 +24,12 @@ def load_steps(steps_dir=None, step_file=None, step_list=None):
     elif step_file is not None:
         step_files = [step_file]
     elif step_list is not None:
+        step_files = []
         for path in step_list:
             if os.path.isdir(path):
-                path = glob.glob('{}/*.cwl'.format(steps_dir))
-        step_files = step_list
+                step_files += glob.glob('{}/*.cwl'.format(path))
+            else:
+                step_files.append(path)
     else:
         step_files = []
 
