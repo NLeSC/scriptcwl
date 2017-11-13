@@ -1,7 +1,6 @@
 import pytest
 
 from schema_salad.validate import ValidationException
-
 from scriptcwl.step import Step
 
 

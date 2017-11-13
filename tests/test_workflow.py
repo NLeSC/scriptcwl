@@ -1,5 +1,6 @@
-import pytest
 import os
+
+import pytest
 from ruamel import yaml
 
 from scriptcwl import WorkflowGenerator
@@ -220,4 +221,3 @@ class TestWorkflowGeneratorAsContextManager(object):
             pass
         with pytest.raises(ValueError):
             wf._closed()
-        

@@ -1,7 +1,8 @@
 """Tool to generate CWL workflows"""
 # Always prefer setuptools over distutils
 from os import path
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 
 def read(fname):

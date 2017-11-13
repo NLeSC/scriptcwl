@@ -1,9 +1,11 @@
 import os
-import six
-from six.moves.urllib.parse import urlparse
-from ruamel.yaml.comments import CommentedMap
 import sys
 from contextlib import contextmanager
+
+import six
+from ruamel.yaml.comments import CommentedMap
+
+from six.moves.urllib.parse import urlparse
 
 
 # Helper function to make the import of cwltool.load_tool quiet
