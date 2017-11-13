@@ -28,8 +28,6 @@ class TestWorkflowGenerator(object):
 
         step_keys = wf.steps_library.keys()
         step_keys = sorted(step_keys)
-        print(step_keys)
-        
         assert step_keys == ['anonymize', 'echo', 'echo-wc', 'multiple-out-args', 'wc']
 
     def test_save_with_tools(self, tmpdir):
