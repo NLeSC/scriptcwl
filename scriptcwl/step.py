@@ -1,9 +1,11 @@
 import os
-import six
-from six.moves.urllib.parse import urlparse
-from ruamel.yaml.comments import CommentedMap
 import sys
 from contextlib import contextmanager
+
+import six
+from ruamel.yaml.comments import CommentedMap
+
+from six.moves.urllib.parse import urlparse
 
 
 # Helper function to make the import of cwltool.load_tool quiet
@@ -54,15 +56,16 @@ class Step(object):
 
         # Fetching, preprocessing and validating cwl
         (document_loader, workflowobj, uri) = fetch_document(fname)
-        (document_loader, avsc_names, processobj, metadata, uri) = validate_document(document_loader, workflowobj, uri)
+        (document_loader, avsc_names, processobj, metadata, uri) = \
+            validate_document(document_loader, workflowobj, uri)
         s = processobj
 
         valid_classes = ('CommandLineTool', 'Workflow', 'ExpressionTool')
         if 'class' in s and s['class'] in valid_classes:
             self.is_workflow = s['class'] == 'Workflow'
             for inp in s['inputs']:
-                # Due to preprocessing of cwltool the id has become an absolute iri,
-                # for ease of use we keep only the fragment
+                # Due to preprocessing of cwltool the id has become an
+                # absolute iri, for ease of use we keep only the fragment
                 short_id = iri2fragment(inp['id'])
                 if self._input_optional(inp):
                     self.optional_input_names.append(short_id)
@@ -165,7 +168,7 @@ class Step(object):
         return obj
 
     def __str__(self):
-        if len(self.optional_input_names) > 0:
+        if self.optional_input_names:
             template = u'{} = wf.{}({}[, {}])'
         else:
             template = u'{} = wf.{}({})'
