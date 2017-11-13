@@ -12,7 +12,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.5.1',
 
-    description='Tool to generate and edit CWL workflows',
+    description='Tool to generate CWL workflows',
     long_description="""Tool to generate and edit workflows in common
     workflow language.
 """,
@@ -67,5 +67,5 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['ruamel.yaml', 'six', 'cwltool>=1.0.20170727112954'],
+    install_requires=['six', 'cwltool>=1.0.20170727112954'],
 )
