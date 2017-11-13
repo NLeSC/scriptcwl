@@ -410,11 +410,15 @@ class WorkflowGenerator(object):
         self._closed()
 
         for k in step.get_input_names():
-            if k not in kwargs.keys() and k not in step.optional_input_names:
-                raise ValueError(
-                    'Expecting "{}" as a keyword argument.'.format(k))
-            if kwargs.get(k):
-                step.set_input(k, kwargs[k])
+            if k in kwargs.keys():
+                if isinstance(kwargs[k], six.string_types):
+                    step.set_input(k, kwargs[k])
+                else: raise ValueError(
+                    'Incorrect type (should be string) for keyword argument {}'
+                    .format(k))
+            elif k not in step.optional_input_names:
+                    raise ValueError(
+                        'Expecting "{}" as a keyword argument.'.format(k))
 
         if 'scatter' in kwargs.keys() or 'scatter_method' in kwargs.keys():
             # Check whether both required keyword arguments are present
@@ -488,7 +492,7 @@ class WorkflowGenerator(object):
 
         yaml.add_representer(str, str_presenter)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
-            yaml_file.write('#!/usr/bin/env cwl-runner\n')
+            yaml_file.write('#!/usr/bin/env cwltool\n')
             yaml_file.write(yaml.dump(self.to_obj(), Dumper=yaml.RoundTripDumper))
 
 
