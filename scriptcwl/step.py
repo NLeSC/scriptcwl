@@ -28,7 +28,7 @@ class Step(object):
         self.optional_input_names = []
         self.optional_input_types = {}
         self.output_names = []
-        self.step_outputs = {}
+        self.output_types = {}
         self.is_workflow = False
         self.is_scattered = False
         self.scattered_inputs = []
@@ -55,7 +55,7 @@ class Step(object):
             for o in s['outputs']:
                 short_id = iri2fragment(o['id'])
                 self.output_names.append(short_id)
-                self.step_outputs[short_id] = o['type']
+                self.output_types[short_id] = o['type']
         else:
             msg = '"{}" is a unsupported'
             raise NotImplementedError(msg.format(self.name))

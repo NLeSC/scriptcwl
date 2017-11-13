@@ -399,8 +399,8 @@ class WorkflowGenerator(object):
                 step.scattered_inputs.append(var)
 
             # Update step output types (outputs are now arrays)
-            for name, typ in step.step_outputs.items():
-                step.step_outputs[name] = {'type': 'array', 'items': typ}
+            for name, typ in step.output_types.items():
+                step.output_types[name] = {'type': 'array', 'items': typ}
 
             self.has_scatter_requirement = True
             step.is_scattered = True
@@ -415,7 +415,7 @@ class WorkflowGenerator(object):
         outputs = []
         for n in step.output_names:
             ref = step.output_reference(n)
-            self.step_output_types[ref] = step.step_outputs[n]
+            self.step_output_types[ref] = step.output_types[n]
             outputs.append(ref)
 
         self._add_step(step)
