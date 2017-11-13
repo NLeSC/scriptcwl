@@ -12,7 +12,7 @@ scriptcwl is a Python package to create workflows in
 `CommandLineTool`s, you can create a workflow by writing a Python script. This can
 be done interactively using [Jupyter Notebooks](http://jupyter.org/).
 
-For example, to generate the [anonymize pipeline](https://github.com/WhatWorksWhenForWhom/nlppln/blob/develop/cwl/anonymize.cwl) (from the
+For example, to generate the [anonymize pipeline](https://github.com/WhatWorksWhenForWhom/nlppln/blob/develop/cwl/anonymize.cwl), which [replaces named entities with their type](https://github.com/WhatWorksWhenForWhom/nlppln#anonymize), (from the
 [nlppln](https://github.com/WhatWorksWhenForWhom/nlppln) package), you'd have to write:
 
 ```python
