@@ -197,3 +197,17 @@ class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
 
         with pytest.raises(ValueError):
             wf.add_inputs(input1='string', input2='string', default='test')
+
+
+class TestWorkflowGeneratorAsContextManager(object):
+    def test_use_workflow_generator_as_context_manager(self):
+        with WorkflowGenerator() as wf:
+            assert wf._wf_closed == False
+        assert wf._wf_closed == True
+
+    def test_error_on_using_closed_workflow_generator(self):
+        with WorkflowGenerator() as wf:
+            pass
+        with pytest.raises(ValueError):
+            wf._closed()
+        
