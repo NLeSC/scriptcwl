@@ -1,12 +1,12 @@
+"""Tool to generate CWL workflows"""
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
 from os import path
 
-here = path.abspath(path.dirname(__file__))
+from setuptools import find_packages, setup
 
 
 def read(fname):
-    # define read function to read README.md in long description
+    """Define read function to read README.md in long description."""
     return open(path.join(path.dirname(__file__), fname)).read()
 
 
@@ -18,7 +18,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.5.1',
 
-    description='Tool to generate CWL workflows',
+    description=__doc__,
     long_description=read('README.md'),
     # The project's main homepage.
     url='https://github.com/nlesc/scriptcwl',
@@ -71,4 +71,6 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['six', 'cwltool>=1.0.20170727112954'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
 )

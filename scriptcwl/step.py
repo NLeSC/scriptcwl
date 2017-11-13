@@ -1,9 +1,30 @@
 import os
+import sys
+from contextlib import contextmanager
+
 import six
-from six.moves.urllib.parse import urlparse
 from ruamel.yaml.comments import CommentedMap
 
-from cwltool.load_tool import fetch_document, validate_document
+from six.moves.urllib.parse import urlparse
+
+
+# Helper function to make the import of cwltool.load_tool quiet
+@contextmanager
+def quiet():
+    # Divert stdout and stderr to devnull
+    sys.stdout = sys.stderr = open(os.devnull, "w")
+    try:
+        yield
+    finally:
+        # Revert back to standard stdout/stderr
+        sys.stdout = sys.__stdout__
+        sys.stderr = sys.__stderr__
+
+
+# import cwltool.load_tool functions
+with quiet():
+    # all is quiet in this scope
+    from cwltool.load_tool import fetch_document, validate_document
 
 
 class Step(object):
@@ -28,22 +49,23 @@ class Step(object):
         self.optional_input_names = []
         self.optional_input_types = {}
         self.output_names = []
-        self.step_outputs = {}
+        self.output_types = {}
         self.is_workflow = False
         self.is_scattered = False
         self.scattered_inputs = []
 
         # Fetching, preprocessing and validating cwl
         (document_loader, workflowobj, uri) = fetch_document(fname)
-        (document_loader, avsc_names, processobj, metadata, uri) = validate_document(document_loader, workflowobj, uri)
+        (document_loader, avsc_names, processobj, metadata, uri) = \
+            validate_document(document_loader, workflowobj, uri)
         s = processobj
 
         valid_classes = ('CommandLineTool', 'Workflow', 'ExpressionTool')
         if 'class' in s and s['class'] in valid_classes:
             self.is_workflow = s['class'] == 'Workflow'
             for inp in s['inputs']:
-                # Due to preprocessing of cwltool the id has become an absolute iri,
-                # for ease of use we keep only the fragment
+                # Due to preprocessing of cwltool the id has become an
+                # absolute iri, for ease of use we keep only the fragment
                 short_id = iri2fragment(inp['id'])
                 if self._input_optional(inp):
                     self.optional_input_names.append(short_id)
@@ -55,7 +77,7 @@ class Step(object):
             for o in s['outputs']:
                 short_id = iri2fragment(o['id'])
                 self.output_names.append(short_id)
-                self.step_outputs[short_id] = o['type']
+                self.output_types[short_id] = o['type']
         else:
             msg = '"{}" is a unsupported'
             raise NotImplementedError(msg.format(self.name))
@@ -90,16 +112,17 @@ class Step(object):
     def _set_name_in_workflow(self, name):
         self.name_in_workflow = name
 
-    def output_to_input(self, name):
-        """Convert the name of an output to an input for a next Step.
+    def output_reference(self, name):
+        """Return a reference to the given output for use in an input
+            of a next Step.
 
-        For a Step named `echo` that has an output called `echoed`, the input
-        name `echo/echoed` is returned.
+        For a Step named `echo` that has an output called `echoed`, the
+        reference `echo/echoed` is returned.
 
         Args:
             name (str): the name of the Step output
         Raises:
-            ValueError: The name provided is not a valid ouput name for this
+            ValueError: The name provided is not a valid output name for this
                 Step.
         """
         if name not in self.output_names:
@@ -145,7 +168,7 @@ class Step(object):
         return obj
 
     def __str__(self):
-        if len(self.optional_input_names) > 0:
+        if self.optional_input_names:
             template = u'{} = wf.{}({}[, {}])'
         else:
             template = u'{} = wf.{}({})'
