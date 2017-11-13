@@ -113,7 +113,7 @@ print wf.list_steps()
 
 Workflows created with scriptcwl can be run with:
 ```
-cwl-runner workflow.cwl <arguments>
+cwltool workflow.cwl <arguments>
 ```
 
 Or
