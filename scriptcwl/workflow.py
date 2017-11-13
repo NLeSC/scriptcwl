@@ -410,11 +410,13 @@ class WorkflowGenerator(object):
         name_in_wf = self._generate_step_name(step.name)
         step._set_name_in_workflow(name_in_wf)
 
+        # Create a reference for each output for use in subsequent
+        # steps' inputs.
         outputs = []
         for n in step.output_names:
-            oname = step.output_to_input(n)
-            self.step_output_types[oname] = step.step_outputs[n]
-            outputs.append(step.output_to_input(n))
+            ref = step.output_reference(n)
+            self.step_output_types[ref] = step.step_outputs[n]
+            outputs.append(ref)
 
         self._add_step(step)
 

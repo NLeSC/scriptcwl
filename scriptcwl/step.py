@@ -90,16 +90,17 @@ class Step(object):
     def _set_name_in_workflow(self, name):
         self.name_in_workflow = name
 
-    def output_to_input(self, name):
-        """Convert the name of an output to an input for a next Step.
+    def output_reference(self, name):
+        """Return a reference to the given output for use in an input
+            of a next Step.
 
-        For a Step named `echo` that has an output called `echoed`, the input
-        name `echo/echoed` is returned.
+        For a Step named `echo` that has an output called `echoed`, the
+        reference `echo/echoed` is returned.
 
         Args:
             name (str): the name of the Step output
         Raises:
-            ValueError: The name provided is not a valid ouput name for this
+            ValueError: The name provided is not a valid output name for this
                 Step.
         """
         if name not in self.output_names:
