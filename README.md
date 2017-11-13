@@ -12,6 +12,8 @@ scriptcwl is a Python package to create workflows in
 `CommandLineTool`s, you can create a workflow by writing a Python script. This can
 be done interactively using [Jupyter Notebooks](http://jupyter.org/).
 
+## Examples
+
 As a first example we can make a Hello World workflow. We use a commanlinetool (`hello.cwl`) which runs the echo command and looks like this in CWL:
 ```
 #!/usr/bin/env cwl-runner
