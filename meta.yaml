@@ -20,18 +20,18 @@ requirements:
   build:
     - python
     - setuptools
-#    - ruamel.yaml
+    - ruamel.yaml
     - six
-#    - cwltool >=1.0.20170727112954
+    - cwltool >=1.0.20170727112954
   run:
     - python
-#    - ruamel.yaml
+    - ruamel.yaml
     - six
-#    - cwltool >=1.0.20170727112954
+    - cwltool >=1.0.20170727112954
 
-# test:
-#   imports:
-#     - scriptcwl
+test:
+  imports:
+    - scriptcwl
 
 about:
   home: https://github.com/nlesc/scriptcwl
