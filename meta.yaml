@@ -1,0 +1,47 @@
+{% set name = "scriptcwl" %}
+{% set version = "0.5.1" %}
+{% set hash_type = "sha256" %}
+{% set hash_value = "39c4f99e398e7e3ba9cda8baadafaef004d6ed3a0593b2350306192832142e08" %}
+
+package:
+  name: '{{ name|lower }}'
+  version: '{{ version }}'
+
+source:
+  fn: '{{ name }}-{{ version }}.tar.gz'
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  '{{ hash_type }}': '{{ hash_value }}'
+
+build:
+  number: 0
+  script: python setup.py install  --single-version-externally-managed --record=record.txt
+
+requirements:
+  build:
+    - python
+    - setuptools
+#    - ruamel.yaml
+    - six
+#    - cwltool >=1.0.20170727112954
+  run:
+    - python
+#    - ruamel.yaml
+    - six
+#    - cwltool >=1.0.20170727112954
+
+# test:
+#   imports:
+#     - scriptcwl
+
+about:
+  home: https://github.com/nlesc/scriptcwl
+  license: Apache Software License
+  license_family: APACHE
+  license_file: ''
+  summary: Tool to generate CWL workflows
+  description: "Tool to generate and edit workflows in common\n    workflow language."
+  doc_url: ''
+  dev_url: ''
+
+extra:
+  recipe-maintainers: ''
