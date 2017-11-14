@@ -333,7 +333,7 @@ class WorkflowGenerator(object):
 
         return name
 
-    def to_obj(self, inline=True):
+    def to_obj(self, inline=True, relpath=None):
         """Return the created workflow as a dict.
 
         The dict can be written to a yaml file.
@@ -362,7 +362,8 @@ class WorkflowGenerator(object):
 
         steps_obj = CommentedMap()
         for key in self.wf_steps:
-            steps_obj[key] = self.wf_steps[key].to_obj(inline=inline)
+            steps_obj[key] = self.wf_steps[key].to_obj(
+                       inline=inline, relpath=relpath)
         obj['steps'] = steps_obj
 
         return obj
@@ -555,7 +556,7 @@ class WorkflowGenerator(object):
             return outputs[0]
         return outputs
 
-    def save(self, fname, inline=False, encoding='utf-8'):
+    def save(self, fname, inline=False, relative=True, encoding='utf-8'):
         """Save the workflow to file.
 
         Save the workflow to a CWL file that can be run with a CWL runner.
@@ -571,12 +572,16 @@ class WorkflowGenerator(object):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
+        relpath = None
+        if relative:
+            relpath = dirname
+
         yaml.add_representer(str, str_presenter, Dumper=yaml.RoundTripDumper)
         yaml.add_representer(Reference, reference_presenter,
                              Dumper=yaml.RoundTripDumper)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
             yaml_file.write('#!/usr/bin/env cwltool\n')
-            yaml_file.write(yaml.dump(self.to_obj(inline),
+            yaml_file.write(yaml.dump(self.to_obj(inline, relpath=relpath),
                                       Dumper=yaml.RoundTripDumper))
 
 

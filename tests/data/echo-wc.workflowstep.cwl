@@ -12,7 +12,7 @@ outputs:
     outputSource: echo-wc/wfcount
 steps:
   echo-wc:
-    run: ../workflows/echo-wc.cwl
+    run: workflows/echo-wc.cwl
     in:
       wfmessage: wfmessage
     out:
