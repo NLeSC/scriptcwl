@@ -24,9 +24,9 @@ class TestWorkflowGenerator(object):
 
     def test_load_with_list(self):
         wf = WorkflowGenerator()
-        wf.load(step_list=['tests/data/workflows/echo-wc.cwl',\
-            'tests/data/tools'])
-        #'https://raw.githubusercontent.com/WhatWorksWhenForWhom/nlppln/develop/cwl/anonymize.cwl',\
+        wf.load(step_list=['tests/data/workflows/echo-wc.cwl',
+                           'tests/data/tools'])
+        # 'https://raw.githubusercontent.com/WhatWorksWhenForWhom/nlppln/develop/cwl/anonymize.cwl',\
         step_keys = wf.steps_library.keys()
         step_keys = sorted(step_keys)
         assert step_keys == ['echo', 'echo-wc', 'multiple-out-args', 'wc']
@@ -240,8 +240,10 @@ class TestWorkflowGeneratorTypeChecking(object):
         wf.load('tests/data/tools')
 
         msgs = wf.add_input(msgs='string[]')
-        echoed = wf.echo(message=msgs, scatter='message', scatter_method='dotproduct')
-        wced = wf.wc(file2count=echoed, scatter='file2count', scatter_method='dotproduct')
+        echoed = wf.echo(message=msgs, scatter='message',
+                         scatter_method='dotproduct')
+        wced = wf.wc(file2count=echoed, scatter='file2count',
+                     scatter_method='dotproduct')
 
     def test_scattered_step_with_scalar_input(self):
         wf = WorkflowGenerator()
@@ -249,7 +251,8 @@ class TestWorkflowGeneratorTypeChecking(object):
 
         wfmessage = wf.add_input(message='string')
         with pytest.raises(ValueError):
-            echoed = wf.echo(message=wfmessage, scatter='message', scatter_method='dotproduct')
+            echoed = wf.echo(message=wfmessage, scatter='message',
+                             scatter_method='dotproduct')
 
     def test_optional_type(self):
         wf = WorkflowGenerator()

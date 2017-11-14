@@ -1,11 +1,13 @@
 import os
-import six
-from six.moves.urllib.parse import urlparse
-from ruamel.yaml.comments import CommentedMap, CommentedSeq
 import sys
 from contextlib import contextmanager
 
+import six
+from ruamel.yaml.comments import CommentedMap
+
 from six.moves.urllib.parse import urlparse
+
+from .reference import Reference
 
 
 # Helper function to make the import of cwltool.load_tool quiet
@@ -26,8 +28,6 @@ with quiet():
     # all is quiet in this scope
     from cwltool.load_tool import fetch_document, validate_document
 
-from .reference import Reference
-
 
 class Step(object):
     """Representation of a CWL step.
@@ -35,6 +35,7 @@ class Step(object):
     The Step can be a CommandLineTool or a Workflow. Steps are read from file
     and validated using `cwltool`.
     """
+
     def __init__(self, fname, abspath=True, start=os.curdir):
         if abspath:
             self.run = os.path.abspath(fname)
@@ -84,7 +85,6 @@ class Step(object):
         else:
             msg = '"{}" is a unsupported'
             raise NotImplementedError(msg.format(self.name))
-
 
     def get_input_names(self):
         """Return the Step's input names (including optional input names).
@@ -163,9 +163,8 @@ class Step(object):
         """
         obj = CommentedMap()
         if inline:
-            
-            obj['run'] = self.command_line_tool 
-        else :
+            obj['run'] = self.command_line_tool
+        else:
             obj['run'] = self.run
         obj['in'] = self.step_inputs
         obj['out'] = self.output_names
@@ -181,8 +180,8 @@ class Step(object):
         else:
             template = u'{} = wf.{}({})'
         return template.format(u', '.join(self.output_names), self.python_name,
-                               u', '.join(self.input_names),
-                               u', '.join(self.optional_input_names))
+                               u', '.join(self.input_names), u', '.join(
+                                   self.optional_input_names))
 
     def __repr__(self):
         return str(self)

@@ -159,7 +159,10 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        steps = load_steps(steps_dir=steps_dir, step_file=step_file, step_list=step_list)
+        steps = load_steps(
+            steps_dir=steps_dir,
+            step_file=step_file,
+            step_list=step_list)
         for n, step in steps.items():
             if n in self.steps_library.keys():
                 print('WARNING: step "{}" already in steps library'.format(n))
@@ -356,10 +359,12 @@ class WorkflowGenerator(object):
             obj['requirements'].append({'class': 'ScatterFeatureRequirement'})
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
+
         steps_obj = CommentedMap()
         for key in self.wf_steps:
             steps_obj[key] = self.wf_steps[key].to_obj(inline=inline)
         obj['steps'] = steps_obj
+
         return obj
 
     def to_script(self, wf_name='wf'):
@@ -567,11 +572,12 @@ class WorkflowGenerator(object):
             os.makedirs(dirname)
 
         yaml.add_representer(str, str_presenter)
-        yaml.add_representer(Reference, reference_presenter, Dumper=yaml.RoundTripDumper)
+        yaml.add_representer(Reference, reference_presenter,
+                             Dumper=yaml.RoundTripDumper)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
             yaml_file.write('#!/usr/bin/env cwltool\n')
-            yaml_file.write(yaml.dump(self.to_obj(inline), Dumper=yaml.RoundTripDumper))
-
+            yaml_file.write(yaml.dump(self.to_obj(inline),
+                                      Dumper=yaml.RoundTripDumper))
 
 
 def cwl_name(name):

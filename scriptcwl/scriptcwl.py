@@ -14,7 +14,7 @@ def load_steps(steps_dir=None, step_file=None, step_list=None):
         steps_dir (str, optional): path to directory containing CWL files.
         step_file (str, optional): path or http(s) url to a single CWL file.
         step_list (list, optional): a list of directories, urls or local file
-                                    paths to CWL files or directories containing CWL files
+            paths to CWL files or directories containing CWL files.
 
     Return:
         dict containing (name, Step) entries.
