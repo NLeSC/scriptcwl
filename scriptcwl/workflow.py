@@ -214,7 +214,7 @@ class WorkflowGenerator(object):
         self._closed()
 
         self.has_workflow_step = self.has_workflow_step or step.is_workflow
-        self.wf_steps[step.name_in_workflow] = step.to_obj()
+        self.wf_steps[step.name_in_workflow] = step
 
     def add_inputs(self, **kwargs):
         """Add workflow inputs.
@@ -336,7 +336,7 @@ class WorkflowGenerator(object):
 
         return name
 
-    def to_obj(self):
+    def to_obj(self, inline = True):
         """Return the created workflow as a dict.
 
         The dict can be written to a yaml file.
@@ -361,7 +361,12 @@ class WorkflowGenerator(object):
             obj['requirements'].append({'class': 'ScatterFeatureRequirement'})
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
-        obj['steps'] = self.wf_steps
+
+        stepsObj = CommentedMap()
+        for k,v in  self.wf_steps.items():
+            stepsObj[k] = v.to_obj(inline = inline)
+        
+        obj['steps'] = stepsObj
         return obj
 
     def to_script(self, wf_name='wf'):
@@ -470,7 +475,7 @@ class WorkflowGenerator(object):
             return outputs[0]
         return outputs
 
-    def save(self, fname, encoding='utf-8'):
+    def save(self, fname, inline=False, encoding='utf-8'):
         """Save the workflow to file.
 
         Save the workflow to a CWL file that can be run with a CWL runner.
@@ -488,8 +493,8 @@ class WorkflowGenerator(object):
 
         yaml.add_representer(str, str_presenter)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
-            yaml_file.write('#!/usr/bin/env cwl-runner\n')
-            yaml_file.write(yaml.dump(self.to_obj(), Dumper=yaml.RoundTripDumper))
+            yaml_file.write('#!/usr/bin/env cwltool\n')
+            yaml_file.write(yaml.dump(self.to_obj(inline), Dumper=yaml.RoundTripDumper))
 
 
 def cwl_name(name):
