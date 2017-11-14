@@ -25,14 +25,15 @@ class WorkflowGenerator(object):
     ```
     from scriptcwl import WorkflowGenerator
 
-    wf = WorkflowGenerator()
-    wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
+    with WorkflowGenerator() as wf:
+        wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
     ```
 
     Or a single CWL file:
 
     ```
-    wf.load(step_file='/path/to/cwl/step/file')
+    with WorkflowGenerator() as wf:
+        wf.load(step_file='/path/to/cwl/step/file')
     ```
 
     `wf.load` can be called multiple times. Step files are added to the steps
@@ -111,14 +112,36 @@ class WorkflowGenerator(object):
         self.has_workflow_step = False
         self.has_scatter_requirement = False
 
+        self._wf_closed = False
+
         self.load(steps_dir)
+
+    def __enter__(self):
+        self._wf_closed = False
+
+        return self
+
+    def __exit__(self, *args):
+        self.wf_steps = None
+        self.wf_inputs = None
+        self.wf_outputs = None
+        self.step_output_types = None
+        self.steps_library = None
+        self.has_workflow_step = None
+        self.has_scatter_requirement = None
+
+        self._wf_closed = True
 
     def __getattr__(self, name, **kwargs):
         name = cwl_name(name)
         step = self._get_step(name)
         return partial(self._make_step, step, **kwargs)
 
-    def load(self, steps_dir=None, step_file=None):
+    def _closed(self):
+        if self._wf_closed:
+            raise ValueError('Operation on closed WorkflowGenerator.')
+
+    def load(self, steps_dir=None, step_file=None, step_list=None):
         """Load CWL steps into the WorkflowGenerator's steps library.
 
         Adds steps (command line tools and workflows) to the
@@ -131,7 +154,9 @@ class WorkflowGenerator(object):
             step_file (str): path to a file containing a CWL step that will be
                 added to the steps library.
         """
-        steps = load_steps(steps_dir=steps_dir, step_file=step_file)
+        self._closed()
+
+        steps = load_steps(steps_dir=steps_dir, step_file=step_file, step_list=step_list)
         for n, step in steps.items():
             if n in self.steps_library.keys():
                 print('WARNING: step "{}" already in steps library'.format(n))
@@ -141,6 +166,8 @@ class WorkflowGenerator(object):
     def list_steps(self):
         """Return string with the signature of all steps in the steps library.
         """
+        self._closed()
+
         steps = []
         workflows = []
         template = u'  {:.<25} {}'
@@ -163,6 +190,8 @@ class WorkflowGenerator(object):
             bool: True if the workflow needs a requirements section, False
                 otherwise.
         """
+        self._closed()
+
         return bool(self.has_workflow_step or self.has_scatter_requirement)
 
     def inputs(self, name):
@@ -171,6 +200,8 @@ class WorkflowGenerator(object):
         Args:
             name (str): name of a step in the steps library.
         """
+        self._closed()
+
         s = self._get_step(name, make_copy=False)
         print(s.list_inputs())
 
@@ -180,6 +211,8 @@ class WorkflowGenerator(object):
         Args:
             step (Step): a step from the steps library.
         """
+        self._closed()
+
         self.has_workflow_step = self.has_workflow_step or step.is_workflow
         self.wf_steps[step.name_in_workflow] = step.to_obj()
 
@@ -203,6 +236,8 @@ class WorkflowGenerator(object):
             ValueError: the `default` keyword argument is used without a
             parameter name or with multiple parameter names.
         """
+        self._closed()
+
         arg_names = list(kwargs.keys())
         names = []
         if 'default' in arg_names:
@@ -243,6 +278,8 @@ class WorkflowGenerator(object):
                 name is the name of the step that produced this output plus the
                 output name (e.g., `saf-to-txt/out_files`).
         """
+        self._closed()
+
         for name, source_name in kwargs.items():
             obj = {}
             obj['outputSource'] = source_name
@@ -255,6 +292,8 @@ class WorkflowGenerator(object):
         Args:
             doc (str): documentation string.
         """
+        self._closed()
+
         self.documentation = doc
 
     def _get_step(self, name, make_copy=True):
@@ -276,6 +315,8 @@ class WorkflowGenerator(object):
             ValueError: The requested step cannot be found in the steps
                 library.
         """
+        self._closed()
+
         s = self.steps_library.get(name)
         if s is None:
             msg = '"{}" not found in steps library. Please check your ' \
@@ -303,6 +344,8 @@ class WorkflowGenerator(object):
         Returns:
             A yaml-compatible dict representing the workflow.
         """
+        self._closed()
+
         obj = CommentedMap()
         obj['cwlVersion'] = 'v1.0'
         obj['class'] = 'Workflow'
@@ -328,6 +371,7 @@ class WorkflowGenerator(object):
             wf_name (str): string used for the WorkflowGenerator object in the
                 generated script (default: wf).
         """
+        self._closed()
 
         # Workflow documentation
         if self.documentation:
@@ -363,6 +407,8 @@ class WorkflowGenerator(object):
         print('{}.add_outputs({})'.format(wf_name, ', '.join(params)))
 
     def _make_step(self, step, **kwargs):
+        self._closed()
+
         for k in step.get_input_names():
             if k in kwargs.keys():
                 if isinstance(kwargs[k], six.string_types):
@@ -435,6 +481,8 @@ class WorkflowGenerator(object):
             fname (str): file to save the workflow to.
             encoding (str): file encoding to use (default: utf-8).
         """
+        self._closed()
+
         dirname = os.path.dirname(os.path.abspath(fname))
 
         if not os.path.exists(dirname):

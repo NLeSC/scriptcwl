@@ -1,2 +1,4 @@
 # Include the license file
 include LICENSE
+# setup.py needs readme for long_description
+include README.md

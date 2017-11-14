@@ -62,13 +62,12 @@ A more usefull example using nlppln is to generate the [anonymize pipeline](http
 [nlppln](https://github.com/WhatWorksWhenForWhom/nlppln) package), you'd have to write:
 
 ```python
-import scriptcwl
 from scriptcwl import WorkflowGenerator
 
-wf = WorkflowGenerator()
-wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
+with WorkflowGenerator() as wf:
+  wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
 
-doc = """Workflow that replaces named entities in text files.
+  doc = """Workflow that replaces named entities in text files.
 
 Input:
   txt_dir: directory containing text files
@@ -77,26 +76,26 @@ Output:
   ner_stats: csv-file containing statistics about named entities in the text files
   txt: text files with named enities replaced
 """
-wf.set_documentation(doc)
+  wf.set_documentation(doc)
 
-txt_dir = wf.add_inputs(txt_dir='Directory')
+  txt_dir = wf.add_inputs(txt_dir='Directory')
 
-frogout = wf.frog_dir(dir_in=txt_dir)
-saf = wf.frog_to_saf(in_files=frogout)
-ner_stats = wf.save_ner_data(in_files=saf)
-new_saf = wf.replace_ner(metadata=ner_stats, in_files=saf)
-txt = wf.saf_to_txt(in_files=new_saf)
+  frogout = wf.frog_dir(in_files=txt_dir)
+  saf = wf.frog_to_saf(in_files=frogout)
+  ner_stats = wf.save_ner_data(in_files=saf)
+  new_saf = wf.replace_ner(metadata=ner_stats, in_files=saf)
+  txt = wf.saf_to_txt(in_files=new_saf)
 
-wf.add_outputs(ner_stats=ner_stats, txt=txt)
+  wf.add_outputs(ner_stats=ner_stats, txt=txt)
 
-wf.save('anonymize.cwl')
+  wf.save('anonymize.cwl')
 ```
 
 When adding an input parameter to a workflow, you can set a default value:
 
 ```python
-wf = WorkflowGenerator()
-input1 = wf.add_inputs(input1='string', default='Hello world!')
+with WorkflowGenerator() as wf:
+  input1 = wf.add_inputs(input1='string', default='Hello world!')
 ```
 
 ## Installation
@@ -131,13 +130,14 @@ the `WorkflowGenerator` object with steps (i.e., `CommandLineTool`s,
 ```python
 from scriptcwl import WorkflowGenerator
 
-wf = WorkflowGenerator()
-wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
+with WorkflowGenerator() as wf:
+  wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
 ```
 
 To load a single cwl file, do:
 ```python
-wf.load(step_file='/path/to/workflow.cwl')
+with WorkflowGenerator() as wf:
+  wf.load(step_file='/path/to/workflow.cwl')
 ```
 
 There are some software packages that help with generating CWL `CommandLineTool`s

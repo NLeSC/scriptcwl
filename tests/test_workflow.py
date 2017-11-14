@@ -19,6 +19,15 @@ class TestWorkflowGenerator(object):
         step_keys = sorted(step_keys)
         assert step_keys == ['echo', 'multiple-out-args', 'wc']
 
+    def test_load_with_list(self):
+        wf = WorkflowGenerator()
+        wf.load(step_list=['tests/data/workflows/echo-wc.cwl',\
+            'tests/data/tools'])
+        #'https://raw.githubusercontent.com/WhatWorksWhenForWhom/nlppln/develop/cwl/anonymize.cwl',\
+        step_keys = wf.steps_library.keys()
+        step_keys = sorted(step_keys)
+        assert step_keys == ['echo', 'echo-wc', 'multiple-out-args', 'wc']
+
     def test_save_with_tools(self, tmpdir):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
@@ -207,3 +216,17 @@ class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
 
         with pytest.raises(ValueError):
             wf.add_inputs(input1='string', input2='string', default='test')
+
+
+class TestWorkflowGeneratorAsContextManager(object):
+    def test_use_workflow_generator_as_context_manager(self):
+        with WorkflowGenerator() as wf:
+            assert wf._wf_closed == False
+        assert wf._wf_closed == True
+
+    def test_error_on_using_closed_workflow_generator(self):
+        with WorkflowGenerator() as wf:
+            pass
+        with pytest.raises(ValueError):
+            wf._closed()
+        
