@@ -83,7 +83,6 @@ class Step(object):
             msg = '"{}" is a unsupported'
             raise NotImplementedError(msg.format(self.name))
 
-
     def get_input_names(self):
         """Return the Step's input names (including optional input names).
 
@@ -161,9 +160,9 @@ class Step(object):
         """
         obj = CommentedMap()
         if inline:
-            
-            obj['run'] = self.command_line_tool # removeIdsFromCommentedDict(self.command_line_tool)
-        else :
+            # removeIdsFromCommentedDict(self.command_line_tool)
+            obj['run'] = self.command_line_tool
+        else:
             obj['run'] = self.run
         obj['in'] = self.step_inputs
         obj['out'] = self.output_names
