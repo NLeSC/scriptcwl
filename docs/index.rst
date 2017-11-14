@@ -15,8 +15,8 @@ Given a number of CWL ``CommandLineTool``s, workflows can be created by writing 
   with WorkflowGenerator() as wf:
       wf.load(steps_dir='/path/to/scriptcwl/scriptcwl/examples/')
 
-      num1 = wf.add_inputs(num1='int')
-      num2 = wf.add_inputs(num2='int')
+      num1 = wf.add_input(num1='int')
+      num2 = wf.add_input(num2='int')
 
       answer1 = wf.add(x=num1, y=num2)
       answer2 = wf.multiply(x=answer1, y=num2)
@@ -90,19 +90,16 @@ Workflow inputs
 
 Next, the user should add one or more workflow inputs:
 ::
-  txt_dir = wf.add_inputs(txt_dir='Directory')
+  txt_dir = wf.add_input(txt_dir='Directory')
 
-The ``add_inputs()`` method expects (key, value) pairs as input parameters.
-Each pair connects an input name (``txt_dir`` in the example) to a type
-(``'Directory'``).
+The ``add_input()`` method expects a ``name=type`` pair as input parameter.
+The pair connects an input name (``txt_dir`` in the example) to a CWL type
+(``'Directory'``). Optionally, a default value can be specified using
+``default=value``.
 
-The ``add_inputs()`` method returns a list of strings containing the names
-that can be used to connect these input parameters to step input parameter
-names. (Please note that because `\*\*kwargs` are unordered, the list of
-input names may not be in the same order as the `\*\*kwargs`. When a
-workflow has multiple inputs, it is probably safer to call ``add_inputs()``
-for every parameter separately.)
-
+The ``add_input()`` method returns a string containing the name
+that can be used to connect this input parameter to step input parameter
+names.
 
 Adding processing steps
 #######################

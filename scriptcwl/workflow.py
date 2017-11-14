@@ -45,18 +45,16 @@ class WorkflowGenerator(object):
 
     Next, the user should add one or more workflow inputs:
     ::
-      txt_dir = wf.add_inputs(txt_dir='Directory')
+      txt_dir = wf.add_input(txt_dir='Directory')
 
-    The ``add_inputs()`` method expects (key, value) pairs as input parameters.
-    Each pair connects an input name (``txt_dir`` in the example) to a type
-    (``'Directory'``).
+    The ``add_input()`` method expects a ``name=type`` pair as input parameter.
+    The pair connects an input name (``txt_dir`` in the example) to a CWL type
+    (``'Directory'``). Optionally, a default value can be specified using
+    ``default=value``.
 
-    The ``add_inputs()`` method returns a list of strings containing the names
-    that can be used to connect these input parameters to step input parameter
-    names. (Please note that because `\*\*kwargs` are unordered, the list of
-    input names may not be in the same order as the `\*\*kwargs`. When a
-    workflow has multiple inputs, it is probably safer to call ``add_inputs()``
-    for every parameter separately.)
+    The ``add_input()`` method returns a string containing the name
+    that can be used to connect this input parameter to step input parameter
+    names.
 
     Next, workflow steps can be added. To add a workflow step, its method must
     be called on the WorkflowGenerator object. This method expects a list of
