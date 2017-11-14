@@ -162,7 +162,7 @@ class Step(object):
         obj = CommentedMap()
         if inline:
             
-            obj['run'] = self.command_line_tool # removeIdsFromCommentedDict(self.command_line_tool)
+            obj['run'] = self.command_line_tool 
         else :
             obj['run'] = self.run
         obj['in'] = self.step_inputs
