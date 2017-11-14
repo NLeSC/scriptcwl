@@ -1,15 +1,17 @@
-import os
-import codecs
-import six
-import copy
+from __future__ import print_function
 
+import codecs
+import copy
+import os
 from functools import partial
+
+import six
 from ruamel import yaml
 from ruamel.yaml.comments import CommentedMap
 
 from .scriptcwl import load_steps
 from .step import Step, python_name
-from .yamlmultiline import str_presenter, is_multiline
+from .yamlmultiline import is_multiline, str_presenter
 
 
 class WorkflowGenerator(object):
@@ -52,7 +54,7 @@ class WorkflowGenerator(object):
     Each pair connects an input name (`txt_dir` in the example) to a type
     (`'Directory'`).
 
-    `addd_inputs` method returns a list of strings containing the names that
+    `add_inputs` method returns a list of strings containing the names that
     can be used to connect these input parameters to step input parameter
     names. (Please note that because **kwargs are unordered, the list of input
     names may not be in the same order as the **kwargs. When a workflow has
@@ -141,7 +143,7 @@ class WorkflowGenerator(object):
         if self._wf_closed:
             raise ValueError('Operation on closed WorkflowGenerator.')
 
-    def load(self, steps_dir=None, step_file=None):
+    def load(self, steps_dir=None, step_file=None, step_list=None):
         """Load CWL steps into the WorkflowGenerator's steps library.
 
         Adds steps (command line tools and workflows) to the
@@ -156,7 +158,7 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        steps = load_steps(steps_dir=steps_dir, step_file=step_file)
+        steps = load_steps(steps_dir=steps_dir, step_file=step_file, step_list=step_list)
         for n, step in steps.items():
             if n in self.steps_library.keys():
                 print('WARNING: step "{}" already in steps library'.format(n))
@@ -202,8 +204,8 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        s = self._get_step(name, make_copy=False)
-        print(s.list_inputs())
+        step = self._get_step(name, make_copy=False)
+        return step.list_inputs()
 
     def _add_step(self, step):
         """Add a step to the workflow.
@@ -216,55 +218,46 @@ class WorkflowGenerator(object):
         self.has_workflow_step = self.has_workflow_step or step.is_workflow
         self.wf_steps[step.name_in_workflow] = step
 
-    def add_inputs(self, **kwargs):
-        """Add workflow inputs.
+    def add_input(self, **kwargs):
+        """Add workflow input.
 
         Args:
-            kwargs (dict): A dict with `name=type` pairs, where name is the
+            kwargs (dict): A dict with a `name: type` item
+                and optionally a `default: value` item, where name is the
                 name (id) of the workflow input (e.g., `dir_in`) and type is
-                the type of the input (e.g., `'Directory'`). The type of input
-                parameters can be learned from
+                the type of the input (e.g., `'Directory'`).
+                The type of input parameter can be learned from
                 `step.inputs(step_name=input_name)`.
-                Allows for setting default values by adding a `default=value`
-                pair. If the `default` keyword argument is used, it is not
-                allowed to add multiple input parameters at once.
 
         Returns:
-            list of inputnames
+            inputname
 
         Raises:
-            ValueError: the `default` keyword argument is used without a
-            parameter name or with multiple parameter names.
+            ValueError: No or multiple parameter(s) have been specified.
         """
         self._closed()
 
-        arg_names = list(kwargs.keys())
-        names = []
-        if 'default' in arg_names:
-            arg_names.remove('default')
-            if len(arg_names) == 0:
-                msg = 'No parameter the default value can be assigned to.'
-                raise ValueError(msg)
-            elif len(arg_names) > 1:
-                msg = 'Unclear to which parameter the default value should ' \
-                      'be assigned: "{}"\nPlease add a single parameter ' \
-                      'only when using "default".'
-                raise ValueError(msg.format('" or "'.join(arg_names)))
-            name = arg_names[0]
-            inp = CommentedMap()
-            inp['type'] = kwargs.get(name)
-            inp['default'] = kwargs.get('default')
-            self.wf_inputs[name] = inp
+        def _get_item(args):
+            """Get a single item from args."""
+            if not args:
+                raise ValueError("No parameter specified.")
+            item = args.popitem()
+            if args:
+                raise ValueError("Too many parameters, not clear what to do "
+                                 "with {}".format(kwargs))
+            return item
 
-            names.append(name)
+        if 'default' not in kwargs:
+            name, input_type = _get_item(kwargs)
+            self.wf_inputs[name] = input_type
         else:
-            for name, typ in kwargs.items():
-                self.wf_inputs[name] = typ
-                names.append(name)
+            input_dict = CommentedMap()
+            input_dict['default'] = kwargs.pop('default')
+            name, input_type = _get_item(kwargs)
+            input_dict['type'] = input_type
+            self.wf_inputs[name] = input_dict
 
-        if len(names) == 1:
-            return names[0]
-        return names
+        return name
 
     def add_outputs(self, **kwargs):
         """Add workflow outputs.
@@ -356,7 +349,8 @@ class WorkflowGenerator(object):
         if self._has_requirements():
             obj['requirements'] = []
         if self.has_workflow_step:
-            obj['requirements'].append({'class': 'SubworkflowFeatureRequirement'})
+            obj['requirements'].append(
+                {'class': 'SubworkflowFeatureRequirement'})
         if self.has_scatter_requirement:
             obj['requirements'].append({'class': 'ScatterFeatureRequirement'})
         obj['inputs'] = self.wf_inputs
@@ -378,15 +372,18 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
+        script = []
+
         # Workflow documentation
         if self.documentation:
             if is_multiline(self.documentation):
-                print('doc = """')
-                print(self.documentation)
-                print('"""')
-                print('{}.set_documentation(doc)'.format(wf_name))
+                script.append('doc = """')
+                script.append(self.documentation)
+                script.append('"""')
+                script.append('{}.set_documentation(doc)'.format(wf_name))
             else:
-                print('{}.set_documentation(\'{}\')'.format(wf_name, self.documentation))
+                script.append('{}.set_documentation(\'{}\')'
+                              .format(wf_name, self.documentation))
 
         # Workflow inputs
         params = []
@@ -394,32 +391,42 @@ class WorkflowGenerator(object):
         for name, typ in self.wf_inputs.items():
             params.append('{}=\'{}\''.format(name, typ))
             returns.append(name)
-        print('{} = {}.add_inputs({})'.format(', '.join(returns), wf_name,
-                                              ', '.join(params)))
+        script.append('{} = {}.add_inputs({})'.format(
+            ', '.join(returns), wf_name, ', '.join(params)))
 
         # Workflow steps
         returns = []
         for name, step in self.wf_steps.items():
-            s = Step(step['run'])
-            returns = ['{}_{}'.format(python_name(s.name), o) for o in step['out']]
-            params = ['{}={}'.format(name, python_name(param)) for name, param in step['in'].items()]
-            print('{} = {}.{}({})'.format(', '.join(returns), wf_name, s.python_name, ', '.join(params)))
+            pyname = Step(step['run']).python_name
+            returns = ['{}_{}'.format(pyname, o) for o in step['out']]
+            params = ['{}={}'.format(name, python_name(param))
+                      for name, param in step['in'].items()]
+            script.append('{} = {}.{}({})'.format(
+                ', '.join(returns), wf_name, pyname, ', '.join(params)))
 
         # Workflow outputs
         params = []
         for name, details in self.wf_outputs.items():
-            params.append('{}={}'.format(name, python_name(details['outputSource'])))
-        print('{}.add_outputs({})'.format(wf_name, ', '.join(params)))
+            params.append('{}={}'.format(
+                name, python_name(details['outputSource'])))
+        script.append('{}.add_outputs({})'.format(wf_name, ', '.join(params)))
+
+        return '\n'.join(script)
 
     def _make_step(self, step, **kwargs):
         self._closed()
 
         for k in step.get_input_names():
-            if k not in kwargs.keys() and k not in step.optional_input_names:
+            if k in kwargs.keys():
+                if isinstance(kwargs[k], six.string_types):
+                    step.set_input(k, kwargs[k])
+                else:
+                    raise ValueError(
+                        'Incorrect type (should be string) for keyword '
+                        'argument {}'.format(k))
+            elif k not in step.optional_input_names:
                 raise ValueError(
                     'Expecting "{}" as a keyword argument.'.format(k))
-            if kwargs.get(k):
-                step.set_input(k, kwargs[k])
 
         if 'scatter' in kwargs.keys() or 'scatter_method' in kwargs.keys():
             # Check whether both required keyword arguments are present
@@ -495,6 +502,7 @@ class WorkflowGenerator(object):
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
             yaml_file.write('#!/usr/bin/env cwltool\n')
             yaml_file.write(yaml.dump(self.to_obj(inline), Dumper=yaml.RoundTripDumper))
+
 
 
 def cwl_name(name):
