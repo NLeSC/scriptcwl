@@ -162,7 +162,13 @@ Workflows created with scriptcwl can be run with:
 cwltool workflow.cwl <arguments>
 ```
 
-Or
+Or if you have set a cwl-runner on your system:
+
+```
+cwl-runner workflow.cwl <arguments>
+```
+
+Or:
 
 ```
 chmod +x workflow.cwl
