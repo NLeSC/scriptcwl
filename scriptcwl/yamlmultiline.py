@@ -5,6 +5,7 @@
 def is_multiline(s):
     """Return True if a str consists of multiple lines.
 
+
     Args:
         s (str): the string to check.
 
@@ -16,6 +17,7 @@ def is_multiline(s):
 
 def str_presenter(dmpr, data):
     """Return correct str_presenter to write multiple lines to a yaml field.
+
 
     Source: http://stackoverflow.com/a/33300001
     """
