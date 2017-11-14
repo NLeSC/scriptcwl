@@ -217,7 +217,7 @@ class WorkflowGenerator(object):
         self._closed()
 
         self.has_workflow_step = self.has_workflow_step or step.is_workflow
-        self.wf_steps[step.name_in_workflow] = step.to_obj()
+        self.wf_steps[step.name_in_workflow] = step
 
     def add_inputs(self, **kwargs):
         """Add workflow inputs.
@@ -365,7 +365,10 @@ class WorkflowGenerator(object):
             obj['requirements'].append({'class': 'ScatterFeatureRequirement'})
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
-        obj['steps'] = self.wf_steps
+        steps_obj = CommentedMap()
+        for key in self.wf_steps:
+            steps_obj[key] = self.wf_steps[key].to_obj()
+        obj['steps'] = steps_obj
         return obj
 
     def to_script(self, wf_name='wf'):
@@ -402,7 +405,7 @@ class WorkflowGenerator(object):
         # Workflow steps
         returns = []
         for name, step in self.wf_steps.items():
-            pyname = Step(step['run']).python_name
+            pyname = step.python_name
             returns = ['{}_{}'.format(pyname, o) for o in step['out']]
             params = ['{}={}'.format(name, python_name(param))
                       for name, param in step['in'].items()]
