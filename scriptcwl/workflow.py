@@ -571,7 +571,7 @@ class WorkflowGenerator(object):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
-        yaml.add_representer(str, str_presenter)
+        yaml.add_representer(str, str_presenter, Dumper=yaml.RoundTripDumper)
         yaml.add_representer(Reference, reference_presenter,
                              Dumper=yaml.RoundTripDumper)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
