@@ -10,9 +10,17 @@ from ruamel import yaml
 from ruamel.yaml.comments import CommentedMap
 
 from .scriptcwl import load_steps
-from .step import Step, python_name
+from .step import python_name, quiet
+
 from .yamlmultiline import is_multiline, str_presenter
 from .reference import Reference, reference_presenter
+
+import tempfile
+
+# import cwltool.load_tool functions
+with quiet():
+    # all is quiet in this scope
+    from cwltool.load_tool import fetch_document, validate_document
 
 
 class WorkflowGenerator(object):
@@ -555,7 +563,30 @@ class WorkflowGenerator(object):
             return outputs[0]
         return outputs
 
-    def save(self, fname, inline=False, encoding='utf-8'):
+    def validate(self, inline=False, encoding='utf-8'):
+        """Validate workflow object.
+
+        This method currently validates the workflow object with the
+        use of cwltool. It writes the workflow to a tmp CWL file,
+        reads it, validates it and removes the tmp file again.
+        """
+        # define tmpfile
+        (fd, tmpfile) = tempfile.mkstemp()
+        os.close(fd)
+        try:
+            # save workflow object to tmpfile,
+            # do not recursively call validate function
+            self.save(tmpfile, validate=False)
+            # load workflow from tmpfile
+            (document_loader, workflowobj, uri) = fetch_document(tmpfile)
+            # validate workflow
+            (document_loader, avsc_names, processobj, metadata, uri) = \
+                validate_document(document_loader, workflowobj, uri)
+        finally:
+            # cleanup tmpfile
+            os.remove(tmpfile)
+
+    def save(self, fname, inline=False, encoding='utf-8', validate=True):
         """Save the workflow to file.
 
         Save the workflow to a CWL file that can be run with a CWL runner.
@@ -565,6 +596,9 @@ class WorkflowGenerator(object):
             encoding (str): file encoding to use (default: utf-8).
         """
         self._closed()
+
+        if validate:
+            self.validate()
 
         dirname = os.path.dirname(os.path.abspath(fname))
 
