@@ -1,5 +1,6 @@
 from six import text_type
 
+
 class Reference:
     """Represents a reference to a source of data.
 
@@ -32,6 +33,7 @@ class Reference:
 
     def refers_to_step_output(self):
         return self.step_name is not None
+
 
 def reference_presenter(dmpr, data):
     return dmpr.represent_scalar('tag:yaml.org,2002:str', text_type(data))
