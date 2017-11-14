@@ -19,7 +19,7 @@ Use your favorite text editor to set the inputs to appropriate values. Save the
 file, and use it as input for your workflow:
 ::
 
-cwltool add_multiply_example.cwl inputs.yml
+	cwltool add_multiply_example.cwl inputs.yml
 
 Using cwl-runner
 ################
