@@ -18,9 +18,10 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from recommonmark.parser import CommonMarkParser
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # -- General configuration ------------------------------------------------
 
@@ -43,7 +44,7 @@ source_parsers = {
     '.md': CommonMarkParser,
 }
 source_suffix = ['.rst', '.md']
-#source_suffix = '.rst'
+# source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
