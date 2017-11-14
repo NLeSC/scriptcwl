@@ -70,7 +70,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['six', 'cwltool>=1.0.20170727112954'],
+    install_requires=['six', 'cwltool>=1.0.20170727112954', 'click'],
     setup_requires=[
         # dependency for `python setup.py test`
         'pytest-runner',
