@@ -27,5 +27,11 @@ class Reference:
     def __repr__(self):
         return self.target_str
 
+    def refers_to_wf_input(self):
+        return self.input_name is not None
+
+    def refers_to_step_output(self):
+        return self.step_name is not None
+
 def reference_presenter(dmpr, data):
     return dmpr.represent_scalar('tag:yaml.org,2002:str', text_type(data))

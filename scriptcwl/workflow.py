@@ -434,7 +434,7 @@ class WorkflowGenerator(object):
         return input_type
 
     def _get_source_type(self, ref):
-        if ref.step_name:
+        if ref.refers_to_step_output():
             step = self.wf_steps[ref.step_name]
             return step.output_types[ref.output_name]
         else:
@@ -468,7 +468,7 @@ class WorkflowGenerator(object):
                 scattered = ' (scattered)'
             else:
                 scattered = ''
-            if reference.input_name:
+            if reference.refers_to_wf_input():
                 msg = 'Workflow input "{}" of type "{}" is not'
                 msg += ' compatible with{} step input "{}" of type "{}"'
                 msg = msg.format(
