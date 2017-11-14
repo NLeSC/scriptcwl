@@ -1,9 +1,9 @@
 import os
+import six
+from six.moves.urllib.parse import urlparse
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
 import sys
 from contextlib import contextmanager
-
-import six
-from ruamel.yaml.comments import CommentedMap
 
 from six.moves.urllib.parse import urlparse
 
@@ -28,6 +28,19 @@ with quiet():
 
 from .reference import Reference
 
+
+def removeIdsFromCommentedDict(cd):
+    if  isinstance(cd, CommentedSeq):
+        for x in range(len(cd)):
+            cd[x] = removeIdsFromCommentedDict(cd[x]) 
+        return cd
+    if not isinstance(cd, CommentedMap):
+        return cd
+   
+    del cd['id']
+    for k, v in cd.items():
+        cd[k] = removeIdsFromCommentedDict(v)
+    return cd
 
 class Step(object):
     """Representation of a CWL step.
@@ -62,6 +75,7 @@ class Step(object):
             validate_document(document_loader, workflowobj, uri)
         s = processobj
 
+        self.command_line_tool = s
         valid_classes = ('CommandLineTool', 'Workflow', 'ExpressionTool')
         if 'class' in s and s['class'] in valid_classes:
             self.is_workflow = s['class'] == 'Workflow'
@@ -83,6 +97,7 @@ class Step(object):
         else:
             msg = '"{}" is a unsupported'
             raise NotImplementedError(msg.format(self.name))
+
 
     def get_input_names(self):
         """Return the Step's input names (including optional input names).
@@ -153,14 +168,18 @@ class Step(object):
         else:
             raise ValueError('Invalid input "{}"'.format(inp.get['id']))
 
-    def to_obj(self):
+    def to_obj(self, inline=True):
         """Return the step as an dict that can be written to a yaml file.
 
         Returns:
             dict: yaml representation of the step.
         """
         obj = CommentedMap()
-        obj['run'] = self.run
+        if inline:
+            
+            obj['run'] = self.command_line_tool # removeIdsFromCommentedDict(self.command_line_tool)
+        else :
+            obj['run'] = self.run
         obj['in'] = self.step_inputs
         obj['out'] = self.output_names
         if self.is_scattered:

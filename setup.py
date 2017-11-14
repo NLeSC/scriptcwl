@@ -71,6 +71,15 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['six', 'cwltool>=1.0.20170727112954'],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    setup_requires=[
+        # dependency for `python setup.py test`
+        'pytest-runner',
+        # dependencies for `python setup.py build_sphinx`
+        'sphinx',
+        'recommonmark'
+    ],
+    tests_require=[
+        'pytest',
+        'pytest-cov',
+    ],
 )
