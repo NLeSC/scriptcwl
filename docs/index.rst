@@ -152,16 +152,18 @@ Saving the workflow
 
 Do we really need to say something more about this?
 
+Contents
+========
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   cwl_tips_tricks
+
+API Reference
+=============
+
+.. toctree::
+   :maxdepth: 2
 
    scriptcwl
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
