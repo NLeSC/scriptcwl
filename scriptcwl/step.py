@@ -26,6 +26,8 @@ with quiet():
     # all is quiet in this scope
     from cwltool.load_tool import fetch_document, validate_document
 
+from .reference import Reference
+
 
 class Step(object):
     """Representation of a CWL step.
@@ -129,7 +131,7 @@ class Step(object):
         """
         if name not in self.output_names:
             raise ValueError('Invalid output "{}"'.format(name))
-        return ''.join([self.name_in_workflow, '/', name])
+        return Reference(step_name=self.name_in_workflow, output_name=name)
 
     def _input_optional(self, inp):
         """Returns True if a step input parameter is optional.
