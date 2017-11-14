@@ -12,6 +12,7 @@ from ruamel.yaml.comments import CommentedMap
 from .scriptcwl import load_steps
 from .step import Step, python_name
 from .yamlmultiline import is_multiline, str_presenter
+from .reference import Reference, reference_presenter
 
 
 class WorkflowGenerator(object):
@@ -258,11 +259,11 @@ class WorkflowGenerator(object):
             inp['default'] = kwargs.get('default')
             self.wf_inputs[name] = inp
 
-            names.append(name)
+            names.append(Reference(input_name=name))
         else:
             for name, typ in kwargs.items():
                 self.wf_inputs[name] = typ
-                names.append(name)
+                names.append(Reference(input_name=name))
 
         if len(names) == 1:
             return names[0]
@@ -422,7 +423,7 @@ class WorkflowGenerator(object):
 
         for k in step.get_input_names():
             if k in kwargs.keys():
-                if isinstance(kwargs[k], six.string_types):
+                if isinstance(kwargs[k], Reference):
                     step.set_input(k, kwargs[k])
                 else:
                     raise ValueError(
@@ -503,6 +504,7 @@ class WorkflowGenerator(object):
             os.makedirs(dirname)
 
         yaml.add_representer(str, str_presenter)
+        yaml.add_representer(Reference, reference_presenter, Dumper=yaml.RoundTripDumper)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
             yaml_file.write('#!/usr/bin/env cwltool\n')
             yaml_file.write(yaml.dump(self.to_obj(),

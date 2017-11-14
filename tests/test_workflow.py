@@ -128,7 +128,8 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
             echoed = wf.echo(
                 message=msgs, scatter='message', scatter_method=method)
-            assert echoed == 'echo/echoed'
+            assert echoed.step_name == 'echo'
+            assert echoed.output_name == 'echoed'
 
     def test_scatter_variable_incorrect(self):
         wf = WorkflowGenerator()
@@ -155,7 +156,8 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
             echoed = wf.echo(
                 message=msgs, scatter='message', scatter_method=method)
-            assert echoed == 'echo/echoed'
+            assert echoed.step_name == 'echo'
+            assert echoed.output_name == 'echoed'
 
     def test_missing_scatter_argument(self):
         wf = WorkflowGenerator()
@@ -187,13 +189,13 @@ class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
         echoed = wf.echo(message=wfmessage)
 
         assert name == 'echo'
-        assert name == echoed.split('/')[0]
+        assert name == echoed.step_name
 
         name = wf._generate_step_name('echo')
         echoed2 = wf.echo(message=wfmessage)
 
         assert name != 'echo'
-        assert name == echoed2.split('/')[0]
+        assert name == echoed2.step_name
 
 
 class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
