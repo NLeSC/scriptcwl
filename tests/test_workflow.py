@@ -178,6 +178,96 @@ class TestWorkflowGeneratorWithScatteredStep(object):
             wf.echo(message=msgs, scatter='message')
 
 
+class TestWorkflowGeneratorTypeChecking(object):
+    def test_step_with_compatible_input(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_inputs(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+
+    def test_step_with_incompatible_input(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_inputs(wfmessage='string')
+        with pytest.raises(ValueError):
+            wced = wf.wc(file2count=wfmessage)
+
+    def test_step_with_scattered_input(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        msgs = wf.add_inputs(wfmessages='string[]')
+        wf.echo(message=msgs, scatter='message', scatter_method='dotproduct')
+
+    def test_step_with_compatible_step_output(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_inputs(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+
+    def test_step_with_incompatible_step_output(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        infile = wf.add_inputs(infile='File')
+        wced = wf.wc(file2count=infile)
+        with pytest.raises(ValueError):
+            echoed = wf.echo(message=wced)
+
+    def test_step_with_scattered_step_output(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        msgs = wf.add_inputs(msgs='string[]')
+        echoed = wf.echo(message=msgs, scatter='message', scatter_method='dotproduct')
+        wced = wf.wc(file2count=echoed, scatter='file2count', scatter_method='dotproduct')
+
+    def test_scattered_step_with_scalar_input(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_inputs(message='string')
+        with pytest.raises(ValueError):
+            echoed = wf.echo(message=wfmessage, scatter='message', scatter_method='dotproduct')
+
+    def test_optional_type(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        # This could work, if you pass a string for input, even if
+        # the echo step requires an input. So we expect it to work.
+        wfmessage = wf.add_inputs(message='string?')
+        echod = wf.echo(message=wfmessage)
+
+    def test_required_to_optional(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        # out_dir is optional, attaching to non-optional input
+        # should work.
+        wf_infiles = wf.add_inputs(in_files='File[]')
+        wf_outdir = wf.add_inputs(out_dir='string')
+        wf_counselors = wf.add_inputs(counselors='string[]')
+        out_files, meta_out = wf.multiple_out_args(
+                in_files=wf_infiles, out_dir=wf_outdir,
+                counselors=wf_counselors)
+
+    def test_optional_to_optional_type(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        wf_infiles = wf.add_inputs(in_files='File[]')
+        wf_outdir = wf.add_inputs(out_dir='string?')
+        wf_counselors = wf.add_inputs(counselors='string[]')
+        out_files, meta_out = wf.multiple_out_args(
+                in_files=wf_infiles, out_dir=wf_outdir,
+                counselors=wf_counselors)
+
+
 class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
     def test_generate_step_name(self):
         wf = WorkflowGenerator()

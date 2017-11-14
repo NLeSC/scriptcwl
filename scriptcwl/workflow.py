@@ -421,6 +421,69 @@ class WorkflowGenerator(object):
 
         return '\n'.join(script)
 
+    def _get_input_type(self, step, input_name):
+        input_type = step.input_types.get(input_name)
+        if not input_type:
+            input_type = step.optional_input_types[input_name]
+
+        if step.is_scattered:
+            for scattered_input in step.scattered_inputs:
+                if scattered_input == input_name:
+                    input_type += '[]'
+
+        return input_type
+
+    def _get_source_type(self, ref):
+        if ref.step_name:
+            step = self.wf_steps[ref.step_name]
+            return step.output_types[ref.output_name]
+        else:
+            input_def = self.wf_inputs[ref.input_name]
+            if isinstance(input_def, six.string_types):
+                return input_def
+            return input_def['type']
+
+    def _types_match(self, type1, type2):
+        """Returns False only if it can show that no value of type1
+        can possibly match type2.
+
+        Supports only a limited selection of types.
+        """
+        if isinstance(type1, six.string_types) and \
+                isinstance(type2, six.string_types):
+            type1 = type1.rstrip('?')
+            type2 = type2.rstrip('?')
+            if type1 != type2:
+                return False
+
+        return True
+
+    def _type_check_reference(self, step, input_name, reference):
+        input_type = self._get_input_type(step, input_name)
+        source_type = self._get_source_type(reference)
+        if self._types_match(source_type, input_type):
+            return True
+        else:
+            if step.is_scattered:
+                scattered = ' (scattered)'
+            else:
+                scattered = ''
+            if reference.input_name:
+                msg = 'Workflow input "{}" of type "{}" is not'
+                msg += ' compatible with{} step input "{}" of type "{}"'
+                msg = msg.format(
+                        reference.input_name, source_type,
+                        scattered,
+                        input_name, input_type)
+            else:
+                msg = 'Step output "{}" of type "{}" is not'
+                msg += ' compatible with{} step input "{}" of type "{}"'
+                msg = msg.format(
+                        reference, source_type,
+                        scattered,
+                        input_name, input_type)
+            raise ValueError(msg)
+
     def _make_step(self, step, **kwargs):
         self._closed()
 
@@ -430,7 +493,8 @@ class WorkflowGenerator(object):
                     step.set_input(k, kwargs[k])
                 else:
                     raise ValueError(
-                        'Incorrect type (should be string) for keyword '
+                        'Incorrect type (should be a value returned'
+                        'by set_inputs() or from adding a step) for keyword '
                         'argument {}'.format(k))
             elif k not in step.optional_input_names:
                 raise ValueError(
@@ -470,6 +534,11 @@ class WorkflowGenerator(object):
 
             self.has_scatter_requirement = True
             step.is_scattered = True
+
+        # Check types of references
+        for k in step.get_input_names():
+            if k in kwargs.keys():
+                self._type_check_reference(step, k, kwargs[k])
 
         # Make sure the step has a unique name in the workflow (so command line
         # tools can be added to the same workflow multiple times).
