@@ -218,55 +218,46 @@ class WorkflowGenerator(object):
         self.has_workflow_step = self.has_workflow_step or step.is_workflow
         self.wf_steps[step.name_in_workflow] = step.to_obj()
 
-    def add_inputs(self, **kwargs):
-        """Add workflow inputs.
+    def add_input(self, **kwargs):
+        """Add workflow input.
 
         Args:
-            kwargs (dict): A dict with `name=type` pairs, where name is the
+            kwargs (dict): A dict with a `name: type` item
+                and optionally a `default: value` item, where name is the
                 name (id) of the workflow input (e.g., `dir_in`) and type is
-                the type of the input (e.g., `'Directory'`). The type of input
-                parameters can be learned from
+                the type of the input (e.g., `'Directory'`).
+                The type of input parameter can be learned from
                 `step.inputs(step_name=input_name)`.
-                Allows for setting default values by adding a `default=value`
-                pair. If the `default` keyword argument is used, it is not
-                allowed to add multiple input parameters at once.
 
         Returns:
-            list of inputnames
+            inputname
 
         Raises:
-            ValueError: the `default` keyword argument is used without a
-            parameter name or with multiple parameter names.
+            ValueError: No or multiple parameter(s) have been specified.
         """
         self._closed()
 
-        arg_names = list(kwargs.keys())
-        names = []
-        if 'default' in arg_names:
-            arg_names.remove('default')
-            if not arg_names:
-                msg = 'No parameter the default value can be assigned to.'
-                raise ValueError(msg)
-            elif len(arg_names) > 1:
-                msg = 'Unclear to which parameter the default value should ' \
-                      'be assigned: "{}"\nPlease add a single parameter ' \
-                      'only when using "default".'
-                raise ValueError(msg.format('" or "'.join(arg_names)))
-            name = arg_names[0]
-            inp = CommentedMap()
-            inp['type'] = kwargs.get(name)
-            inp['default'] = kwargs.get('default')
-            self.wf_inputs[name] = inp
+        def _get_item(args):
+            """Get a single item from args."""
+            if not args:
+                raise ValueError("No parameter specified.")
+            item = args.popitem()
+            if args:
+                raise ValueError("Too many parameters, not clear what to do "
+                                 "with {}".format(kwargs))
+            return item
 
-            names.append(name)
+        if 'default' not in kwargs:
+            name, input_type = _get_item(kwargs)
+            self.wf_inputs[name] = input_type
         else:
-            for name, typ in kwargs.items():
-                self.wf_inputs[name] = typ
-                names.append(name)
+            input_dict = CommentedMap()
+            input_dict['default'] = kwargs.pop('default')
+            name, input_type = _get_item(kwargs)
+            input_dict['type'] = input_type
+            self.wf_inputs[name] = input_dict
 
-        if len(names) == 1:
-            return names[0]
-        return names
+        return name
 
     def add_outputs(self, **kwargs):
         """Add workflow outputs.
