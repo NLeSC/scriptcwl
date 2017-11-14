@@ -1,7 +1,8 @@
 """Tool to generate CWL workflows"""
 # Always prefer setuptools over distutils
 from os import path
-from setuptools import setup, find_packages
+
+from setuptools import find_packages, setup
 
 
 def read(fname):
@@ -52,7 +53,6 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6'
@@ -69,7 +69,17 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['six', 'cwltool>=1.0.20170727112954'],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    install_requires=['six', 'cwltool>=1.0.20170727112954', 'click'],
+    setup_requires=[
+        # dependency for `python setup.py test`
+        'pytest-runner',
+        # dependencies for `python setup.py build_sphinx`
+        'sphinx',
+        'recommonmark'
+    ],
+    tests_require=[
+        'pytest',
+        'pytest-cov',
+        'pycodestyle',
+    ],
 )

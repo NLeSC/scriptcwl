@@ -1,9 +1,13 @@
 import os
-import six
-from six.moves.urllib.parse import urlparse
-from ruamel.yaml.comments import CommentedMap
 import sys
 from contextlib import contextmanager
+
+import six
+from ruamel.yaml.comments import CommentedMap
+
+from six.moves.urllib.parse import urlparse
+
+from .reference import Reference
 
 
 # Helper function to make the import of cwltool.load_tool quiet
@@ -31,6 +35,7 @@ class Step(object):
     The Step can be a CommandLineTool or a Workflow. Steps are read from file
     and validated using ``cwltool``.
     """
+
     def __init__(self, fname, abspath=True, start=os.curdir):
         if abspath:
             self.run = os.path.abspath(fname)
@@ -54,15 +59,17 @@ class Step(object):
 
         # Fetching, preprocessing and validating cwl
         (document_loader, workflowobj, uri) = fetch_document(fname)
-        (document_loader, avsc_names, processobj, metadata, uri) = validate_document(document_loader, workflowobj, uri)
+        (document_loader, avsc_names, processobj, metadata, uri) = \
+            validate_document(document_loader, workflowobj, uri)
         s = processobj
 
+        self.command_line_tool = s
         valid_classes = ('CommandLineTool', 'Workflow', 'ExpressionTool')
         if 'class' in s and s['class'] in valid_classes:
             self.is_workflow = s['class'] == 'Workflow'
             for inp in s['inputs']:
-                # Due to preprocessing of cwltool the id has become an absolute iri,
-                # for ease of use we keep only the fragment
+                # Due to preprocessing of cwltool the id has become an
+                # absolute iri, for ease of use we keep only the fragment
                 short_id = iri2fragment(inp['id'])
                 if self._input_optional(inp):
                     self.optional_input_names.append(short_id)
@@ -124,7 +131,7 @@ class Step(object):
         """
         if name not in self.output_names:
             raise ValueError('Invalid output "{}"'.format(name))
-        return ''.join([self.name_in_workflow, '/', name])
+        return Reference(step_name=self.name_in_workflow, output_name=name)
 
     def _input_optional(self, inp):
         """Returns True if a step input parameter is optional.
@@ -148,14 +155,17 @@ class Step(object):
         else:
             raise ValueError('Invalid input "{}"'.format(inp.get['id']))
 
-    def to_obj(self):
+    def to_obj(self, inline=True):
         """Return the step as an dict that can be written to a yaml file.
 
         Returns:
             dict: yaml representation of the step.
         """
         obj = CommentedMap()
-        obj['run'] = self.run
+        if inline:
+            obj['run'] = self.command_line_tool
+        else:
+            obj['run'] = self.run
         obj['in'] = self.step_inputs
         obj['out'] = self.output_names
         if self.is_scattered:
@@ -165,13 +175,13 @@ class Step(object):
         return obj
 
     def __str__(self):
-        if len(self.optional_input_names) > 0:
+        if self.optional_input_names:
             template = u'{} = wf.{}({}[, {}])'
         else:
             template = u'{} = wf.{}({})'
         return template.format(u', '.join(self.output_names), self.python_name,
-                               u', '.join(self.input_names),
-                               u', '.join(self.optional_input_names))
+                               u', '.join(self.input_names), u', '.join(
+                                   self.optional_input_names))
 
     def __repr__(self):
         return str(self)
