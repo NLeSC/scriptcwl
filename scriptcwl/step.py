@@ -29,19 +29,6 @@ with quiet():
 from .reference import Reference
 
 
-def removeIdsFromCommentedDict(cd):
-    if  isinstance(cd, CommentedSeq):
-        for x in range(len(cd)):
-            cd[x] = removeIdsFromCommentedDict(cd[x]) 
-        return cd
-    if not isinstance(cd, CommentedMap):
-        return cd
-   
-    del cd['id']
-    for k, v in cd.items():
-        cd[k] = removeIdsFromCommentedDict(v)
-    return cd
-
 class Step(object):
     """Representation of a CWL step.
 
@@ -177,7 +164,7 @@ class Step(object):
         obj = CommentedMap()
         if inline:
             
-            obj['run'] = self.command_line_tool # removeIdsFromCommentedDict(self.command_line_tool)
+            obj['run'] = self.command_line_tool 
         else :
             obj['run'] = self.run
         obj['in'] = self.step_inputs
