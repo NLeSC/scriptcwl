@@ -4,9 +4,9 @@ import copy
 from contextlib import contextmanager
 
 import six
-from ruamel.yaml.comments import CommentedMap
-
 from six.moves.urllib.parse import urlparse
+
+from ruamel.yaml.comments import CommentedMap
 
 from .reference import Reference
 
@@ -14,14 +14,19 @@ from .reference import Reference
 # Helper function to make the import of cwltool.load_tool quiet
 @contextmanager
 def quiet():
+    # save stdout/stderr
+    # Jupyter doesn't support setting it back to
+    # sys.__stdout__ and sys.__stderr__
+    _sys_stdout = sys.stdout
+    _sys_stderr = sys.stderr
     # Divert stdout and stderr to devnull
     sys.stdout = sys.stderr = open(os.devnull, "w")
     try:
         yield
     finally:
         # Revert back to standard stdout/stderr
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
+        sys.stdout = _sys_stdout
+        sys.stderr = _sys_stderr
 
 
 # import cwltool.load_tool functions
@@ -60,7 +65,7 @@ class Step(object):
 
         # Fetching, preprocessing and validating cwl
         (document_loader, workflowobj, uri) = fetch_document(fname)
-        (document_loader, avsc_names, processobj, metadata, uri) = \
+        (document_loader, _, processobj, _, uri) = \
             validate_document(document_loader, workflowobj, uri)
         s = processobj
 
@@ -134,7 +139,8 @@ class Step(object):
             raise ValueError('Invalid output "{}"'.format(name))
         return Reference(step_name=self.name_in_workflow, output_name=name)
 
-    def _input_optional(self, inp):
+    @staticmethod
+    def _input_optional(inp):
         """Returns True if a step input parameter is optional.
 
         Args:
