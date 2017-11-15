@@ -16,14 +16,14 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.5.1',
+    version='0.6.0',
 
     description=__doc__,
     long_description=read('README.md'),
     # The project's main homepage.
     url='https://github.com/nlesc/scriptcwl',
 
-    download_url='https://github.com/NLeSC/scriptcwl/archive/0.5.1.tar.gz',
+    download_url='https://github.com/NLeSC/scriptcwl/archive/0.6.0.tar.gz',
 
     # Author details
     author='Janneke van der Zwaan',
