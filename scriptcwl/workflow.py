@@ -635,7 +635,7 @@ class WorkflowGenerator(object):
         msg = ('The add_inputs() function is deprecation in favour of the '
                'add_input() function, redirecting...')
         warnings.warn(msg, DeprecationWarning)
-        self.add_input(**kwargs)
+        return self.add_input(**kwargs)
 
 
 def cwl_name(name):
