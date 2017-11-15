@@ -486,7 +486,7 @@ class WorkflowGenerator(object):
         for k in step.get_input_names():
             if k in kwargs.keys():
                 if isinstance(kwargs[k], Reference):
-                    step.set_input(k, kwargs[k])
+                    step.set_input(k, six.text_type(kwargs[k]))
                 else:
                     raise ValueError(
                         'Incorrect type (should be a value returned'
