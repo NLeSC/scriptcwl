@@ -13,14 +13,19 @@ from .reference import Reference
 # Helper function to make the import of cwltool.load_tool quiet
 @contextmanager
 def quiet():
+    # save stdout/stderr
+    # Jupyter doesn't support setting it back to
+    # sys.__stdout__ and sys.__stderr__
+    _sys_stdout = sys.stdout
+    _sys_stderr = sys.stderr
     # Divert stdout and stderr to devnull
     sys.stdout = sys.stderr = open(os.devnull, "w")
     try:
         yield
     finally:
         # Revert back to standard stdout/stderr
-        sys.stdout = sys.__stdout__
-        sys.stderr = sys.__stderr__
+        sys.stdout = _sys_stdout
+        sys.stderr = _sys_stderr
 
 
 # import cwltool.load_tool functions
