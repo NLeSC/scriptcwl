@@ -1,4 +1,4 @@
-#!/usr/bin/env cwlrunner
+#!/usr/bin/env cwl-runner
 cwlVersion: v1.0
 class: CommandLineTool
 baseCommand: ["python", "-m", "scriptcwl.examples.multiply"]
