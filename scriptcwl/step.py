@@ -155,7 +155,7 @@ class Step(object):
         else:
             raise ValueError('Invalid input "{}"'.format(inp.get['id']))
 
-    def to_obj(self, inline=True):
+    def to_obj(self, inline=True, relpath=None):
         """Return the step as an dict that can be written to a yaml file.
 
         Returns:
@@ -164,6 +164,8 @@ class Step(object):
         obj = CommentedMap()
         if inline:
             obj['run'] = self.command_line_tool
+        elif relpath is not None:
+            obj['run'] = os.path.relpath(self.run, relpath)
         else:
             obj['run'] = self.run
         obj['in'] = self.step_inputs
