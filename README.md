@@ -6,6 +6,7 @@
 [![Documentation Status](https://readthedocs.org/projects/scriptcwl/badge/?version=latest)](http://scriptcwl.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/scriptcwl.svg)](https://badge.fury.io/py/scriptcwl)
 [![PyPI](https://img.shields.io/pypi/pyversions/scriptcwl.svg)](https://pypi.python.org/pypi/scriptcwl)
+[![DOI](https://zenodo.org/badge/70679474.svg)](https://zenodo.org/badge/latestdoi/70679474)
 
 
 scriptcwl is a Python package for creating workflows in
