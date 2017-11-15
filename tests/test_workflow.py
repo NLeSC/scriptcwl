@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os
+import sys
 
 import pytest
 from ruamel import yaml
@@ -10,7 +11,10 @@ from scriptcwl import WorkflowGenerator
 
 def load_yaml(filename):
     with open(filename) as myfile:
-        return yaml.safe_load(myfile.read())
+        content = myfile.read()
+        if "win" in sys.platform:
+            content = content.replace("\\", "/")
+        return yaml.safe_load(content) # myfile.read())
 
 
 def setup_workflowgenerator(tmpdir):
