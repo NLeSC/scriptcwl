@@ -10,6 +10,7 @@ from ruamel import yaml
 from ruamel.yaml.comments import CommentedMap
 
 from .scriptcwl import load_steps
+<<<<<<< Updated upstream
 from .step import python_name, quiet
 
 from .yamlmultiline import is_multiline, str_presenter
@@ -21,6 +22,13 @@ import tempfile
 with quiet():
     # all is quiet in this scope
     from cwltool.load_tool import fetch_document, validate_document
+=======
+from .step import Step, python_name
+
+from .yamlmultiline import str_presenter
+
+yaml.add_representer(str, str_presenter)
+>>>>>>> Stashed changes
 
 
 class WorkflowGenerator(object):
@@ -377,6 +385,7 @@ class WorkflowGenerator(object):
         script = []
 
         # Workflow documentation
+<<<<<<< Updated upstream
         if self.documentation:
             if is_multiline(self.documentation):
                 script.append('doc = """')
@@ -386,6 +395,16 @@ class WorkflowGenerator(object):
             else:
                 script.append('{}.set_documentation(\'{}\')'
                               .format(wf_name, self.documentation))
+=======
+        #if self.documentation:
+        #    if is_multiline(self.documentation):
+        #        print('doc = """')
+        #        print(self.documentation)
+        #        print('"""')
+        #        print('{}.set_documentation(doc)'.format(wf_name))
+        #    else:
+        #        print('{}.set_documentation(\'{}\')'.format(wf_name, self.documentation))
+>>>>>>> Stashed changes
 
         # Workflow inputs
         params = []
@@ -596,6 +615,7 @@ class WorkflowGenerator(object):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
+<<<<<<< Updated upstream
         relpath = None
         if relative:
             relpath = dirname
@@ -607,6 +627,12 @@ class WorkflowGenerator(object):
             yaml_file.write('#!/usr/bin/env cwl-runner\n')
             yaml_file.write(yaml.dump(self.to_obj(inline, relpath=relpath),
                                       Dumper=yaml.RoundTripDumper))
+=======
+        #yaml.add_representer(str, str_presenter)
+        with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
+            yaml_file.write('#!/usr/bin/env cwl-runner\n')
+            yaml_file.write(yaml.round_trip_dump(self.to_obj()))
+>>>>>>> Stashed changes
 
 
 def cwl_name(name):
