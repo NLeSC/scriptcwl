@@ -8,5 +8,6 @@ import json
 def multiply(x, y):
     click.echo(json.dumps({'answer': x*y}))
 
+
 if __name__ == '__main__':
     multiply()
