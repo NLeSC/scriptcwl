@@ -8,89 +8,63 @@
 [![PyPI](https://img.shields.io/pypi/pyversions/scriptcwl.svg)](https://pypi.python.org/pypi/scriptcwl)
 
 
-scriptcwl is a Python package to create workflows in
-[common workflow language](http://www.commonwl.org/). If you give it a set of CWL
+scriptcwl is a Python package for creating workflows in
+[common workflow language](http://www.commonwl.org/). If you give it a number of CWL
 `CommandLineTool`s, you can create a workflow by writing a Python script. This can
-be done interactively using [Jupyter Notebooks](http://jupyter.org/).
-
-## Example
-
-As a first example we can make a Hello World workflow. We use a commanlinetool (`hello.cwl`) which runs the echo command and looks like this in CWL:
-```
-#!/usr/bin/env cwl-runner
-
-cwlVersion: v1.0
-class: CommandLineTool
-baseCommand: echo
-inputs:
-  message:
-    type: string
-    inputBinding:
-      position: 1
-outputs: []
-```
-
-It takes a variable `message` and runs the echo command. To run the commandlinetool one needs to specify the message input variable using a yml file (`echo-job.yml`):
-
-```
-message: Hello world!
-message2: Hello again!
-```
-
-You can incorporate the `hello.cwl` commandlinetool from above in a workflow using scriptcwl in this way:
-```python
-from scriptcwl import WorkflowGenerator
-
-wf = WorkflowGenerator()
-wf.load(step_file="hello.cwl")
-
-print(wf.list_steps())
-
-message = wf.add_inputs(message="string")
-message2 = wf.add_inputs(message2="string")
-
-hello = wf.hello(message=message)
-hello2 = wf.hello(message=message2)
-
-print(wf.list_steps())
-
-wf.save('python_cwl_test.cwl')
-```
-
-You load the `WorkflowGenerator` and make an instance of it. You can load commandlinetools and workflows using `wf.load()`. The loaded cwl files can be shown using `wf.list_steps()`. Inputs of the workflow can be made using `wf.add_inputs()`. In the example above we add two inputs named `message` and `message2` which are of the type string. Next we create a step in the workflow named `hello` and `hallo2` using `wf.hello(message=message)`. The input of the step (`message`) is linked to the workflow input `message` and `message2` created before. The created workflow is saved to a cwl file using `wf.save()`. Now you can run the workflow with `cwl-runner python_cwl_test.cwl echo-job.cwl`.
-
-A more usefull example using nlppln is to generate the [anonymize pipeline](https://github.com/WhatWorksWhenForWhom/nlppln/blob/develop/cwl/anonymize.cwl), which [replaces named entities with their type](https://github.com/WhatWorksWhenForWhom/nlppln#anonymize), (from the
-[nlppln](https://github.com/WhatWorksWhenForWhom/nlppln) package), you'd have to write:
+be done interactively using [Jupyter Notebooks](http://jupyter.org/). More information
+about using scriptcwl can be found in the [documentation](http://scriptcwl.readthedocs.io/en/latest/).
 
 ```python
 from scriptcwl import WorkflowGenerator
 
 with WorkflowGenerator() as wf:
-  wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
+    wf.load(steps_dir='/path_to_scriptcwl/scriptcwl/examples/')
 
-  doc = """Workflow that replaces named entities in text files.
+    num1 = wf.add_input(num1='int')
+    num2 = wf.add_input(num2='int')
 
-Input:
-  txt_dir: directory containing text files
+    answer1 = wf.add(x=num1, y=num2)
+    answer2 = wf.multiply(x=answer1, y=num2)
 
-Output:
-  ner_stats: csv-file containing statistics about named entities in the text files
-  txt: text files with named enities replaced
-"""
-  wf.set_documentation(doc)
+    wf.add_outputs(final_answer=answer2)
 
-  txt_dir = wf.add_inputs(txt_dir='Directory')
-
-  frogout = wf.frog_dir(in_files=txt_dir)
-  saf = wf.frog_to_saf(in_files=frogout)
-  ner_stats = wf.save_ner_data(in_files=saf)
-  new_saf = wf.replace_ner(metadata=ner_stats, in_files=saf)
-  txt = wf.saf_to_txt(in_files=new_saf)
-
-  wf.add_outputs(ner_stats=ner_stats, txt=txt)
-
-  wf.save('anonymize.cwl')
+    wf.save('add_multiply_example_workflow.cwl')
 ```
+
+This workflow has two integers as inputs (``num1`` and ``num2``), and first adds
+these two numbers (``wf.add(x=num1, y=num2)``), and then multiplies the answer
+with the second input (``num2``). The result of that processing step is the output
+of the workflow. Finally, the workflow is saved to a file. The result looks like:
+
+```
+#!/usr/bin/env cwl-runner
+cwlVersion: v1.0
+class: Workflow
+inputs:
+  num1: int
+  num2: int
+outputs:
+  final_answer:
+    type: int
+    outputSource: multiply/answer
+steps:
+  add:
+    run: add.cwl
+    in:
+      y: num2
+      x: num1
+    out:
+    - answer
+  multiply:
+    run: multiply.cwl
+    in:
+      y: num2
+      x: add/answer
+    out:
+    - answer
+```
+
+The Python and CWL files used in the example can be found in the [examples folder](https://github.com/NLeSC/scriptcwl/tree/master/scriptcwl/examples).
 
 ## Installation
 
@@ -117,7 +91,8 @@ python setup.py develop test
 
 ## Useful tools
 
-There are some software packages that help with generating CWL `CommandLineTool`s
+To use scriptcwl for creating CWL workflows, you need CWL `CommandLineTool`s.
+There are some software packages that help with generating those
 for existing command line tools written in Python:
 
 * [argparse2tool](https://github.com/erasche/argparse2tool#cwl-specific-functionality): Generate CWL CommandLineTool wrappers (and/or Galaxy tool descriptions) from Python programs that use argparse. Also supports the [click](http://click.pocoo.org) argument parser.
