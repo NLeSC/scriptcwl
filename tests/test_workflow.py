@@ -120,7 +120,7 @@ class TestWorkflowGenerator(object):
         with open(wf_filename) as f:
             shebang = f.readline()
 
-        assert shebang == '#!/usr/bin/env cwltool\n'
+        assert shebang == '#!/usr/bin/env cwl-runner\n'
 
     def test_detect_wrong_type(self):
         wf = WorkflowGenerator()

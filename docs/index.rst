@@ -139,17 +139,18 @@ Finally, the workflow can be saved to file:
 
   wf.save('add_multiply_example_workflow.cwl')
 
-Documentation
-=============
+Contents
+========
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   cwl_tips_tricks
+
+API Reference
+=============
+
+.. toctree::
+   :maxdepth: 2
 
    scriptcwl <apidocs/scriptcwl.rst>
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
