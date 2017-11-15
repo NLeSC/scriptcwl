@@ -33,7 +33,7 @@ class Step(object):
     """Representation of a CWL step.
 
     The Step can be a CommandLineTool or a Workflow. Steps are read from file
-    and validated using `cwltool`.
+    and validated using ``cwltool``.
     """
 
     def __init__(self, fname, abspath=True, start=os.curdir):
