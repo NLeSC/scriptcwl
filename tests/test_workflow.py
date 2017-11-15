@@ -14,7 +14,7 @@ def load_yaml(filename):
         content = myfile.read()
         if "win" in sys.platform:
             content = content.replace("\\", "/")
-        return yaml.safe_load(content) # myfile.read())
+        return yaml.safe_load(content)  # myfile.read())
 
 
 def setup_workflowgenerator(tmpdir):
