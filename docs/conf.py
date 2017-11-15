@@ -18,9 +18,10 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from recommonmark.parser import CommonMarkParser
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 # -- General configuration ------------------------------------------------
 
@@ -43,7 +44,7 @@ source_parsers = {
     '.md': CommonMarkParser,
 }
 source_suffix = ['.rst', '.md']
-#source_suffix = '.rst'
+# source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
@@ -122,12 +123,10 @@ html_static_path = ['_static']
 # This is required for the alabaster theme
 # refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
-    '**': [
-        'relations.html',  # needs 'show_related': True theme option to display
-        'searchbox.html',
-    ]
+    'index':    ['sidebarintro.html', 'sourcelink.html', 'searchbox.html'],
+    '**':       ['localtoc.html', 'relations.html',
+                 'sourcelink.html', 'searchbox.html']
 }
-
 
 # -- Options for HTMLHelp output ------------------------------------------
 

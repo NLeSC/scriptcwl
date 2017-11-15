@@ -17,7 +17,7 @@ outputs:
 
 steps:
   echo:
-    run: ../tools/echo.cwl
+    run: tools/echo.cwl
     in:
       message: wfmessages
     out:

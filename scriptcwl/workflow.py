@@ -10,9 +10,17 @@ from ruamel import yaml
 from ruamel.yaml.comments import CommentedMap
 
 from .scriptcwl import load_steps
-from .step import Step, python_name
+from .step import python_name, quiet
+
 from .yamlmultiline import is_multiline, str_presenter
 from .reference import Reference, reference_presenter
+
+import tempfile
+
+# import cwltool.load_tool functions
+with quiet():
+    # all is quiet in this scope
+    from cwltool.load_tool import fetch_document, validate_document
 
 
 class WorkflowGenerator(object):
@@ -24,86 +32,74 @@ class WorkflowGenerator(object):
     steps library of the WorkflowGenerator object before they can be added to
     the workflow. To add steps to the steps library, the `load` method can be
     called with either a path to a directory containing CWL files:
+    ::
 
-    ```
-    from scriptcwl import WorkflowGenerator
+        from scriptcwl import WorkflowGenerator
 
-    with WorkflowGenerator() as wf:
-        wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
-    ```
+        with WorkflowGenerator() as wf:
+            wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
 
     Or a single CWL file:
+    ::
 
-    ```
-    with WorkflowGenerator() as wf:
-        wf.load(step_file='/path/to/cwl/step/file')
-    ```
+        with WorkflowGenerator() as wf:
+            wf.load(step_file='/path/to/cwl/step/file')
 
-    `wf.load` can be called multiple times. Step files are added to the steps
-    library one after the other. For every step that is added to the steps
-    library, a method with the same name is added to the WorkflowGenerator
-    object. To add a step to the workflow, this method must be called (examples
-    below).
+    ``wf.load()`` can be called multiple times. Step files are added to the
+    steps library one after the other. For every step that is added to the
+    steps library, a method with the same name is added to the
+    WorkflowGenerator object. To add a step to the workflow, this method must
+    be called (examples below).
 
     Next, the user should add one or more workflow inputs:
+    ::
+      txt_dir = wf.add_input(txt_dir='Directory')
 
-    ```
-    txt_dir = wf.add_inputs(txt_dir='Directory')
-    ```
+    The ``add_input()`` method expects a ``name=type`` pair as input parameter.
+    The pair connects an input name (``txt_dir`` in the example) to a CWL type
+    (``'Directory'``). Optionally, a default value can be specified using
+    ``default=value``.
 
-    The `add_inputs` method expects (key, value) pairs as input parameters.
-    Each pair connects an input name (`txt_dir` in the example) to a type
-    (`'Directory'`).
-
-    `add_inputs` method returns a list of strings containing the names that
-    can be used to connect these input parameters to step input parameter
-    names. (Please note that because **kwargs are unordered, the list of input
-    names may not be in the same order as the **kwargs. When a workflow has
-    multiple inputs, it is probably safer to call `add_inputs` for every
-    parameter separately.)
+    The ``add_input()`` method returns a string containing the name
+    that can be used to connect this input parameter to step input parameter
+    names.
 
     Next, workflow steps can be added. To add a workflow step, its method must
     be called on the WorkflowGenerator object. This method expects a list of
     (key, value) pairs as input parameters. (To find out what inputs a step
-    needs call `wf.inputs(<step name>)`. This method prints all the inputs and
-    their types.) The method returns a list of strings containing output names
-    that can be used as input for later steps, or that can be connected to
-    workflow outputs.
+    needs call ``wf.inputs(<step name>)``. This method prints all the inputs
+    and their types.) The method returns a list of strings containing output
+    names that can be used as input for later steps, or that can be connected
+    to workflow outputs.
 
-    For example, to add a step called `frog-dir` to the workflow, the following
-    method must be called:
+    For example, to add a step called ``frog-dir`` to the workflow, the
+    following method must be called:
+    ::
 
-    ```
-    frogout = wf.frog_dir(dir_in=txt_dir)
-    ```
+        frogout = wf.frog_dir(dir_in=txt_dir)
 
-    In a next step, `frogout` can be used as input:
-
-    ```
-    saf = wf.frog_to_saf(in_files=frogout)
-    txt = wf.saf_to_txt(in_files=saf)
-    ```
+    In a next step, ``frogout`` can be used as input:
+    ::
+        saf = wf.frog_to_saf(in_files=frogout)
+        txt = wf.saf_to_txt(in_files=saf)
 
     Etcetera.
 
     When all steps of the workflow have been added, the user can specify
     workflow outputs:
+    ::
 
-    ```
-    wf.add_outputs(txt=txt)
-    ```
+        wf.add_outputs(txt=txt)
 
     Finally, the workflow can be saved to file:
+    ::
 
-    ```
-    wf.save('workflow.cwl')
-    ```
+        wf.save('workflow.cwl')
 
     To list steps and signatures available in the steps library, call:
+    ::
 
-    ```
-    wf.list_steps()
-    ```
+        wf.list_steps()
     """
 
     def __init__(self, steps_dir=None):
@@ -148,8 +144,8 @@ class WorkflowGenerator(object):
         """Load CWL steps into the WorkflowGenerator's steps library.
 
         Adds steps (command line tools and workflows) to the
-        WorkflowGenerator's steps library. These steps can be used to create
-        workflows.
+        ``WorkflowGenerator``'s steps library. These steps can be used to
+        create workflows.
 
         Args:
             steps_dir (str): path to directory containing CWL files. All CWL in
@@ -270,10 +266,11 @@ class WorkflowGenerator(object):
         library.
 
         Args:
-            kwargs (dict): A dict containing name=source name pairs. name is
-                the name of the workflow output (e.g., `txt_files`) and source
-                name is the name of the step that produced this output plus the
-                output name (e.g., `saf-to-txt/out_files`).
+            kwargs (dict): A dict containing ``name=source name`` pairs.
+                ``name`` is the name of the workflow output (e.g.,
+                ``txt_files``) and source name is the name of the step that
+                produced this output plus the output name (e.g.,
+                ``saf-to-txt/out_files``).
         """
         self._closed()
 
@@ -333,7 +330,7 @@ class WorkflowGenerator(object):
 
         return name
 
-    def to_obj(self, inline=True):
+    def to_obj(self, inline=True, relpath=None):
         """Return the created workflow as a dict.
 
         The dict can be written to a yaml file.
@@ -362,7 +359,8 @@ class WorkflowGenerator(object):
 
         steps_obj = CommentedMap()
         for key in self.wf_steps:
-            steps_obj[key] = self.wf_steps[key].to_obj(inline=inline)
+            steps_obj[key] = self.wf_steps[key].to_obj(
+                       inline=inline, relpath=relpath)
         obj['steps'] = steps_obj
 
         return obj
@@ -372,7 +370,7 @@ class WorkflowGenerator(object):
 
         Args:
             wf_name (str): string used for the WorkflowGenerator object in the
-                generated script (default: wf).
+                generated script (default: ``wf``).
         """
         self._closed()
 
@@ -555,28 +553,59 @@ class WorkflowGenerator(object):
             return outputs[0]
         return outputs
 
-    def save(self, fname, inline=False, encoding='utf-8'):
+    def validate(self, inline=False, encoding='utf-8'):
+        """Validate workflow object.
+
+        This method currently validates the workflow object with the
+        use of cwltool. It writes the workflow to a tmp CWL file,
+        reads it, validates it and removes the tmp file again.
+        """
+        # define tmpfile
+        (fd, tmpfile) = tempfile.mkstemp()
+        os.close(fd)
+        try:
+            # save workflow object to tmpfile,
+            # do not recursively call validate function
+            self.save(tmpfile, validate=False)
+            # load workflow from tmpfile
+            (document_loader, workflowobj, uri) = fetch_document(tmpfile)
+            # validate workflow
+            (document_loader, avsc_names, processobj, metadata, uri) = \
+                validate_document(document_loader, workflowobj, uri)
+        finally:
+            # cleanup tmpfile
+            os.remove(tmpfile)
+
+    def save(self, fname, inline=False, relative=True, validate=True,
+             encoding='utf-8'):
         """Save the workflow to file.
 
         Save the workflow to a CWL file that can be run with a CWL runner.
 
         Args:
             fname (str): file to save the workflow to.
-            encoding (str): file encoding to use (default: utf-8).
+            encoding (str): file encoding to use (default: ``utf-8``).
         """
         self._closed()
+
+        if validate:
+            self.validate()
 
         dirname = os.path.dirname(os.path.abspath(fname))
 
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
+        relpath = None
+        if relative:
+            relpath = dirname
+
         yaml.add_representer(str, str_presenter, Dumper=yaml.RoundTripDumper)
         yaml.add_representer(Reference, reference_presenter,
                              Dumper=yaml.RoundTripDumper)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
-            yaml_file.write('#!/usr/bin/env cwltool\n')
-            yaml_file.write(yaml.dump(self.to_obj(inline),
+            yaml_file.write('#!/usr/bin/env cwl-runner\n')
+            yaml_file.write(yaml.dump(self.to_obj(inline, relpath=relpath),
                                       Dumper=yaml.RoundTripDumper))
 
 

@@ -4,13 +4,22 @@ import os
 
 import pytest
 from ruamel import yaml
-
+from shutil import copytree
 from scriptcwl import WorkflowGenerator
 
 
-def load_yaml(filename, remove):
+def load_yaml(filename):
     with open(filename) as myfile:
-        return yaml.safe_load(myfile.read().replace(remove, ''))
+        return yaml.safe_load(myfile.read())
+
+
+def setup_workflowgenerator(tmpdir):
+    toolsdir = tmpdir.join('tools').strpath
+    workflows = tmpdir.join('workflows').strpath
+    copytree('tests/data/tools', toolsdir)
+    copytree('tests/data/workflows', workflows)
+    wf = WorkflowGenerator()
+    return wf
 
 
 class TestWorkflowGenerator(object):
@@ -32,8 +41,8 @@ class TestWorkflowGenerator(object):
         assert step_keys == ['echo', 'echo-wc', 'multiple-out-args', 'wc']
 
     def test_save_with_tools(self, tmpdir):
-        wf = WorkflowGenerator()
-        wf.load('tests/data/tools')
+        wf = setup_workflowgenerator(tmpdir)
+        wf.load(tmpdir.join('tools').strpath)
         wf.set_documentation('Counts words of a message via echo and wc')
 
         wfmessage = wf.add_input(wfmessage='string')
@@ -41,21 +50,21 @@ class TestWorkflowGenerator(object):
         wced = wf.wc(file2count=echoed)
         wf.add_outputs(wfcount=wced)
 
-        wf_filename = tmpdir.join('echo-wc.cwl').strpath
+        wf_filename = tmpdir.join('workflows/echo-wc.cwl').strpath
         wf.save(wf_filename)
 
         # make workflows contents relative to tests/data/tools directory
-        actual = load_yaml(wf_filename, os.getcwd() + '/tests/data/tools')
+        actual = load_yaml(wf_filename)
         expected_wf_filename = 'tests/data/workflows/echo-wc.cwl'
-        expected = load_yaml(expected_wf_filename, '../tools')
+        expected = load_yaml(expected_wf_filename)
 
         print('  actual:', actual)
         print('expected:', expected)
         assert actual == expected
 
     def test_save_with_workflow(self, tmpdir):
-        wf = WorkflowGenerator()
-        wf.load('tests/data/workflows')
+        wf = setup_workflowgenerator(tmpdir)
+        wf.load(tmpdir.join('workflows').strpath)
 
         wfmessage = wf.add_input(wfmessage='string')
         wced = wf.echo_wc(wfmessage=wfmessage)
@@ -65,17 +74,17 @@ class TestWorkflowGenerator(object):
         wf.save(wf_filename)
 
         # make workflows contents relative to tests/data/tools directory
-        actual = load_yaml(wf_filename, os.getcwd() + '/tests/data/workflows')
+        actual = load_yaml(wf_filename)
         expected_wf_filename = 'tests/data/echo-wc.workflowstep.cwl'
-        expected = load_yaml(expected_wf_filename, '../workflows')
+        expected = load_yaml(expected_wf_filename)
 
         print('  actual:', actual)
         print('expected:', expected)
         assert actual == expected
 
     def test_save_with_scattered_step(self, tmpdir):
-        wf = WorkflowGenerator()
-        wf.load('tests/data/tools')
+        wf = setup_workflowgenerator(tmpdir)
+        wf.load(tmpdir.join('tools').strpath)
 
         msgs = wf.add_input(wfmessages='string[]')
         echoed = wf.echo(
@@ -88,9 +97,9 @@ class TestWorkflowGenerator(object):
         wf.save(wf_filename)
 
         # make workflows contents relative to tests/data/tools directory
-        actual = load_yaml(wf_filename, os.getcwd() + '/tests/data/tools')
+        actual = load_yaml(wf_filename)
         expected_wf_filename = 'tests/data/echo.scattered.cwl'
-        expected = load_yaml(expected_wf_filename, '../tools')
+        expected = load_yaml(expected_wf_filename)
 
         print('  actual:', actual)
         print('expected:', expected)
@@ -134,7 +143,7 @@ class TestWorkflowGenerator(object):
         with open(wf_filename) as f:
             shebang = f.readline()
 
-        assert shebang == '#!/usr/bin/env cwltool\n'
+        assert shebang == '#!/usr/bin/env cwl-runner\n'
 
     def test_detect_wrong_type(self):
         wf = WorkflowGenerator()

@@ -34,7 +34,7 @@ class Step(object):
     """Representation of a CWL step.
 
     The Step can be a CommandLineTool or a Workflow. Steps are read from file
-    and validated using `cwltool`.
+    and validated using ``cwltool``.
     """
 
     def __init__(self, fname, abspath=True, start=os.curdir):
@@ -156,7 +156,7 @@ class Step(object):
         else:
             raise ValueError('Invalid input "{}"'.format(inp.get['id']))
 
-    def to_obj(self, inline=True):
+    def to_obj(self, inline=True, relpath=None):
         """Return the step as an dict that can be written to a yaml file.
 
         Returns:
@@ -173,6 +173,8 @@ class Step(object):
                 if global_comments[0].value.startswith('#!'):
                     del(global_comments[0])
             obj['run'] = embedded_clt
+        elif relpath is not None:
+            obj['run'] = os.path.relpath(self.run, relpath)
         else:
             obj['run'] = self.run
         obj['in'] = self.step_inputs
