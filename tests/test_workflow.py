@@ -105,6 +105,38 @@ class TestWorkflowGenerator(object):
         print('expected:', expected)
         assert actual == expected
 
+    def test_save_with_inline_tools(self, tmpdir):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+        wf.set_documentation('Counts words of a message via echo and wc')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        wf_filename = tmpdir.join('echo-wc.cwl').strpath
+        wf.save(wf_filename, inline=True)
+
+        # Strip absolute paths from ids
+        actual = load_yaml(wf_filename)
+        expected_wf_filename = 'tests/data/workflows/echo-wc_inline.cwl'
+        expected = load_yaml(expected_wf_filename)
+
+        # Random id's will differ and that's ok, so just remove them
+        def remove_random_ids(step):
+            del(step['outputs'][0]['outputBinding']['glob'])
+            del(step['stdout'])
+
+        remove_random_ids(actual['steps']['wc']['run'])
+        remove_random_ids(actual['steps']['echo']['run'])
+        remove_random_ids(expected['steps']['wc']['run'])
+        remove_random_ids(expected['steps']['echo']['run'])
+
+        print('  actual:', actual)
+        print('expected:', expected)
+        assert actual == expected
+
     def test_add_shebang_to_saved_cwl_file(self, tmpdir):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')

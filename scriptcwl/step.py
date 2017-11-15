@@ -1,5 +1,6 @@
 import os
 import sys
+import copy
 from contextlib import contextmanager
 
 import six
@@ -155,6 +156,38 @@ class Step(object):
         else:
             raise ValueError('Invalid input "{}"'.format(inp.get['id']))
 
+    def _to_embedded_obj(self):
+        embedded_clt = copy.deepcopy(self.command_line_tool)
+
+        # Remove shebang line
+        # This is a bit magical, digging into ruamel.yaml, but there
+        # does not seem to be a better way.
+        global_comments = embedded_clt.ca.comment[1]
+        if global_comments:
+            if global_comments[0].value.startswith('#!'):
+                del(global_comments[0])
+
+        # Give inputs and outputs a JSON-LD local identifier, instead of
+        # the default absolute path that doesn't exist on other machines.
+        def to_local_id(iri):
+            parsed_iri = urlparse(iri)
+            input_id = parsed_iri.path.split('/')[-1]
+            if parsed_iri.fragment:
+                input_id += '#' + parsed_iri.fragment
+            if not input_id.startswith('_:'):
+                input_id = '_:' + input_id
+            return input_id
+
+        for inp in embedded_clt['inputs']:
+            inp['id'] = to_local_id(inp['id'])
+
+        for outp in embedded_clt['outputs']:
+            outp['id'] = to_local_id(outp['id'])
+
+        embedded_clt['id'] = to_local_id(embedded_clt['id'])
+
+        return embedded_clt
+
     def to_obj(self, inline=True, relpath=None):
         """Return the step as an dict that can be written to a yaml file.
 
@@ -163,7 +196,7 @@ class Step(object):
         """
         obj = CommentedMap()
         if inline:
-            obj['run'] = self.command_line_tool
+            obj['run'] = self._to_embedded_obj()
         elif relpath is not None:
             obj['run'] = os.path.relpath(self.run, relpath)
         else:
