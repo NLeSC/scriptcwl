@@ -119,10 +119,9 @@ class TestWorkflowGenerator(object):
         wf.save(wf_filename, inline=True)
 
         # Strip absolute paths from ids
-        actual = load_yaml(wf_filename,
-                           'file://' + os.getcwd() + '/tests/data/tools/')
+        actual = load_yaml(wf_filename)
         expected_wf_filename = 'tests/data/workflows/echo-wc_inline.cwl'
-        expected = yaml.safe_load(open(expected_wf_filename, 'r'))
+        expected = load_yaml(expected_wf_filename)
 
         print('  actual:', actual)
         print('expected:', expected)
