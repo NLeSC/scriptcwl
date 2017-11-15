@@ -33,7 +33,7 @@ class TestWorkflowGenerator(object):
 
     def test_save_with_tools(self, tmpdir):
         wf = WorkflowGenerator()
-        wf.load('tests/data/tools')
+        wf.load(os.path.join('tests','data','tools'))
         wf.set_documentation('Counts words of a message via echo and wc')
 
         wfmessage = wf.add_input(wfmessage='string')
@@ -45,9 +45,11 @@ class TestWorkflowGenerator(object):
         wf.save(wf_filename)
 
         # make workflows contents relative to tests/data/tools directory
-        actual = load_yaml(wf_filename, os.getcwd() + '/tests/data/tools')
-        expected_wf_filename = 'tests/data/workflows/echo-wc.cwl'
-        expected = load_yaml(expected_wf_filename, '../tools')
+        print(os.path.join(os.getcwd(), os.path.join('tests','data','tools')))
+        print(os.path.join('..','tools'))
+        actual = load_yaml(wf_filename, os.path.join(os.getcwd(), os.path.join('tests','data','tools')))
+        expected_wf_filename = os.path.join('tests','data','workflows','echo-wc.cwl')
+        expected = load_yaml(expected_wf_filename, "../tools/")
 
         print('  actual:', actual)
         print('expected:', expected)

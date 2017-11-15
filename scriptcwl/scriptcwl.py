@@ -5,7 +5,7 @@ import logging
 from schema_salad.validate import ValidationException
 
 from .step import Step
-
+from pathlib import Path
 
 def load_steps(steps_dir=None, step_file=None, step_list=None):
     """Return a dictionary containing Steps read from file.
@@ -21,14 +21,14 @@ def load_steps(steps_dir=None, step_file=None, step_list=None):
 
     """
     if steps_dir is not None:
-        step_files = glob.glob('{}/*.cwl'.format(steps_dir))
+        step_files = glob.glob(os.path.join(steps_dir, '*.cwl'))
     elif step_file is not None:
         step_files = [step_file]
     elif step_list is not None:
         step_files = []
         for path in step_list:
             if os.path.isdir(path):
-                step_files += glob.glob('{}/*.cwl'.format(path))
+                step_files += glob.glob(os.path.join(path, '*.cwl'))
             else:
                 step_files.append(path)
     else:
