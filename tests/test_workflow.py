@@ -123,6 +123,16 @@ class TestWorkflowGenerator(object):
         expected_wf_filename = 'tests/data/workflows/echo-wc_inline.cwl'
         expected = load_yaml(expected_wf_filename)
 
+        # Random id's will differ and that's ok, so just remove them
+        def remove_random_ids(step):
+            del(step['outputs'][0]['outputBinding']['glob'])
+            del(step['stdout'])
+
+        remove_random_ids(actual['steps']['wc']['run'])
+        remove_random_ids(actual['steps']['echo']['run'])
+        remove_random_ids(expected['steps']['wc']['run'])
+        remove_random_ids(expected['steps']['echo']['run'])
+
         print('  actual:', actual)
         print('expected:', expected)
         assert actual == expected

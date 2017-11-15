@@ -171,8 +171,9 @@ class Step(object):
         # the default absolute path that doesn't exist on other machines.
         def to_local_id(iri):
             parsed_iri = urlparse(iri)
-            file_name = parsed_iri.path.split('/')[-1]
-            input_id = file_name + '#' + parsed_iri.fragment
+            input_id = parsed_iri.path.split('/')[-1]
+            if parsed_iri.fragment:
+                input_id += '#' + parsed_iri.fragment
             if not input_id.startswith('_:'):
                 input_id = '_:' + input_id
             return input_id

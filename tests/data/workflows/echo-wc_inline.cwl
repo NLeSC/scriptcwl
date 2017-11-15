@@ -24,7 +24,7 @@ steps:
         id: _:echo.cwl#echoed
         outputBinding:
           glob: 8341e6646e16f373b00fc5a45b4f299d5901b0ad
-      id: _:echo.cwl#
+      id: _:echo.cwl
       stdout: 8341e6646e16f373b00fc5a45b4f299d5901b0ad
     in:
       message: wfmessage
@@ -45,7 +45,7 @@ steps:
         id: _:wc.cwl#wced
         outputBinding:
           glob: bcd587c62be60d5d0473ee2c39dc73257b20ecca
-      id: _:wc.cwl#
+      id: _:wc.cwl
       stdout: bcd587c62be60d5d0473ee2c39dc73257b20ecca
     in:
       file2count: echo/echoed
