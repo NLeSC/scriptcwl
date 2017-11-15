@@ -3,9 +3,9 @@ import sys
 from contextlib import contextmanager
 
 import six
-from ruamel.yaml.comments import CommentedMap
-
 from six.moves.urllib.parse import urlparse
+
+from ruamel.yaml.comments import CommentedMap
 
 from .reference import Reference
 
@@ -59,7 +59,7 @@ class Step(object):
 
         # Fetching, preprocessing and validating cwl
         (document_loader, workflowobj, uri) = fetch_document(fname)
-        (document_loader, avsc_names, processobj, metadata, uri) = \
+        (document_loader, _, processobj, _, uri) = \
             validate_document(document_loader, workflowobj, uri)
         s = processobj
 
@@ -133,7 +133,8 @@ class Step(object):
             raise ValueError('Invalid output "{}"'.format(name))
         return Reference(step_name=self.name_in_workflow, output_name=name)
 
-    def _input_optional(self, inp):
+    @staticmethod
+    def _input_optional(inp):
         """Returns True if a step input parameter is optional.
 
         Args:
