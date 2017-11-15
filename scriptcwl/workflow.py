@@ -16,12 +16,15 @@ from .step import python_name, quiet
 from .yamlmultiline import str_presenter
 from .reference import Reference, reference_presenter
 
+import warnings
+
 # import cwltool.load_tool functions
 with quiet():
     # all is quiet in this scope
     from cwltool.load_tool import fetch_document, validate_document
 
 yaml.add_representer(str, str_presenter)
+warnings.simplefilter('always', DeprecationWarning)
 
 
 class WorkflowGenerator(object):
@@ -610,6 +613,29 @@ class WorkflowGenerator(object):
             yaml_file.write('#!/usr/bin/env cwl-runner\n')
             yaml_file.write(yaml.dump(self.to_obj(inline, relpath=relpath),
                                       Dumper=yaml.RoundTripDumper))
+
+    def add_inputs(self, **kwargs):
+        """Deprecated function, use add_input(self, **kwargs) instead.
+        Add workflow input.
+
+        Args:
+            kwargs (dict): A dict with a `name: type` item
+                and optionally a `default: value` item, where name is the
+                name (id) of the workflow input (e.g., `dir_in`) and type is
+                the type of the input (e.g., `'Directory'`).
+                The type of input parameter can be learned from
+                `step.inputs(step_name=input_name)`.
+
+        Returns:
+            inputname
+
+        Raises:
+            ValueError: No or multiple parameter(s) have been specified.
+        """
+        msg = ('The add_inputs() function is deprecation in favour of the '
+               'add_input() function, redirecting...')
+        warnings.warn(msg, DeprecationWarning)
+        self.add_input(**kwargs)
 
 
 def cwl_name(name):
