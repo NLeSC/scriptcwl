@@ -1,5 +1,6 @@
 import os
 import sys
+import copy
 from contextlib import contextmanager
 
 import six
@@ -163,7 +164,15 @@ class Step(object):
         """
         obj = CommentedMap()
         if inline:
-            obj['run'] = self.command_line_tool
+            embedded_clt = copy.deepcopy(self.command_line_tool)
+            # Remove shebang line
+            # This is a bit magical, digging into ruamel.yaml, but there
+            # does not seem to be a better way.
+            global_comments = embedded_clt.ca.comment[1]
+            if global_comments:
+                if global_comments[0].value.startswith('#!'):
+                    del(global_comments[0])
+            obj['run'] = embedded_clt
         else:
             obj['run'] = self.run
         obj['in'] = self.step_inputs

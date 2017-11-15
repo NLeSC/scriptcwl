@@ -96,6 +96,29 @@ class TestWorkflowGenerator(object):
         print('expected:', expected)
         assert actual == expected
 
+    def test_save_with_inline_tools(self, tmpdir):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+        wf.set_documentation('Counts words of a message via echo and wc')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        wf_filename = tmpdir.join('echo-wc.cwl').strpath
+        wf.save(wf_filename, inline=True)
+
+        # Strip absolute paths from ids
+        actual = load_yaml(wf_filename,
+                           'file://' + os.getcwd() + '/tests/data/tools/')
+        expected_wf_filename = 'tests/data/workflows/echo-wc_inline.cwl'
+        expected = yaml.safe_load(open(expected_wf_filename, 'r'))
+
+        print('  actual:', actual)
+        print('expected:', expected)
+        assert actual == expected
+
     def test_add_shebang_to_saved_cwl_file(self, tmpdir):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
