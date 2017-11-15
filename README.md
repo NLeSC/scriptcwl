@@ -13,7 +13,7 @@ scriptcwl is a Python package to create workflows in
 `CommandLineTool`s, you can create a workflow by writing a Python script. This can
 be done interactively using [Jupyter Notebooks](http://jupyter.org/).
 
-## Examples
+## Example
 
 As a first example we can make a Hello World workflow. We use a commanlinetool (`hello.cwl`) which runs the echo command and looks like this in CWL:
 ```
@@ -92,13 +92,6 @@ Output:
   wf.save('anonymize.cwl')
 ```
 
-When adding an input parameter to a workflow, you can set a default value:
-
-```python
-with WorkflowGenerator() as wf:
-  input1 = wf.add_inputs(input1='string', default='Hello world!')
-```
-
 ## Installation
 
 Install using pip:
@@ -119,27 +112,10 @@ python setup.py develop
 
 Run tests (including coverage) with:
 ```
-pytest --cov
+python setup.py develop test
 ```
 
-## Loading workflow steps
-
-In order to be able to create workflows using `scriptcwl`, you need to provide
-the `WorkflowGenerator` object with steps (i.e., `CommandLineTool`s,
-`ExpressionTool`s and/or (sub)`Workflow`s). To load a directory of .cwl files, type:
-
-```python
-from scriptcwl import WorkflowGenerator
-
-with WorkflowGenerator() as wf:
-  wf.load(steps_dir='/path/to/dir/with/cwl/steps/')
-```
-
-To load a single cwl file, do:
-```python
-with WorkflowGenerator() as wf:
-  wf.load(step_file='/path/to/workflow.cwl')
-```
+## Useful tools
 
 There are some software packages that help with generating CWL `CommandLineTool`s
 for existing command line tools written in Python:
@@ -147,50 +123,3 @@ for existing command line tools written in Python:
 * [argparse2tool](https://github.com/erasche/argparse2tool#cwl-specific-functionality): Generate CWL CommandLineTool wrappers (and/or Galaxy tool descriptions) from Python programs that use argparse. Also supports the [click](http://click.pocoo.org) argument parser.
 * [pypi2cwl](https://github.com/common-workflow-language/pypi2cwl): Automatically run argparse2cwl on any package in PyPi.
 * [python-cwlgen](https://github.com/common-workflow-language/python-cwlgen): Generate CommandLineTool and DockerRequirement programmatically
-
-## Listing available steps
-
-Steps loaded into the `WorkflowGenerator` can be listed with:
-
-```
-print wf.list_steps()
-```
-
-## Running workflows
-
-Workflows created with scriptcwl can be run with:
-```
-cwltool workflow.cwl <arguments>
-```
-
-Or if you have set a cwl-runner on your system:
-
-```
-cwl-runner workflow.cwl <arguments>
-```
-
-Or:
-
-```
-chmod +x workflow.cwl
-./workflow.cwl <arguments>
-```
-
-## Scattering steps
-
-Scriptcwl supports scattering steps. To scatter a step, keyword arguments
-`scatter` and `scatter_method` must be provided when a step is added to the
-workflow. To scatter a step called `echo`, which has a single input argument
-`message`, this would look like:
-
-```
-output = wf.echo(message=input1, scatter='message', scatter_method='nested_crossproduct')
-```
-
-The type of `message`, should be an array (e.g., an array of strings).
-
-To scatter over multiple variables, `scatter` also accepts a list of input names:
-
-```
-output = wf.echo(message1=input1, message2=input2, scatter=['message1', 'message2'], scatter_method='nested_crossproduct')
-```
