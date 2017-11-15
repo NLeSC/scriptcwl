@@ -1,5 +1,24 @@
 # Change Log
 
+## 0.6.0
+
+### Added
+
+* Make `WorkflowGenerator` into a context manager (#24)
+* Type checking of input and output types (#22)
+* Allow saving workflow with inline steps (#38)
+* Allow saving workflow with relative paths (#25)
+* Documentation on Read the Docs (#35)
+* Allow loading of multiple CWL steps (from file, http url, and directory) at the same time
+
+### Changed
+
+* Rename `wf.add_inputs()` to `wf.add_input()` (#11)
+
+### Removed
+
+* Python 3.3 support (Sphinx needs Python 3.4)
+
 ## 0.5.1
 
 ### Added
