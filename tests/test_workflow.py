@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os
+import sys
 
 import pytest
 from ruamel import yaml
@@ -45,9 +46,11 @@ class TestWorkflowGenerator(object):
         wf.save(wf_filename)
 
         # make workflows contents relative to tests/data/tools directory
-        print(os.path.join(os.getcwd(), os.path.join('tests','data','tools')))
-        print(os.path.join('..','tools'))
-        actual = load_yaml(wf_filename, os.path.join(os.getcwd(), os.path.join('tests','data','tools')))
+        if "win" in sys.platform:
+            to_remove =  os.path.join(os.getcwd(), os.path.join('tests','data','tools'))+"\\"
+        else:
+            to_remove =  os.path.join(os.getcwd(), os.path.join('tests','data','tools'))+"/"
+        actual = load_yaml(wf_filename,to_remove)
         expected_wf_filename = os.path.join('tests','data','workflows','echo-wc.cwl')
         expected = load_yaml(expected_wf_filename, "../tools/")
 
@@ -57,7 +60,7 @@ class TestWorkflowGenerator(object):
 
     def test_save_with_workflow(self, tmpdir):
         wf = WorkflowGenerator()
-        wf.load('tests/data/workflows')
+        wf.load(os.path.join('tests','data','workflows'))
 
         wfmessage = wf.add_input(wfmessage='string')
         wced = wf.echo_wc(wfmessage=wfmessage)
@@ -67,9 +70,13 @@ class TestWorkflowGenerator(object):
         wf.save(wf_filename)
 
         # make workflows contents relative to tests/data/tools directory
-        actual = load_yaml(wf_filename, os.getcwd() + '/tests/data/workflows')
-        expected_wf_filename = 'tests/data/echo-wc.workflowstep.cwl'
-        expected = load_yaml(expected_wf_filename, '../workflows')
+        if "win" in sys.platform:
+            to_remove =  os.path.join(os.getcwd(), os.path.join('tests','data','workflows'))+"\\"
+        else:
+            to_remove =  os.path.join(os.getcwd(), os.path.join('tests','data','workflows'))+"/"
+        actual = load_yaml(wf_filename, to_remove)
+        expected_wf_filename = os.path.join('tests','data','echo-wc.workflowstep.cwl')
+        expected = load_yaml(expected_wf_filename, '../workflows/')
 
         print('  actual:', actual)
         print('expected:', expected)
@@ -77,7 +84,7 @@ class TestWorkflowGenerator(object):
 
     def test_save_with_scattered_step(self, tmpdir):
         wf = WorkflowGenerator()
-        wf.load('tests/data/tools')
+        wf.load(os.path.join('tests','data','tools'))
 
         msgs = wf.add_input(wfmessages='string[]')
         echoed = wf.echo(
@@ -90,9 +97,13 @@ class TestWorkflowGenerator(object):
         wf.save(wf_filename)
 
         # make workflows contents relative to tests/data/tools directory
-        actual = load_yaml(wf_filename, os.getcwd() + '/tests/data/tools')
-        expected_wf_filename = 'tests/data/echo.scattered.cwl'
-        expected = load_yaml(expected_wf_filename, '../tools')
+        if "win" in sys.platform:
+            to_remove =  os.path.join(os.getcwd(), os.path.join('tests','data','tools'))+"\\"
+        else:
+            to_remove =  os.path.join(os.getcwd(), os.path.join('tests','data','tools'))+"/"
+        actual = load_yaml(wf_filename, to_remove)
+        expected_wf_filename = os.path.join('tests','data','echo.scattered.cwl')
+        expected = load_yaml(expected_wf_filename, '../tools/')
 
         print('  actual:', actual)
         print('expected:', expected)

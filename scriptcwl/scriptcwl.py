@@ -5,7 +5,6 @@ import logging
 from schema_salad.validate import ValidationException
 
 from .step import Step
-from pathlib import Path
 
 def load_steps(steps_dir=None, step_file=None, step_list=None):
     """Return a dictionary containing Steps read from file.
