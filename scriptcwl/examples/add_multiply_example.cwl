@@ -1,4 +1,4 @@
-#!/usr/bin/env cwltool
+#!/usr/bin/env cwl-runner
 cwlVersion: v1.0
 class: Workflow
 inputs:
@@ -10,14 +10,14 @@ outputs:
     outputSource: multiply/answer
 steps:
   add:
-    run: /home/jvdzwaan/code/scriptcwl/scriptcwl/examples/add.cwl
+    run: add.cwl
     in:
       y: num2
       x: num1
     out:
     - answer
   multiply:
-    run: /home/jvdzwaan/code/scriptcwl/scriptcwl/examples/multiply.cwl
+    run: multiply.cwl
     in:
       y: num2
       x: add/answer

@@ -11,11 +11,10 @@ from ruamel import yaml
 from ruamel.yaml.comments import CommentedMap
 
 from .scriptcwl import load_steps
-from .step import Step, python_name, quiet
+from .step import python_name, quiet
 
-from .yamlmultiline import is_multiline, str_presenter
-from .reference import Reference, reference_presenter
 from .yamlmultiline import str_presenter
+from .reference import Reference, reference_presenter
 
 # import cwltool.load_tool functions
 with quiet():
@@ -417,7 +416,8 @@ class WorkflowGenerator(object):
 
         return '\n'.join(script)
 
-    def _get_input_type(self, step, input_name):
+    @staticmethod
+    def _get_input_type(step, input_name):
         input_type = step.input_types.get(input_name)
         if not input_type:
             input_type = step.optional_input_types[input_name]
@@ -439,7 +439,8 @@ class WorkflowGenerator(object):
                 return input_def
             return input_def['type']
 
-    def _types_match(self, type1, type2):
+    @staticmethod
+    def _types_match(type1, type2):
         """Returns False only if it can show that no value of type1
         can possibly match type2.
 
@@ -486,7 +487,7 @@ class WorkflowGenerator(object):
         for k in step.get_input_names():
             if k in kwargs.keys():
                 if isinstance(kwargs[k], Reference):
-                    step.set_input(k, kwargs[k])
+                    step.set_input(k, six.text_type(kwargs[k]))
                 else:
                     raise ValueError(
                         'Incorrect type (should be a value returned'
@@ -555,7 +556,7 @@ class WorkflowGenerator(object):
             return outputs[0]
         return outputs
 
-    def validate(self, inline=False, encoding='utf-8'):
+    def validate(self):
         """Validate workflow object.
 
         This method currently validates the workflow object with the
@@ -572,7 +573,7 @@ class WorkflowGenerator(object):
             # load workflow from tmpfile
             (document_loader, workflowobj, uri) = fetch_document(tmpfile)
             # validate workflow
-            (document_loader, avsc_names, processobj, metadata, uri) = \
+            (document_loader, _, _, _, uri) = \
                 validate_document(document_loader, workflowobj, uri)
         finally:
             # cleanup tmpfile
