@@ -64,6 +64,8 @@ of the workflow. Finally, the workflow is saved to a file. The result looks like
       out:
       - answer
 
+More examples of workflows created using scriptcwl can be found under :ref:`examples`.
+
 Contents
 ========
 
@@ -77,6 +79,7 @@ Contents
    adding_outputs
    saving_workflows
    installation
+   examples
    useful_tools
    cwl_tips_tricks
 
