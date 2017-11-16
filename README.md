@@ -8,12 +8,17 @@
 [![PyPI](https://img.shields.io/pypi/pyversions/scriptcwl.svg)](https://pypi.python.org/pypi/scriptcwl)
 [![DOI](https://zenodo.org/badge/70679474.svg)](https://zenodo.org/badge/latestdoi/70679474)
 
-
 scriptcwl is a Python package for creating workflows in
 [common workflow language](http://www.commonwl.org/). If you give it a number of CWL
 `CommandLineTool`s, you can create a workflow by writing a Python script. This can
 be done interactively using [Jupyter Notebooks](http://jupyter.org/). More information
 about using scriptcwl can be found in the [documentation](http://scriptcwl.readthedocs.io/en/latest/).
+
+![add multiply example workflow](https://github.com/NLeSC/scriptcwl/blob/develop/docs/add-multiply-example-workflow.png?raw=true)
+
+Given CWL `CommandLineTools` for `add` and `multiply` (these are available
+in [scriptcwl](https://github.com/NLeSC/scriptcwl/tree/master/scriptcwl/examples>)),
+a CWL specification of this workflow can be written as:
 
 ```python
 from scriptcwl import WorkflowGenerator
@@ -32,7 +37,7 @@ with WorkflowGenerator() as wf:
     wf.save('add_multiply_example_workflow.cwl')
 ```
 
-This workflow has two integers as inputs (``num1`` and ``num2``), and first adds
+The workflow has two integers as inputs (``num1`` and ``num2``), and first adds
 these two numbers (``wf.add(x=num1, y=num2)``), and then multiplies the answer
 with the second input (``num2``). The result of that processing step is the output
 of the workflow. Finally, the workflow is saved to a file. The result looks like:
