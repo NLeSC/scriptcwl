@@ -612,7 +612,8 @@ class WorkflowGenerator(object):
                              Dumper=yaml.RoundTripDumper)
         with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
             yaml_file.write('#!/usr/bin/env cwl-runner\n')
-            yaml_file.write(yaml.dump(self.to_obj(inline, relpath=relpath),
+            yaml_file.write(yaml.dump(self.to_obj(inline=inline,
+                                                  relpath=relpath),
                                       Dumper=yaml.RoundTripDumper))
 
     def add_inputs(self, **kwargs):
