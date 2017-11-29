@@ -175,7 +175,10 @@ class Step(object):
         # Remove shebang line
         # This is a bit magical, digging into ruamel.yaml, but there
         # does not seem to be a better way.
-        global_comments = embedded_clt.ca.comment[1]
+        try:
+            global_comments = embedded_clt.ca.comment[1]
+        except TypeError:
+            global_comments = None
         if global_comments:
             if global_comments[0].value.startswith('#!'):
                 del(global_comments[0])

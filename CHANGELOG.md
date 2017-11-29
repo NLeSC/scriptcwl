@@ -5,6 +5,7 @@
 ### Changed
 
 * Use name of step in workflow to create unique ids when saving steps inline (#82)
+* Allow saving workflows with inline steps for step files without shebang (#83)
 
 ## 0.6.0
 
