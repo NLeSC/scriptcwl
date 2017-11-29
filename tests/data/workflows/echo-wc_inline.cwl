@@ -18,13 +18,13 @@ steps:
       - type: string
         inputBinding:
           position: 1
-        id: _:echo.cwl#message
+        id: _:echo#message
       outputs:
       - type: File
-        id: _:echo.cwl#echoed
+        id: _:echo#echoed
         outputBinding:
           glob: 8341e6646e16f373b00fc5a45b4f299d5901b0ad
-      id: _:echo.cwl
+      id: _:echo
       stdout: 8341e6646e16f373b00fc5a45b4f299d5901b0ad
     in:
       message: wfmessage
@@ -39,13 +39,13 @@ steps:
       - type: File
         inputBinding:
           position: 1
-        id: _:wc.cwl#file2count
+        id: _:wc#file2count
       outputs:
       - type: File
-        id: _:wc.cwl#wced
+        id: _:wc#wced
         outputBinding:
           glob: bcd587c62be60d5d0473ee2c39dc73257b20ecca
-      id: _:wc.cwl
+      id: _:wc
       stdout: bcd587c62be60d5d0473ee2c39dc73257b20ecca
     in:
       file2count: echo/echoed

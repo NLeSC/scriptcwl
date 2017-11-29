@@ -559,7 +559,7 @@ class WorkflowGenerator(object):
             return outputs[0]
         return outputs
 
-    def validate(self):
+    def validate(self, inline=False, relative=True):
         """Validate workflow object.
 
         This method currently validates the workflow object with the
@@ -572,7 +572,8 @@ class WorkflowGenerator(object):
         try:
             # save workflow object to tmpfile,
             # do not recursively call validate function
-            self.save(tmpfile, validate=False)
+            self.save(tmpfile, inline=inline, relative=relative,
+                      validate=False)
             # load workflow from tmpfile
             (document_loader, workflowobj, uri) = fetch_document(tmpfile)
             # validate workflow
@@ -595,7 +596,7 @@ class WorkflowGenerator(object):
         self._closed()
 
         if validate:
-            self.validate()
+            self.validate(inline=inline, relative=relative)
 
         dirname = os.path.dirname(os.path.abspath(fname))
 

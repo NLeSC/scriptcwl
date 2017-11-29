@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Changed
+
+* Use name of step in workflow to create unique ids when saving steps inline (#82)
+
 ## 0.6.0
 
 ### Added

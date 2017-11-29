@@ -165,6 +165,13 @@ class Step(object):
     def _to_embedded_obj(self):
         embedded_clt = copy.deepcopy(self.command_line_tool)
 
+        try:
+            name_in_workflow = self.name_in_workflow
+        except AttributeError:
+            # Step has not yet been added to a workflow, so we use the step
+            # name for the id fields of the embedded object.
+            name_in_workflow = self.name
+
         # Remove shebang line
         # This is a bit magical, digging into ruamel.yaml, but there
         # does not seem to be a better way.
@@ -175,9 +182,9 @@ class Step(object):
 
         # Give inputs and outputs a JSON-LD local identifier, instead of
         # the default absolute path that doesn't exist on other machines.
-        def to_local_id(iri):
+        def to_local_id(iri, name_in_workflow):
             parsed_iri = urlparse(iri)
-            input_id = parsed_iri.path.split('/')[-1]
+            input_id = name_in_workflow
             if parsed_iri.fragment:
                 input_id += '#' + parsed_iri.fragment
             if not input_id.startswith('_:'):
@@ -185,12 +192,12 @@ class Step(object):
             return input_id
 
         for inp in embedded_clt['inputs']:
-            inp['id'] = to_local_id(inp['id'])
+            inp['id'] = to_local_id(inp['id'], name_in_workflow)
 
         for outp in embedded_clt['outputs']:
-            outp['id'] = to_local_id(outp['id'])
+            outp['id'] = to_local_id(outp['id'], name_in_workflow)
 
-        embedded_clt['id'] = to_local_id(embedded_clt['id'])
+        embedded_clt['id'] = to_local_id(embedded_clt['id'], name_in_workflow)
 
         return embedded_clt
 

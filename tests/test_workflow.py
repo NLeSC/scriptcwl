@@ -352,6 +352,17 @@ class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
         assert name != 'echo'
         assert name == echoed2.step_name
 
+    def test_validate_with_inline_tools(self, tmpdir):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        echoed2 = wf.echo(message=wfmessage)
+        wf.add_outputs(echoed2=echoed2)
+
+        wf.validate(inline=True)
+
 
 class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
     def test_default_value_for_workflow_input(self):
