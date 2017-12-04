@@ -17,7 +17,7 @@ The workflow consists of the following steps:
 * Replace named entities with their named entity type in the SAF documents
 * Convert SAF documents to text
 
-All steps required for this workflow are available through `nlppln <https://github.com/WhatWorksWhenForWhom/nlppln>`_.
+All steps required for this workflow are available through `nlppln <https://github.com/nlppln/nlppln>`_.
 
 Workflow
 ########
