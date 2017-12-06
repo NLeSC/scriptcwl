@@ -4,6 +4,7 @@
 
 ### Changed
 
+* Prevent name clashes of embedded (sub)workflows (however, this doesn't work when a (sub)workflow is added multiple times)
 * Use name of step in workflow to create unique ids when saving steps inline (#82)
 * Allow saving workflows with inline steps for step files without shebang (#83)
 * Document feature for adding documentation to a workflow (#81)
