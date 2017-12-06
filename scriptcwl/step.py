@@ -202,6 +202,13 @@ class Step(object):
 
         embedded_clt['id'] = to_local_id(embedded_clt['id'], name_in_workflow)
 
+        # If the step is a (sub)workflow, the source fields of the steps in the
+        # workflow must be removed.
+        if embedded_clt['class'] == 'Workflow':
+            for step in embedded_clt['steps']:
+                for inp in step['in']:
+                    del inp['source']
+
         return embedded_clt
 
     def to_obj(self, inline=True, relpath=None):
