@@ -14,6 +14,7 @@ from .scriptcwl import load_steps
 from .step import python_name, quiet
 
 from .yamlmultiline import str_presenter
+from .library import StepsLibrary
 from .reference import Reference, reference_presenter
 
 import warnings
@@ -111,7 +112,7 @@ class WorkflowGenerator(object):
         self.wf_inputs = CommentedMap()
         self.wf_outputs = CommentedMap()
         self.step_output_types = {}
-        self.steps_library = {}
+        self.steps_library = StepsLibrary()
         self.has_workflow_step = False
         self.has_scatter_requirement = False
 
@@ -163,11 +164,7 @@ class WorkflowGenerator(object):
             steps_dir=steps_dir,
             step_file=step_file,
             step_list=step_list)
-        for n, step in steps.items():
-            if n in self.steps_library.keys():
-                print('WARNING: step "{}" already in steps library'.format(n))
-            else:
-                self.steps_library[n] = step
+        self.steps_library.load(steps)
 
     def list_steps(self):
         """Return string with the signature of all steps in the steps library.
@@ -315,7 +312,7 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        s = self.steps_library.get(name)
+        s = self.steps_library.get_step(name)
         if s is None:
             msg = '"{}" not found in steps library. Please check your ' \
                   'spelling or load additional steps'
@@ -328,7 +325,7 @@ class WorkflowGenerator(object):
         name = step_name
         i = 1
 
-        while name in self.wf_steps.keys():
+        while name in self.steps_library.step_ids:
             name = '{}-{}'.format(step_name, i)
             i += 1
 
@@ -544,6 +541,7 @@ class WorkflowGenerator(object):
         # tools can be added to the same workflow multiple times).
         name_in_wf = self._generate_step_name(step.name)
         step._set_name_in_workflow(name_in_wf)
+        self.steps_library.step_ids.append(name_in_wf)
 
         # Create a reference for each output for use in subsequent
         # steps' inputs.
