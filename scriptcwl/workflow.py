@@ -171,20 +171,7 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        steps = []
-        workflows = []
-        template = u'  {:.<25} {}'
-        for name, step in self.steps_library.items():
-            if step.is_workflow:
-                workflows.append(template.format(name, step))
-            else:
-                steps.append(template.format(name, step))
-
-        steps.sort()
-        workflows.sort()
-        result = [u'Steps\n', u'\n'.join(steps), u'\n\nWorkflows\n',
-                  u'\n'.join(workflows)]
-        return u''.join(result)
+        return self.steps_library.list_steps()
 
     def _has_requirements(self):
         """Returns True if the workflow needs a requirements section.

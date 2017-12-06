@@ -21,6 +21,22 @@ class StepsLibrary(object):
     def get_step(self, name):
         return self.steps.get(name)
 
+    def list_steps(self):
+        steps = []
+        workflows = []
+        template = u'  {:.<25} {}'
+        for name, step in self.steps.items():
+            if step.is_workflow:
+                workflows.append(template.format(name, step))
+            else:
+                steps.append(template.format(name, step))
+
+        steps.sort()
+        workflows.sort()
+        result = [u'Steps\n', u'\n'.join(steps), u'\n\nWorkflows\n',
+                  u'\n'.join(workflows)]
+        return u''.join(result)
+
 
 def name_in_workflow(iri):
     """Extract the name of a step in a subworkflow.
