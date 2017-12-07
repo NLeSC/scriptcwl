@@ -10,7 +10,7 @@ def test_is_multiline():
 
 
 def test_multiline_output(tmpdir):
-    wf = WorkflowGenerator()
+    wf = WorkflowGenerator(copy_steps=False)
     wf.set_documentation('Testing a multiline\ndocumentation string')
     tmpfile = os.path.join(str(tmpdir), 'test.cwl')
     wf.save(tmpfile)

@@ -43,7 +43,12 @@ class Step(object):
     """
 
     def __init__(self, fname):
-        self.run = os.path.abspath(fname)
+        if fname.startswith('http://') or fname.startswith('https://'):
+            self.run = fname
+            self.from_url = True
+        else:
+            self.run = os.path.abspath(fname)
+            self.from_url = False
 
         bn = os.path.basename(fname)
         self.name = os.path.splitext(bn)[0]

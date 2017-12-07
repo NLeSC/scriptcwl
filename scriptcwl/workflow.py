@@ -106,12 +106,13 @@ class WorkflowGenerator(object):
         wf.list_steps()
     """
 
-    def __init__(self, steps_dir=None, working_dir=None):
+    def __init__(self, steps_dir=None, working_dir=None, copy_steps=True):
         self.wf_steps = CommentedMap()
         self.wf_inputs = CommentedMap()
         self.wf_outputs = CommentedMap()
         self.step_output_types = {}
-        self.steps_library = StepsLibrary(working_dir=working_dir)
+        self.steps_library = StepsLibrary(working_dir=working_dir,
+                                          copy_steps=copy_steps)
         self.has_workflow_step = False
         self.has_scatter_requirement = False
 
