@@ -42,11 +42,8 @@ class Step(object):
     and validated using ``cwltool``.
     """
 
-    def __init__(self, fname, abspath=True, start=os.curdir):
-        if abspath:
-            self.run = os.path.abspath(fname)
-        else:
-            self.run = os.path.relpath(fname, start)
+    def __init__(self, fname):
+        self.run = os.path.abspath(fname)
 
         bn = os.path.basename(fname)
         self.name = os.path.splitext(bn)[0]
