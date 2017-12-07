@@ -597,6 +597,9 @@ class WorkflowGenerator(object):
                                                   relpath=relpath),
                                       Dumper=yaml.RoundTripDumper))
 
+    def get_working_dir(self):
+        return str(self.steps_library.working_dir)
+
     def add_inputs(self, **kwargs):
         """Deprecated function, use add_input(self, **kwargs) instead.
         Add workflow input.
