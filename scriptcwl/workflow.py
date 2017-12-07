@@ -10,7 +10,6 @@ import six
 from ruamel import yaml
 from ruamel.yaml.comments import CommentedMap
 
-from .scriptcwl import load_steps
 from .step import python_name, quiet
 
 from .yamlmultiline import str_presenter
@@ -107,12 +106,12 @@ class WorkflowGenerator(object):
         wf.list_steps()
     """
 
-    def __init__(self, steps_dir=None):
+    def __init__(self, steps_dir=None, working_dir=None):
         self.wf_steps = CommentedMap()
         self.wf_inputs = CommentedMap()
         self.wf_outputs = CommentedMap()
         self.step_output_types = {}
-        self.steps_library = StepsLibrary()
+        self.steps_library = StepsLibrary(working_dir=working_dir)
         self.has_workflow_step = False
         self.has_scatter_requirement = False
 
@@ -160,11 +159,8 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        steps = load_steps(
-            steps_dir=steps_dir,
-            step_file=step_file,
-            step_list=step_list)
-        self.steps_library.load(steps)
+        self.steps_library.load(steps_dir=steps_dir, step_file=step_file,
+                                step_list=step_list)
 
     def list_steps(self):
         """Return string with the signature of all steps in the steps library.
