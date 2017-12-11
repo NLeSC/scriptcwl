@@ -141,6 +141,25 @@ class TestWorkflowGenerator(object):
         print('expected:', expected)
         assert actual == expected
 
+    def test_save_with_pack(self, tmpdir):
+        wf = WorkflowGenerator(copy_steps=False)
+        wf.load('tests/data/tools')
+        wf.set_documentation('Counts words of a message via echo and wc')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        wf_filename = tmpdir.join('echo-wc.cwl').strpath
+        wf.save(wf_filename, pack=True)
+
+        with WorkflowGenerator(copy_steps=False) as wf2:
+            wf2.load(wf_filename)
+            # wf_filename shouldn't be in the steps library, because it is a
+            # packed workflow
+            assert len(wf2.steps_library.steps.keys()) == 0
+
     def test_add_shebang_to_saved_cwl_file(self, tmpdir):
         wf = WorkflowGenerator(copy_steps=False)
         wf.load('tests/data/tools')

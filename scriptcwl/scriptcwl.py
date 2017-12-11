@@ -4,7 +4,7 @@ import logging
 
 from schema_salad.validate import ValidationException
 
-from .step import Step
+from .step import Step, PackedWorkflowException
 
 
 def load_steps(steps_dir=None, step_file=None, step_list=None):
@@ -39,7 +39,8 @@ def load_steps(steps_dir=None, step_file=None, step_list=None):
         try:
             s = Step(f)
             steps[s.name] = s
-        except (NotImplementedError, ValidationException) as e:
+        except (NotImplementedError, ValidationException,
+                PackedWorkflowException) as e:
             logging.warning(e)
 
     return steps

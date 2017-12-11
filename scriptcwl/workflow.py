@@ -22,6 +22,7 @@ import warnings
 with quiet():
     # all is quiet in this scope
     from cwltool.load_tool import fetch_document, validate_document
+    from cwltool.main import print_pack
 
 yaml.add_representer(str, str_presenter)
 warnings.simplefilter('always', DeprecationWarning)
@@ -565,8 +566,30 @@ class WorkflowGenerator(object):
             # cleanup tmpfile
             os.remove(tmpfile)
 
+    def _pack(self, fname, encoding):
+        """Save workflow with ``--pack`` option
+
+        This means that al tools and subworkflows are included in the workflow
+        file that is created. A packed workflow cannot be loaded and used in
+        scriptcwl.
+        """
+        (fd, tmpfile) = tempfile.mkstemp()
+        os.close(fd)
+        try:
+            self.save(tmpfile, inline=False, relative=False, pack=False,
+                      validate=False)
+            (document_loader, workflowobj, uri) = fetch_document(tmpfile)
+            (document_loader, _, processobj, metadata, uri) = \
+                validate_document(document_loader, workflowobj, uri)
+        finally:
+            # cleanup tmpfile
+            os.remove(tmpfile)
+
+        with codecs.open(fname, 'wb', encoding=encoding) as f:
+            f.write(print_pack(document_loader, processobj, uri, metadata))
+
     def save(self, fname, inline=False, relative=True, validate=True,
-             encoding='utf-8'):
+             pack=False, encoding='utf-8'):
         """Save the workflow to file.
 
         Save the workflow to a CWL file that can be run with a CWL runner.
@@ -589,14 +612,18 @@ class WorkflowGenerator(object):
         if relative:
             relpath = dirname
 
-        yaml.add_representer(str, str_presenter, Dumper=yaml.RoundTripDumper)
-        yaml.add_representer(Reference, reference_presenter,
-                             Dumper=yaml.RoundTripDumper)
-        with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
-            yaml_file.write('#!/usr/bin/env cwl-runner\n')
-            yaml_file.write(yaml.dump(self.to_obj(inline=inline,
-                                                  relpath=relpath),
-                                      Dumper=yaml.RoundTripDumper))
+        if pack:
+            self._pack(fname, encoding)
+        else:
+            yaml.add_representer(str, str_presenter,
+                                 Dumper=yaml.RoundTripDumper)
+            yaml.add_representer(Reference, reference_presenter,
+                                 Dumper=yaml.RoundTripDumper)
+            with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
+                yaml_file.write('#!/usr/bin/env cwl-runner\n')
+                yaml_file.write(yaml.dump(self.to_obj(inline=inline,
+                                                      relpath=relpath),
+                                          Dumper=yaml.RoundTripDumper))
 
     def get_working_dir(self):
         return str(self.steps_library.working_dir)

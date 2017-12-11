@@ -6,7 +6,7 @@ from contextlib import contextmanager
 import six
 from six.moves.urllib.parse import urlparse
 
-from ruamel.yaml.comments import CommentedMap
+from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
 from .reference import Reference
 
@@ -33,6 +33,11 @@ def quiet():
 with quiet():
     # all is quiet in this scope
     from cwltool.load_tool import fetch_document, validate_document
+
+
+class PackedWorkflowException(Exception):
+    """Error raised when trying to load a packed workflow."""
+    pass
 
 
 class Step(object):
@@ -91,8 +96,12 @@ class Step(object):
                 self.output_names.append(short_id)
                 self.output_types[short_id] = o['type']
         else:
-            msg = '"{}" is a unsupported'
-            raise NotImplementedError(msg.format(self.name))
+            if isinstance(s, CommentedSeq):
+                msg = 'Not loading "{}", because it is a packed workflow.'
+                raise PackedWorkflowException(msg.format(self.run))
+            else:
+                msg = '"{}" is a unsupported'
+                raise NotImplementedError(msg.format(self.name))
 
     def get_input_names(self):
         """Return the Step's input names (including optional input names).
