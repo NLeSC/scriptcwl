@@ -232,7 +232,10 @@ class Step(object):
         if inline:
             obj['run'] = self._to_embedded_obj()
         elif relpath is not None:
-            obj['run'] = os.path.relpath(self.run, relpath)
+            if self.from_url:
+                obj['run'] = self.run
+            else:
+                obj['run'] = os.path.relpath(self.run, relpath)
         else:
             obj['run'] = self.run
         obj['in'] = self.step_inputs

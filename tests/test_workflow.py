@@ -160,6 +160,19 @@ class TestWorkflowGenerator(object):
             # packed workflow
             assert len(wf2.steps_library.steps.keys()) == 0
 
+    def test_save_with_relative_url(self, tmpdir):
+        wf = WorkflowGenerator(copy_steps=False)
+        url = 'https://raw.githubusercontent.com/NLeSC/scriptcwl/master/' \
+              'tests/data/tools/echo.cwl'
+        wf.load(step_file=url)
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wf.add_outputs(echoed=echoed)
+
+        wf_filename = tmpdir.join('echo-wf.cwl').strpath
+        wf.save(wf_filename, relative=True)
+
     def test_add_shebang_to_saved_cwl_file(self, tmpdir):
         wf = WorkflowGenerator(copy_steps=False)
         wf.load('tests/data/tools')
