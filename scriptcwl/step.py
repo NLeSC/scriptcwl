@@ -1,38 +1,13 @@
 import os
-import sys
 import copy
-from contextlib import contextmanager
 
 import six
 from six.moves.urllib.parse import urlparse
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
+from .scriptcwl import load_cwl
 from .reference import Reference
-
-
-# Helper function to make the import of cwltool.load_tool quiet
-@contextmanager
-def quiet():
-    # save stdout/stderr
-    # Jupyter doesn't support setting it back to
-    # sys.__stdout__ and sys.__stderr__
-    _sys_stdout = sys.stdout
-    _sys_stderr = sys.stderr
-    # Divert stdout and stderr to devnull
-    sys.stdout = sys.stderr = open(os.devnull, "w")
-    try:
-        yield
-    finally:
-        # Revert back to standard stdout/stderr
-        sys.stdout = _sys_stdout
-        sys.stderr = _sys_stderr
-
-
-# import cwltool.load_tool functions
-with quiet():
-    # all is quiet in this scope
-    from cwltool.load_tool import fetch_document, validate_document
 
 
 class PackedWorkflowException(Exception):
@@ -70,10 +45,7 @@ class Step(object):
         self.is_scattered = False
         self.scattered_inputs = []
 
-        # Fetching, preprocessing and validating cwl
-        (document_loader, workflowobj, uri) = fetch_document(fname)
-        (document_loader, _, processobj, _, uri) = \
-            validate_document(document_loader, workflowobj, uri)
+        document_loader, processobj, metadata, uri = load_cwl(fname)
         s = processobj
 
         self.command_line_tool = s

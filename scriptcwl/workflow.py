@@ -10,8 +10,8 @@ import tempfile
 import six
 from ruamel.yaml.comments import CommentedMap
 
-from .step import python_name, quiet
-
+from .scriptcwl import load_cwl, quiet
+from .step import python_name
 from .yamlutils import save_yaml
 from .library import StepsLibrary
 from .reference import Reference
@@ -21,7 +21,6 @@ import warnings
 # import cwltool.load_tool functions
 with quiet():
     # all is quiet in this scope
-    from cwltool.load_tool import fetch_document, validate_document
     from cwltool.main import print_pack
 
 warnings.simplefilter('always', DeprecationWarning)
@@ -566,10 +565,7 @@ class WorkflowGenerator(object):
             self.save(tmpfile, inline=inline, validate=False, relative=False,
                       wd=False)
             # load workflow from tmpfile
-            (document_loader, workflowobj, uri) = fetch_document(tmpfile)
-            # validate workflow
-            (document_loader, _, _, _, uri) = \
-                validate_document(document_loader, workflowobj, uri)
+            document_loader, processobj, metadata, uri = load_cwl(tmpfile)
         finally:
             # cleanup tmpfile
             os.remove(tmpfile)
@@ -586,9 +582,7 @@ class WorkflowGenerator(object):
         try:
             self.save(tmpfile, validate=False, wd=False, inline=False,
                       relative=False, pack=False)
-            (document_loader, workflowobj, uri) = fetch_document(tmpfile)
-            (document_loader, _, processobj, metadata, uri) = \
-                validate_document(document_loader, workflowobj, uri)
+            document_loader, processobj, metadata, uri = load_cwl(tmpfile)
         finally:
             # cleanup tmpfile
             os.remove(tmpfile)
