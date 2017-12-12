@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import sys
+import os
 
 import pytest
 from ruamel import yaml
@@ -158,6 +159,43 @@ class TestWorkflowGenerator(object):
             # wf_filename shouldn't be in the steps library, because it is a
             # packed workflow
             assert len(wf2.steps_library.steps.keys()) == 0
+
+    def test_save_with_wd(self, tmpdir):
+        wf = WorkflowGenerator(working_dir=tmpdir.join('wd').strpath)
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        wf_filename = tmpdir.join('echo-wc.cwl').strpath
+        wf.save(wf_filename, wd=True)
+
+        actual = load_yaml(wf_filename)
+        expected_wf_filename = 'tests/data/workflows/echo-wc_wd.cwl'
+        expected = load_yaml(expected_wf_filename)
+
+        print('  actual:', actual)
+        print('expected:', expected)
+        assert actual == expected
+
+    def test_save_with_wd_no_wd(self, tmpdir):
+        wf = WorkflowGenerator()
+
+        assert wf.get_working_dir() is None
+
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        wf_filename = tmpdir.join('echo-wc.cwl').strpath
+
+        with pytest.raises(ValueError):
+            wf.save(wf_filename, wd=True)
 
     def test_save_with_relative_url(self, tmpdir):
         wf = WorkflowGenerator()

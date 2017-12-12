@@ -617,22 +617,26 @@ class WorkflowGenerator(object):
         if pack:
             self._pack(fname, encoding)
         elif wd:
-            # save in working_dir
-            wd_file = os.path.join(self.working_dir, os.path.basename(fname))
-            save_yaml(fname=wd_file, wf=self, inline=inline, pack=pack,
-                      relpath=relpath, wd=wd)
-            # and copy workflow file to other location (as though all steps are
-            # in the same directory as the workflow)
-            try:
-                shutil.copy2(wd_file, fname)
-            except shutil.Error:
-                pass
+            if self.get_working_dir() is None:
+                raise ValueError('Working directory not set.')
+            else:
+                # save in working_dir
+                bn = os.path.basename(fname)
+                wd_file = os.path.join(self.working_dir, bn)
+                save_yaml(fname=wd_file, wf=self, inline=inline, pack=pack,
+                          relpath=relpath, wd=wd)
+                # and copy workflow file to other location (as though all steps
+                # are in the same directory as the workflow)
+                try:
+                    shutil.copy2(wd_file, fname)
+                except shutil.Error:
+                    pass
         else:
             save_yaml(fname=fname, wf=self, inline=inline, pack=pack,
                       relpath=relpath, wd=wd)
 
     def get_working_dir(self):
-        return str(self.working_dir)
+        return self.working_dir
 
     def add_inputs(self, **kwargs):
         """Deprecated function, use add_input(self, **kwargs) instead.
