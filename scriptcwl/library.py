@@ -10,6 +10,13 @@ from schema_salad.validate import ValidationException
 from .scriptcwl import is_url
 from .step import Step, PackedWorkflowException
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
+fh = logging.StreamHandler()
+fh_formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+fh.setFormatter(fh_formatter)
+logger.addHandler(fh)
+
 
 class StepsLibrary(object):
     """Oject to store steps that can be used to build workflows
@@ -105,6 +112,6 @@ def load_steps(working_dir=None, steps_dir=None, step_file=None,
             steps[s.name] = s
         except (NotImplementedError, ValidationException,
                 PackedWorkflowException) as e:
-            logging.warning(e)
+            logger.warning(e)
 
     return steps
