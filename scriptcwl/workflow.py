@@ -3,6 +3,7 @@ from __future__ import print_function
 import codecs
 import copy
 import os
+import shutil
 from functools import partial
 
 import tempfile
@@ -107,13 +108,17 @@ class WorkflowGenerator(object):
         wf.list_steps()
     """
 
-    def __init__(self, steps_dir=None, working_dir=None, copy_steps=True):
+    def __init__(self, steps_dir=None, working_dir=None):
+        self.working_dir = working_dir
+        if self.working_dir:
+            self.working_dir = os.path.abspath(self.working_dir)
+            if not os.path.exists(self.working_dir):
+                os.makedirs(self.working_dir)
         self.wf_steps = CommentedMap()
         self.wf_inputs = CommentedMap()
         self.wf_outputs = CommentedMap()
         self.step_output_types = {}
-        self.steps_library = StepsLibrary(working_dir=working_dir,
-                                          copy_steps=copy_steps)
+        self.steps_library = StepsLibrary(working_dir=working_dir)
         self.has_workflow_step = False
         self.has_scatter_requirement = False
 
@@ -134,6 +139,7 @@ class WorkflowGenerator(object):
         self.steps_library = None
         self.has_workflow_step = None
         self.has_scatter_requirement = None
+        self.working_dir = None
 
         self._wf_closed = True
 
@@ -316,7 +322,7 @@ class WorkflowGenerator(object):
 
         return name
 
-    def to_obj(self, inline=True, relpath=None):
+    def to_obj(self, wd=False, inline=False, pack=False, relpath=None):
         """Return the created workflow as a dict.
 
         The dict can be written to a yaml file.
@@ -345,8 +351,10 @@ class WorkflowGenerator(object):
 
         steps_obj = CommentedMap()
         for key in self.wf_steps:
-            steps_obj[key] = self.wf_steps[key].to_obj(
-                       inline=inline, relpath=relpath)
+            steps_obj[key] = self.wf_steps[key].to_obj(inline=inline,
+                                                       relpath=relpath,
+                                                       pack=pack,
+                                                       wd=wd)
         obj['steps'] = steps_obj
 
         return obj
@@ -542,12 +550,14 @@ class WorkflowGenerator(object):
             return outputs[0]
         return outputs
 
-    def validate(self, inline=False, relative=True):
+    def validate(self, inline=False):
         """Validate workflow object.
 
-        This method currently validates the workflow object with the
-        use of cwltool. It writes the workflow to a tmp CWL file,
-        reads it, validates it and removes the tmp file again.
+        This method currently validates the workflow object with the use of
+        cwltool. It writes the workflow to a tmp CWL file, reads it, validates
+        it and removes the tmp file again. By default, the workflow is written
+        to file using absolute paths to the steps. Optionally, the steps can be
+        saved inline.
         """
         # define tmpfile
         (fd, tmpfile) = tempfile.mkstemp()
@@ -555,8 +565,8 @@ class WorkflowGenerator(object):
         try:
             # save workflow object to tmpfile,
             # do not recursively call validate function
-            self.save(tmpfile, inline=inline, relative=relative,
-                      validate=False)
+            self.save(tmpfile, inline=inline, validate=False, relative=False,
+                      wd=False)
             # load workflow from tmpfile
             (document_loader, workflowobj, uri) = fetch_document(tmpfile)
             # validate workflow
@@ -576,8 +586,8 @@ class WorkflowGenerator(object):
         (fd, tmpfile) = tempfile.mkstemp()
         os.close(fd)
         try:
-            self.save(tmpfile, inline=False, relative=False, pack=False,
-                      validate=False)
+            self.save(tmpfile, validate=False, wd=False, inline=False,
+                      relative=False, pack=False)
             (document_loader, workflowobj, uri) = fetch_document(tmpfile)
             (document_loader, _, processobj, metadata, uri) = \
                 validate_document(document_loader, workflowobj, uri)
@@ -588,8 +598,8 @@ class WorkflowGenerator(object):
         with codecs.open(fname, 'wb', encoding=encoding) as f:
             f.write(print_pack(document_loader, processobj, uri, metadata))
 
-    def save(self, fname, inline=False, relative=True, validate=True,
-             pack=False, encoding='utf-8'):
+    def save(self, fname, validate=True, wd=False, inline=False,
+             relative=False, pack=False, encoding='utf-8'):
         """Save the workflow to file.
 
         Save the workflow to a CWL file that can be run with a CWL runner.
@@ -601,7 +611,7 @@ class WorkflowGenerator(object):
         self._closed()
 
         if validate:
-            self.validate(inline=inline, relative=relative)
+            self.validate(inline=inline)
 
         dirname = os.path.dirname(os.path.abspath(fname))
 
@@ -614,6 +624,26 @@ class WorkflowGenerator(object):
 
         if pack:
             self._pack(fname, encoding)
+        elif wd:
+            # save in working_dir
+            yaml.add_representer(str, str_presenter,
+                                 Dumper=yaml.RoundTripDumper)
+            yaml.add_representer(Reference, reference_presenter,
+                                 Dumper=yaml.RoundTripDumper)
+            wd_file = os.path.join(self.working_dir, os.path.basename(fname))
+            with codecs.open(wd_file, 'wb', encoding=encoding) as yaml_file:
+                yaml_file.write('#!/usr/bin/env cwl-runner\n')
+                yaml_file.write(yaml.dump(self.to_obj(inline=inline,
+                                                      pack=pack,
+                                                      relpath=relpath,
+                                                      wd=wd),
+                                          Dumper=yaml.RoundTripDumper))
+            # and copy workflow file to other location (as though all steps are
+            # in the same directory as the workflow)
+            try:
+                shutil.copy2(wd_file, fname)
+            except shutil.Error:
+                pass
         else:
             yaml.add_representer(str, str_presenter,
                                  Dumper=yaml.RoundTripDumper)
@@ -622,11 +652,13 @@ class WorkflowGenerator(object):
             with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
                 yaml_file.write('#!/usr/bin/env cwl-runner\n')
                 yaml_file.write(yaml.dump(self.to_obj(inline=inline,
-                                                      relpath=relpath),
-                                          Dumper=yaml.RoundTripDumper))
+                                                      pack=pack,
+                                                      relpath=relpath,
+                                                      wd=wd),
+                                Dumper=yaml.RoundTripDumper))
 
     def get_working_dir(self):
-        return str(self.steps_library.working_dir)
+        return str(self.working_dir)
 
     def add_inputs(self, **kwargs):
         """Deprecated function, use add_input(self, **kwargs) instead.

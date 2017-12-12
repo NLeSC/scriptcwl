@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import os
 import sys
 
 import pytest
@@ -22,21 +21,21 @@ def setup_workflowgenerator(tmpdir):
     workflows = tmpdir.join('workflows').strpath
     copytree('tests/data/tools', toolsdir)
     copytree('tests/data/workflows', workflows)
-    wf = WorkflowGenerator(copy_steps=False)
+    wf = WorkflowGenerator()
     return wf
 
 
 class TestWorkflowGenerator(object):
     def test_load(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         step_keys = wf.steps_library.steps.keys()
         step_keys = sorted(step_keys)
         assert step_keys == ['echo', 'multiple-out-args', 'wc']
 
-    def test_load_with_list(self, tmpdir):
-        wf = WorkflowGenerator(working_dir=str(tmpdir.mkdir('working_dir')))
+    def test_load_with_list(self):
+        wf = WorkflowGenerator()
         wf.load(step_list=['tests/data/workflows/echo-wc.cwl',
                            'tests/data/tools'])
         # 'https://raw.githubusercontent.com/WhatWorksWhenForWhom/nlppln/develop/cwl/anonymize.cwl',\
@@ -55,7 +54,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(wfcount=wced)
 
         wf_filename = tmpdir.join('workflows/echo-wc.cwl').strpath
-        wf.save(wf_filename)
+        wf.save(wf_filename, relative=True)
 
         # make workflows contents relative to tests/data/tools directory
         actual = load_yaml(wf_filename)
@@ -75,7 +74,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(wfcount=wced)
 
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
-        wf.save(wf_filename)
+        wf.save(wf_filename, relative=True)
 
         # make workflows contents relative to tests/data/tools directory
         actual = load_yaml(wf_filename)
@@ -98,7 +97,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(out_files=echoed)
 
         wf_filename = tmpdir.join('echo-scattered.cwl').strpath
-        wf.save(wf_filename)
+        wf.save(wf_filename, relative=True)
 
         # make workflows contents relative to tests/data/tools directory
         actual = load_yaml(wf_filename)
@@ -110,7 +109,7 @@ class TestWorkflowGenerator(object):
         assert actual == expected
 
     def test_save_with_inline_tools(self, tmpdir):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
         wf.set_documentation('Counts words of a message via echo and wc')
 
@@ -142,7 +141,7 @@ class TestWorkflowGenerator(object):
         assert actual == expected
 
     def test_save_with_pack(self, tmpdir):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
         wf.set_documentation('Counts words of a message via echo and wc')
 
@@ -154,14 +153,14 @@ class TestWorkflowGenerator(object):
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
         wf.save(wf_filename, pack=True)
 
-        with WorkflowGenerator(copy_steps=False) as wf2:
+        with WorkflowGenerator() as wf2:
             wf2.load(wf_filename)
             # wf_filename shouldn't be in the steps library, because it is a
             # packed workflow
             assert len(wf2.steps_library.steps.keys()) == 0
 
     def test_save_with_relative_url(self, tmpdir):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         url = 'https://raw.githubusercontent.com/NLeSC/scriptcwl/master/' \
               'tests/data/tools/echo.cwl'
         wf.load(step_file=url)
@@ -174,7 +173,7 @@ class TestWorkflowGenerator(object):
         wf.save(wf_filename, relative=True)
 
     def test_add_shebang_to_saved_cwl_file(self, tmpdir):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         wfmessage = wf.add_input(wfmessage='string')
@@ -183,7 +182,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(wfcount=wced)
 
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
-        wf.save(wf_filename)
+        wf.save(wf_filename, validate=False)
 
         with open(wf_filename) as f:
             shebang = f.readline()
@@ -191,7 +190,7 @@ class TestWorkflowGenerator(object):
         assert shebang == '#!/usr/bin/env cwl-runner\n'
 
     def test_detect_wrong_type(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
         x = wf.add_input(msg='string')
         x = 3
@@ -201,7 +200,7 @@ class TestWorkflowGenerator(object):
 
 class TestWorkflowGeneratorWithScatteredStep(object):
     def test_scatter_method_incorrect(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         msgs = wf.add_input(wfmessages='string[]')
@@ -215,7 +214,7 @@ class TestWorkflowGeneratorWithScatteredStep(object):
         ]
 
         for method in scatter_methods:
-            wf = WorkflowGenerator(copy_steps=False)
+            wf = WorkflowGenerator()
             wf.load('tests/data/tools')
 
             msgs = wf.add_input(wfmessages='string[]')
@@ -226,7 +225,7 @@ class TestWorkflowGeneratorWithScatteredStep(object):
             assert echoed.output_name == 'echoed'
 
     def test_scatter_variable_incorrect(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         msgs = wf.add_input(wfmessages='string[]')
@@ -243,7 +242,7 @@ class TestWorkflowGeneratorWithScatteredStep(object):
         ]
 
         for method in scatter_methods:
-            wf = WorkflowGenerator(copy_steps=False)
+            wf = WorkflowGenerator()
             wf.load('tests/data/tools')
 
             msgs = wf.add_input(wfmessages='string[]')
@@ -254,7 +253,7 @@ class TestWorkflowGeneratorWithScatteredStep(object):
             assert echoed.output_name == 'echoed'
 
     def test_missing_scatter_argument(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         msgs = wf.add_input(wfmessages='string[]')
@@ -263,7 +262,7 @@ class TestWorkflowGeneratorWithScatteredStep(object):
             wf.echo(message=msgs, scatter_method='nested_crossproduct')
 
     def test_missing_scatter_method_argument(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         msgs = wf.add_input(wfmessages='string[]')
@@ -274,14 +273,14 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
 class TestWorkflowGeneratorTypeChecking(object):
     def test_step_with_compatible_input(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         wfmessage = wf.add_input(wfmessage='string')
         echoed = wf.echo(message=wfmessage)
 
     def test_step_with_incompatible_input(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         wfmessage = wf.add_input(wfmessage='string')
@@ -289,14 +288,14 @@ class TestWorkflowGeneratorTypeChecking(object):
             wced = wf.wc(file2count=wfmessage)
 
     def test_step_with_scattered_input(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         msgs = wf.add_input(wfmessages='string[]')
         wf.echo(message=msgs, scatter='message', scatter_method='dotproduct')
 
     def test_step_with_compatible_step_output(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         wfmessage = wf.add_input(wfmessage='string')
@@ -304,7 +303,7 @@ class TestWorkflowGeneratorTypeChecking(object):
         wced = wf.wc(file2count=echoed)
 
     def test_step_with_incompatible_step_output(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         infile = wf.add_input(infile='File')
@@ -313,7 +312,7 @@ class TestWorkflowGeneratorTypeChecking(object):
             echoed = wf.echo(message=wced)
 
     def test_step_with_scattered_step_output(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         msgs = wf.add_input(msgs='string[]')
@@ -323,7 +322,7 @@ class TestWorkflowGeneratorTypeChecking(object):
                      scatter_method='dotproduct')
 
     def test_scattered_step_with_scalar_input(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         wfmessage = wf.add_input(message='string')
@@ -332,7 +331,7 @@ class TestWorkflowGeneratorTypeChecking(object):
                              scatter_method='dotproduct')
 
     def test_optional_type(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         # This could work, if you pass a string for input, even if
@@ -341,7 +340,7 @@ class TestWorkflowGeneratorTypeChecking(object):
         echod = wf.echo(message=wfmessage)
 
     def test_required_to_optional(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         # out_dir is optional, attaching to non-optional input
@@ -354,7 +353,7 @@ class TestWorkflowGeneratorTypeChecking(object):
                 counselors=wf_counselors)
 
     def test_optional_to_optional_type(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         wf_infiles = wf.add_input(in_files='File[]')
@@ -367,7 +366,7 @@ class TestWorkflowGeneratorTypeChecking(object):
 
 class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
     def test_generate_step_name(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         wfmessage = wf.add_input(wfmessage='string')
@@ -384,8 +383,8 @@ class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
         assert name != 'echo'
         assert name == echoed2.step_name
 
-    def test_validate_with_inline_tools(self, tmpdir):
-        wf = WorkflowGenerator(copy_steps=False)
+    def test_validate_with_inline_tools(self):
+        wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         wfmessage = wf.add_input(wfmessage='string')
@@ -398,7 +397,7 @@ class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
 
 class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
     def test_default_value_for_workflow_input(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
 
         wf.add_input(input1='string', default='test')
         obj = wf.to_obj()['inputs']['input1']
@@ -406,13 +405,13 @@ class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
         assert obj['default'] == 'test'
 
     def test_only_default_for_workflow_input(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
 
         with pytest.raises(ValueError):
             wf.add_input(default='test')
 
     def test_add_multiple_inputs_and_default(self):
-        wf = WorkflowGenerator(copy_steps=False)
+        wf = WorkflowGenerator()
 
         with pytest.raises(ValueError):
             wf.add_input(input1='string', input2='string', default='test')
@@ -420,12 +419,12 @@ class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
 
 class TestWorkflowGeneratorAsContextManager(object):
     def test_use_workflow_generator_as_context_manager(self):
-        with WorkflowGenerator(copy_steps=False) as wf:
+        with WorkflowGenerator() as wf:
             assert wf._wf_closed is False
         assert wf._wf_closed is True
 
     def test_error_on_using_closed_workflow_generator(self):
-        with WorkflowGenerator(copy_steps=False) as wf:
+        with WorkflowGenerator() as wf:
             pass
         with pytest.raises(ValueError):
             wf._closed()

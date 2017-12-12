@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+* Save workflows using a working directory (a solution to the problem of dealing with paths to steps if steps are loaded from different local directories)
+
 ### Changed
 
 * Prevent name clashes of embedded (sub)workflows (however, this doesn't work when a (sub)workflow is added multiple times)

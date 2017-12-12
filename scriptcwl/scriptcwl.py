@@ -1,13 +1,15 @@
 import os
 import glob
 import logging
+import shutil
 
 from schema_salad.validate import ValidationException
 
 from .step import Step, PackedWorkflowException
 
 
-def load_steps(steps_dir=None, step_file=None, step_list=None):
+def load_steps(working_dir=None, steps_dir=None, step_file=None,
+               step_list=None):
     """Return a dictionary containing Steps read from file.
 
     Args:
@@ -36,6 +38,13 @@ def load_steps(steps_dir=None, step_file=None, step_list=None):
 
     steps = {}
     for f in step_files:
+        if working_dir is not None:
+            # Copy file to working_dir
+            if not working_dir == os.path.dirname(f) and not is_url(f):
+                copied_file = os.path.join(working_dir, os.path.basename(f))
+                shutil.copy2(f, copied_file)
+
+        # Create steps from orgininal files
         try:
             s = Step(f)
             steps[s.name] = s
@@ -44,3 +53,7 @@ def load_steps(steps_dir=None, step_file=None, step_list=None):
             logging.warning(e)
 
     return steps
+
+
+def is_url(path):
+    return path.startswith('http://') or path.startswith('https://')
