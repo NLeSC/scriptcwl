@@ -8,14 +8,13 @@ from functools import partial
 
 import tempfile
 import six
-from ruamel import yaml
 from ruamel.yaml.comments import CommentedMap
 
 from .step import python_name, quiet
 
-from .yamlmultiline import str_presenter
+from .yamlutils import save_yaml
 from .library import StepsLibrary
-from .reference import Reference, reference_presenter
+from .reference import Reference
 
 import warnings
 
@@ -25,7 +24,6 @@ with quiet():
     from cwltool.load_tool import fetch_document, validate_document
     from cwltool.main import print_pack
 
-yaml.add_representer(str, str_presenter)
 warnings.simplefilter('always', DeprecationWarning)
 
 
@@ -626,18 +624,9 @@ class WorkflowGenerator(object):
             self._pack(fname, encoding)
         elif wd:
             # save in working_dir
-            yaml.add_representer(str, str_presenter,
-                                 Dumper=yaml.RoundTripDumper)
-            yaml.add_representer(Reference, reference_presenter,
-                                 Dumper=yaml.RoundTripDumper)
             wd_file = os.path.join(self.working_dir, os.path.basename(fname))
-            with codecs.open(wd_file, 'wb', encoding=encoding) as yaml_file:
-                yaml_file.write('#!/usr/bin/env cwl-runner\n')
-                yaml_file.write(yaml.dump(self.to_obj(inline=inline,
-                                                      pack=pack,
-                                                      relpath=relpath,
-                                                      wd=wd),
-                                          Dumper=yaml.RoundTripDumper))
+            save_yaml(fname=wd_file, wf=self, inline=inline, pack=pack,
+                      relpath=relpath, wd=wd)
             # and copy workflow file to other location (as though all steps are
             # in the same directory as the workflow)
             try:
@@ -645,17 +634,8 @@ class WorkflowGenerator(object):
             except shutil.Error:
                 pass
         else:
-            yaml.add_representer(str, str_presenter,
-                                 Dumper=yaml.RoundTripDumper)
-            yaml.add_representer(Reference, reference_presenter,
-                                 Dumper=yaml.RoundTripDumper)
-            with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
-                yaml_file.write('#!/usr/bin/env cwl-runner\n')
-                yaml_file.write(yaml.dump(self.to_obj(inline=inline,
-                                                      pack=pack,
-                                                      relpath=relpath,
-                                                      wd=wd),
-                                Dumper=yaml.RoundTripDumper))
+            save_yaml(fname=fname, wf=self, inline=inline, pack=pack,
+                      relpath=relpath, wd=wd)
 
     def get_working_dir(self):
         return str(self.working_dir)

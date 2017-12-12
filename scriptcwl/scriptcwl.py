@@ -8,6 +8,14 @@ from schema_salad.validate import ValidationException
 from .step import Step, PackedWorkflowException
 
 
+def load_cwl(fname):
+    """Load and validate CWL file using cwltool
+    """
+    (document_loader, workflowobj, uri) = fetch_document(tmpfile)
+    (document_loader, _, processobj, metadata, uri) = \
+        validate_document(document_loader, workflowobj, uri)
+
+
 def load_steps(working_dir=None, steps_dir=None, step_file=None,
                step_list=None):
     """Return a dictionary containing Steps read from file.
