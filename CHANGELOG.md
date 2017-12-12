@@ -4,6 +4,7 @@
 
 ### Added
 
+* Save packed workflows 
 * Save workflows using a working directory (a solution to the problem of dealing with paths to steps if steps are loaded from different local directories)
 
 ### Changed
