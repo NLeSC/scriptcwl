@@ -4,7 +4,7 @@
 
 ### Added
 
-* Save packed workflows 
+* Save packed workflows
 * Save workflows using a working directory (a solution to the problem of dealing with paths to steps if steps are loaded from different local directories)
 
 ### Changed
@@ -14,6 +14,7 @@
 * Allow saving workflows with inline steps for step files without shebang (#83)
 * Document feature for adding documentation to a workflow (#81)
 * Fix saving of relative paths for workflows with steps from urls
+* By default, workflows are saved with absolute paths
 
 ## 0.6.0
 
