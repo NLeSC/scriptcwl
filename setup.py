@@ -19,7 +19,7 @@ setup(
     version='0.6.0',
 
     description=__doc__,
-    long_description=read('README.md'),
+    long_description=read('README.rst'),
     # The project's main homepage.
     url='https://github.com/nlesc/scriptcwl',
 
