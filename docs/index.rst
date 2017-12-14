@@ -70,15 +70,9 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   loading_steps
-   listing_steps
-   workflow_inputs
-   setting_documentation
-   adding_workflow_steps
-   adding_outputs
-   saving_workflows
+   user_manual
    installation
    examples
    useful_tools
