@@ -11,7 +11,16 @@ called ``add`` [#]_ to the workflow, the following method must be called:
 
 The method expects a list of ``key=value`` pairs as input parameters. (To find
 out what inputs a step needs call ``wf.inputs(<step name>)``. This method prints
-all inputs and their types.) ``wf.<step name>()`` returns a list of strings containing output
+all inputs and their types.) ``wf.<step name>()`` returns a string if the step has
+a single output and a tuple of strings if the step has multiple output parameters:
+::
+
+  output1, output2 = wf.someStep(input=input)
+
+The order of the outputs is the same as in the step specification, and can be
+determined by printing the step signatures using ``print(wf.list_steps())``.
+
+The strings returned by ``wf.<step name>()`` contain output
 names that can be used as input for later steps, or that can be connected
 to workflow outputs. For example, in a later step, ``answer1`` can be used as input:
 ::
