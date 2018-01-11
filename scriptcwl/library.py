@@ -136,17 +136,23 @@ def load_yaml(filename):
 def sort_loading_order(step_files):
     """Sort step files into correct loading order.
 
-    The correct loading order is first tools and then workflows. This order is
+    The correct loading order is first tools, then workflows without
+    subworkflows, and then workflows with subworkflows. This order is
     required to avoid error messages when a working directory is used.
     """
     tools = []
     workflows = []
+    workflows_with_subworkflows = []
 
     for f in step_files:
         obj = load_yaml(f)
         if obj.get('class', '') == 'Workflow':
-            workflows.append(f)
+            if 'requirements' in obj.keys():
+                subw = {'class': 'SubworkflowFeatureRequirement'}
+                if subw in obj['requirements']:
+                    workflows_with_subworkflows.append(f)
+                else:
+                    workflows.append(f)
         else:
             tools.append(f)
-
-    return tools + workflows
+    return tools + workflows + workflows_with_subworkflows
