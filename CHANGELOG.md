@@ -6,6 +6,10 @@
 
 * Load tools before workflows when a working directory is used (#94)
 
+#### Changed
+
+* Inputs with a default value are also recognized as optional
+
 ## 0.7.0
 
 ### Added
