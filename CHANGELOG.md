@@ -1,5 +1,11 @@
 # Change Log
 
+### Unreleased
+
+#### Added
+
+* Load tools before workflows when a working directory is used (#94)
+
 ## 0.7.0
 
 ### Added

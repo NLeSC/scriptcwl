@@ -2,10 +2,13 @@ import os
 import glob
 import shutil
 import logging
+import sys
 
 from six.moves.urllib.parse import urlparse
 
 from schema_salad.validate import ValidationException
+
+from ruamel import yaml
 
 from .scriptcwl import is_url
 from .step import Step, PackedWorkflowException
@@ -98,6 +101,9 @@ def load_steps(working_dir=None, steps_dir=None, step_file=None,
     else:
         step_files = []
 
+    if working_dir is not None:
+        step_files = sort_loading_order(step_files)
+
     steps = {}
     for f in step_files:
         if working_dir is not None:
@@ -105,8 +111,9 @@ def load_steps(working_dir=None, steps_dir=None, step_file=None,
             if not working_dir == os.path.dirname(f) and not is_url(f):
                 copied_file = os.path.join(working_dir, os.path.basename(f))
                 shutil.copy2(f, copied_file)
+                f = copied_file
 
-        # Create steps from orgininal files
+        # Create steps
         try:
             s = Step(f)
             steps[s.name] = s
@@ -115,3 +122,31 @@ def load_steps(working_dir=None, steps_dir=None, step_file=None,
             logger.warning(e)
 
     return steps
+
+
+def load_yaml(filename):
+    """Return object in yaml file."""
+    with open(filename) as myfile:
+        content = myfile.read()
+        if "win" in sys.platform:
+            content = content.replace("\\", "/")
+        return yaml.safe_load(content)
+
+
+def sort_loading_order(step_files):
+    """Sort step files into correct loading order.
+
+    The correct loading order is first tools and then workflows. This order is
+    required to avoid error messages when a working directory is used.
+    """
+    tools = []
+    workflows = []
+
+    for f in step_files:
+        obj = load_yaml(f)
+        if obj.get('class', '') == 'Workflow':
+            workflows.append(f)
+        else:
+            tools.append(f)
+
+    return tools + workflows

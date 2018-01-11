@@ -1,20 +1,9 @@
 from __future__ import print_function
 
-import sys
-import os
-
 import pytest
-from ruamel import yaml
 from shutil import copytree
 from scriptcwl import WorkflowGenerator
-
-
-def load_yaml(filename):
-    with open(filename) as myfile:
-        content = myfile.read()
-        if "win" in sys.platform:
-            content = content.replace("\\", "/")
-        return yaml.safe_load(content)  # myfile.read())
+from scriptcwl.library import load_yaml
 
 
 def setup_workflowgenerator(tmpdir):
