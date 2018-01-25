@@ -455,3 +455,17 @@ class TestWorkflowGeneratorAsContextManager(object):
             pass
         with pytest.raises(ValueError):
             wf._closed()
+
+
+class TestNamingWorkflowInputs(object):
+    def test_wf_inputs_with_the_same_name(self):
+        with WorkflowGenerator() as wf:
+            wf.add_input(msg='string')
+            with pytest.raises(ValueError):
+                wf.add_input(msg='string')
+
+    def test_wf_inputs_with_the_same_name_default_value(self):
+        with WorkflowGenerator() as wf:
+            wf.add_input(msg='string', default='Hello World!')
+            with pytest.raises(ValueError):
+                wf.add_input(msg='string', default='Hello World!')

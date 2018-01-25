@@ -5,6 +5,7 @@
 #### Added
 
 * Load tools before workflows when a working directory is used (#94)
+* Make sure no duplicate workflow input names are used (#96)
 
 #### Changed
 
