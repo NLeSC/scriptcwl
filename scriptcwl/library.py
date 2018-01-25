@@ -145,14 +145,18 @@ def sort_loading_order(step_files):
     workflows_with_subworkflows = []
 
     for f in step_files:
-        obj = load_yaml(f)
-        if obj.get('class', '') == 'Workflow':
-            if 'requirements' in obj.keys():
-                subw = {'class': 'SubworkflowFeatureRequirement'}
-                if subw in obj['requirements']:
-                    workflows_with_subworkflows.append(f)
-                else:
-                    workflows.append(f)
-        else:
+        # assume that urls are tools
+        if f.startswith('http://') or f.startswith('https://'):
             tools.append(f)
+        else:
+            obj = load_yaml(f)
+            if obj.get('class', '') == 'Workflow':
+                if 'requirements' in obj.keys():
+                    subw = {'class': 'SubworkflowFeatureRequirement'}
+                    if subw in obj['requirements']:
+                        workflows_with_subworkflows.append(f)
+                    else:
+                        workflows.append(f)
+            else:
+                tools.append(f)
     return tools + workflows + workflows_with_subworkflows
