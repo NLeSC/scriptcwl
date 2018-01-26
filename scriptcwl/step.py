@@ -132,6 +132,9 @@ class Step(object):
         Raises:
             ValueError: The inp provided is not valid.
         """
+        if 'default' in inp.keys():
+            return True
+
         typ = inp.get('type')
         if isinstance(typ, six.string_types):
             return typ.endswith('?')

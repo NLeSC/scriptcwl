@@ -1,5 +1,16 @@
 # Change Log
 
+### 0.7.1
+
+#### Added
+
+* Load tools before workflows when a working directory is used (#94)
+* Make sure no duplicate workflow input names are used (#96)
+
+#### Changed
+
+* Inputs with a default value are also recognized as optional
+
 ## 0.7.0
 
 ### Added

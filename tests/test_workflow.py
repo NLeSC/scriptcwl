@@ -1,20 +1,9 @@
 from __future__ import print_function
 
-import sys
-import os
-
 import pytest
-from ruamel import yaml
 from shutil import copytree
 from scriptcwl import WorkflowGenerator
-
-
-def load_yaml(filename):
-    with open(filename) as myfile:
-        content = myfile.read()
-        if "win" in sys.platform:
-            content = content.replace("\\", "/")
-        return yaml.safe_load(content)  # myfile.read())
+from scriptcwl.library import load_yaml
 
 
 def setup_workflowgenerator(tmpdir):
@@ -466,3 +455,17 @@ class TestWorkflowGeneratorAsContextManager(object):
             pass
         with pytest.raises(ValueError):
             wf._closed()
+
+
+class TestNamingWorkflowInputs(object):
+    def test_wf_inputs_with_the_same_name(self):
+        with WorkflowGenerator() as wf:
+            wf.add_input(msg='string')
+            with pytest.raises(ValueError):
+                wf.add_input(msg='string')
+
+    def test_wf_inputs_with_the_same_name_default_value(self):
+        with WorkflowGenerator() as wf:
+            wf.add_input(msg='string', default='Hello World!')
+            with pytest.raises(ValueError):
+                wf.add_input(msg='string', default='Hello World!')

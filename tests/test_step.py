@@ -47,6 +47,7 @@ class TestInputOptional(object):
     def test_argument_is_optional(self, step):
         assert step._input_optional({'type': 'string?'})
         assert step._input_optional({'type': [u'null', 'string']})
+        assert step._input_optional({'type': 'string', 'default': 'test'})
 
     def test_argument_is_not_optional(self, step):
         assert not step._input_optional({'type': 'string'})
