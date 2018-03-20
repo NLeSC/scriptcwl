@@ -157,6 +157,8 @@ def sort_loading_order(step_files):
                         workflows_with_subworkflows.append(f)
                     else:
                         workflows.append(f)
+                else:
+                    workflows.append(f)
             else:
                 tools.append(f)
     return tools + workflows + workflows_with_subworkflows
