@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Changed
+
+* Ensure workflows without a requirements section are loaded into the steps library
+
 ## 0.7.1
 
 ### Added
