@@ -39,3 +39,15 @@ You can also add a label to a workflow input:
 	num1 = wf.add_input(num1='int', label='The first number that is processed.')
 
 Again, this means ``label`` cannot be used as a name for a workflow input parameter.
+
+Enums
+#####
+
+To use an enum as a workflow input, do:
+::
+
+	mode = wf.add_input(mode='enum', symbols=['one', 'two', 'three'])
+
+The ``symbols`` should be a list of strings (lists containing other types are
+converted lists of to strings).
+Again, ``symbols`` cannot be used as a name for a workflow input parameter.
