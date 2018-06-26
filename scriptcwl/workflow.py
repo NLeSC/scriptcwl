@@ -239,14 +239,7 @@ class WorkflowGenerator(object):
         symbols = []
         msg = '"{}" is already used as a workflow input. Please use a ' +\
               'different name.'
-        if 'default' not in kwargs and 'label' not in kwargs and 'symbols' not in kwargs:
-            name, input_type = _get_item(kwargs)
-            if input_type == 'enum':
-                raise ValueError("Please specify the enum's symbols.")
-            if name in self.wf_inputs:
-                raise ValueError(msg.format(name))
-            self.wf_inputs[name] = input_type
-        else:
+        if 'default' in kwargs or 'label' in kwargs or 'symbols' in kwargs:
             input_dict = CommentedMap()
             if 'default' in kwargs:
                 input_dict['default'] = kwargs.pop('default')
@@ -275,6 +268,13 @@ class WorkflowGenerator(object):
             if name in self.wf_inputs:
                 raise ValueError(msg.format(name))
             self.wf_inputs[name] = input_dict
+        else:
+            name, input_type = _get_item(kwargs)
+            if input_type == 'enum':
+                raise ValueError("Please specify the enum's symbols.")
+            if name in self.wf_inputs:
+                raise ValueError(msg.format(name))
+            self.wf_inputs[name] = input_type
 
         return Reference(input_name=name)
 
