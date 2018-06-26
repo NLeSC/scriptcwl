@@ -236,10 +236,13 @@ class WorkflowGenerator(object):
                                  "with {}".format(kwargs))
             return item
 
+        symbols = []
         msg = '"{}" is already used as a workflow input. Please use a ' +\
               'different name.'
-        if 'default' not in kwargs and 'label' not in kwargs:
+        if 'default' not in kwargs and 'label' not in kwargs and 'symbols' not in kwargs:
             name, input_type = _get_item(kwargs)
+            if input_type == 'enum':
+                raise ValueError("Please specify the enum's symbols.")
             if name in self.wf_inputs:
                 raise ValueError(msg.format(name))
             self.wf_inputs[name] = input_type
@@ -249,8 +252,26 @@ class WorkflowGenerator(object):
                 input_dict['default'] = kwargs.pop('default')
             if 'label' in kwargs:
                 input_dict['label'] = kwargs.pop('label')
+            if 'symbols' in kwargs:
+                symbols = kwargs.pop('symbols')
+
             name, input_type = _get_item(kwargs)
-            input_dict['type'] = input_type
+
+            if input_type == 'enum':
+                typ = CommentedMap()
+                typ['type'] = 'enum'
+                # make sure symbols are set
+                if symbols == []:
+                    raise ValueError("The enum's symbols cannot be empty.")
+                # make sure the symbols are a list
+                if type(symbols) != list:
+                    raise ValueError('Symbols should be a list.')
+                # make sure symbols is a list of strings
+                symbols = [str(s) for s in symbols]
+                typ['symbols'] = symbols
+                input_dict['type'] = typ
+            else:
+                input_dict['type'] = input_type
             if name in self.wf_inputs:
                 raise ValueError(msg.format(name))
             self.wf_inputs[name] = input_dict

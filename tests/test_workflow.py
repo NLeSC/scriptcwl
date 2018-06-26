@@ -466,6 +466,56 @@ class TestWorkflowGeneratorWithLabelsForInputParameters(object):
             wf.add_input(label='test', default='test')
 
 
+class TestWorkflowGeneratorWithEnumAsInputParameter(object):
+    def test_enum_as_workflow_input(self):
+        wf = WorkflowGenerator()
+
+        wf.add_input(input1='enum', symbols=['one', 'two', 'three'])
+        obj = wf.to_obj()['inputs']['input1']
+        assert obj['type']['type'] == 'enum'
+        assert obj['type']['symbols'] == ['one', 'two', 'three']
+
+    def test_no_symbols_for_enum_input(self):
+        wf = WorkflowGenerator()
+
+        with pytest.raises(ValueError):
+            wf.add_input(input1='enum')
+
+    def test_only_symbols_for_enum_input(self):
+        wf = WorkflowGenerator()
+
+        with pytest.raises(ValueError):
+            wf.add_input(symbols=['one', 'two', 'three'])
+
+    def test_empty_symbols_for_enum_input(self):
+        wf = WorkflowGenerator()
+
+        with pytest.raises(ValueError):
+            wf.add_input(input1='enum', symbols=[])
+
+    def test_symbols_is_a_list(self):
+        wf = WorkflowGenerator()
+
+        with pytest.raises(ValueError):
+            wf.add_input(input1='enum', symbols='nolist')
+
+    def test_convert_symbols_to_list_of_strings(self):
+        wf = WorkflowGenerator()
+
+        wf.add_input(input1='enum', symbols=[1, 2, 3])
+        obj = wf.to_obj()['inputs']['input1']
+
+        assert obj['type']['symbols'] == ['1', '2', '3']
+
+    def test_combine_enum_with_label(self):
+        wf = WorkflowGenerator()
+
+        wf.add_input(input1='enum', symbols=['one', 'two', 'three'],
+                     label='test label')
+        obj = wf.to_obj()['inputs']['input1']
+        assert obj['label'] == 'test label'
+
+
 class TestWorkflowGeneratorAsContextManager(object):
     def test_use_workflow_generator_as_context_manager(self):
         with WorkflowGenerator() as wf:
