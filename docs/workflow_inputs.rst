@@ -27,3 +27,15 @@ When adding an input parameter to a workflow, you can set a default value:
 ::
 
 	num1 = wf.add_input(num1='int', default=5)
+
+As a consequence, ``default`` cannot be used as a name for a workflow input parameter.
+
+Labels
+######
+
+You can also add a label to a workflow input:
+::
+
+	num1 = wf.add_input(num1='int', label='The first number that is processed.')
+
+Again, this means ``label`` cannot be used as a name for a workflow input parameter.
