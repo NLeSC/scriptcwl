@@ -238,14 +238,17 @@ class WorkflowGenerator(object):
 
         msg = '"{}" is already used as a workflow input. Please use a ' +\
               'different name.'
-        if 'default' not in kwargs:
+        if 'default' not in kwargs and 'label' not in kwargs:
             name, input_type = _get_item(kwargs)
             if name in self.wf_inputs:
                 raise ValueError(msg.format(name))
             self.wf_inputs[name] = input_type
         else:
             input_dict = CommentedMap()
-            input_dict['default'] = kwargs.pop('default')
+            if 'default' in kwargs:
+                input_dict['default'] = kwargs.pop('default')
+            if 'label' in kwargs:
+                input_dict['label'] = kwargs.pop('label')
             name, input_type = _get_item(kwargs)
             input_dict['type'] = input_type
             if name in self.wf_inputs:

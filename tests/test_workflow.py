@@ -444,6 +444,28 @@ class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
             wf.add_input(input1='string', input2='string', default='test')
 
 
+class TestWorkflowGeneratorWithLabelsForInputParameters(object):
+    def test_label_for_workflow_input(self):
+        wf = WorkflowGenerator()
+
+        wf.add_input(input1='string', label='test label')
+        obj = wf.to_obj()['inputs']['input1']
+        assert obj['type'] == 'string'
+        assert obj['label'] == 'test label'
+
+    def test_only_label_for_workflow_input(self):
+        wf = WorkflowGenerator()
+
+        with pytest.raises(ValueError):
+            wf.add_input(label='test')
+
+    def test_only_label_and_default_for_workflow_input(self):
+        wf = WorkflowGenerator()
+
+        with pytest.raises(ValueError):
+            wf.add_input(label='test', default='test')
+
+
 class TestWorkflowGeneratorAsContextManager(object):
     def test_use_workflow_generator_as_context_manager(self):
         with WorkflowGenerator() as wf:
