@@ -309,6 +309,16 @@ class WorkflowGenerator(object):
 
         self.documentation = doc
 
+    def set_label(self, label):
+        """Set workflow label.
+
+        Args:
+            label (str): short description of workflow.
+        """
+        self._closed()
+
+        self.label = label
+
     def _get_step(self, name, make_copy=True):
         """Return step from steps library.
 
@@ -364,6 +374,10 @@ class WorkflowGenerator(object):
         obj['class'] = 'Workflow'
         try:
             obj['doc'] = self.documentation
+        except (AttributeError, ValueError):
+            pass
+        try:
+            obj['label'] = self.label
         except (AttributeError, ValueError):
             pass
         if self._has_requirements():

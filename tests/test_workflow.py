@@ -541,3 +541,12 @@ class TestNamingWorkflowInputs(object):
             wf.add_input(msg='string', default='Hello World!')
             with pytest.raises(ValueError):
                 wf.add_input(msg='string', default='Hello World!')
+
+
+class TestWorkflowLabels(object):
+    def test_set_label(self):
+        with WorkflowGenerator() as wf:
+            wf.set_label('test')
+
+            obj = wf.to_obj()
+            assert obj['label'] == 'test'
