@@ -88,12 +88,26 @@ autoclass_content = 'both'
 # -- Run apidoc plug-in manually, as readthedocs doesn't support it -------
 # See https://github.com/rtfd/readthedocs.org/issues/1139
 def run_apidoc(_):
-    from sphinx.apidoc import main
-    cur_dir = os.path.abspath(os.path.dirname(__file__))
-    sys.path.append(os.path.join(cur_dir, '..', 'scriptcwl'))
-    module = os.path.join(cur_dir, '..', 'scriptcwl')
-    output_dir = os.path.join(cur_dir, 'apidocs')
-    main(['-e', '-o', output_dir, module, '--force'])
+    ignore_paths = []
+
+    argv = [
+        "-f",
+        "-T",
+        "-e",
+        "-M",
+        "-o", ".",
+        ".."
+    ] + ignore_paths
+
+    try:
+        # Sphinx 1.7+
+        from sphinx.ext import apidoc
+        apidoc.main(argv)
+    except ImportError:
+        # Sphinx 1.6 (and earlier)
+        from sphinx import apidoc
+        argv.insert(0, apidoc.__file__)
+        apidoc.main(argv)
 
 
 def setup(app):
