@@ -35,6 +35,12 @@ class TestWorkflowGenerator(object):
         step_keys = sorted(step_keys)
         assert step_keys == ['echo', 'echo-wc', 'multiple-out-args', 'wc']
 
+    def test_load_duplicate_cwl_step(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        wf.load(steps_dir=tmpdir.join('tools').strpath)
+        with pytest.warns(UserWarning):
+            wf.load(step_file=tmpdir.join('tools', 'echo.cwl').strpath)
+
     def test_save_with_tools(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
         wf.load(steps_dir=tmpdir.join('tools').strpath)

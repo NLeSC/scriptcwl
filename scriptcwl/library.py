@@ -39,7 +39,8 @@ class StepsLibrary(object):
 
         for n, step in steps_to_load.items():
             if n in self.steps.keys():
-                print('WARNING: step "{}" already in steps library'.format(n))
+                msg = 'Step "{}" already in steps library.'.format(n)
+                warnings.warn(UserWarning(msg))
             elif step.python_name in self.python_names2step_names.keys():
                 pn = self.python_names2step_names.get(step.python_name)
                 msg = 'step "{}.cwl" has the same python name as "{}.cwl". ' \
