@@ -141,7 +141,7 @@ class WorkflowGenerator(object):
         self._wf_closed = True
 
     def __getattr__(self, name, **kwargs):
-        name = cwl_name(name)
+        name = self.steps_library.python_names2step_names.get(name, None)
         step = self._get_step(name)
         return partial(self._make_step, step, **kwargs)
 

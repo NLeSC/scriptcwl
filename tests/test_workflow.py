@@ -9,8 +9,10 @@ from scriptcwl.library import load_yaml
 def setup_workflowgenerator(tmpdir):
     toolsdir = tmpdir.join('tools').strpath
     workflows = tmpdir.join('workflows').strpath
+    filenames = tmpdir.join('file-names').strpath
     copytree('tests/data/tools', toolsdir)
     copytree('tests/data/workflows', workflows)
+    copytree('tests/data/file-names', filenames)
     wf = WorkflowGenerator()
     return wf
 
@@ -550,3 +552,32 @@ class TestWorkflowLabels(object):
 
             obj = wf.to_obj()
             assert obj['label'] == 'test'
+
+
+class TestWorkflowStepsWithSpecialFileNames(object):
+    def test_add_step_with_underscores(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('file-names/echo_with_underscores.cwl').strpath
+        wf.load(step_file=step_file)
+        msg = wf.add_input(msg='string')
+        wf.echo_with_underscores(message=msg)
+
+    def test_add_step_with_minuses(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('file-names/echo-with-minuses.cwl').strpath
+        wf.load(step_file=step_file)
+        msg = wf.add_input(msg='string')
+        wf.echo_with_minuses(message=msg)
+
+    def test_add_step_with_minuses_and_underscores(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        sf = tmpdir.join('file-names/echo-with-minuses_and_underscores.cwl')
+        step_file = sf.strpath
+        wf.load(step_file=step_file)
+        msg = wf.add_input(msg='string')
+        wf.echo_with_minuses_and_underscores(message=msg)
+
+    def test_load_step_with_duplicate_python_name(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        with pytest.warns(UserWarning):
+            wf.load(steps_dir=tmpdir.join('file-names').strpath)

@@ -3,6 +3,7 @@ import glob
 import shutil
 import logging
 import sys
+import warnings
 
 from six.moves.urllib.parse import urlparse
 
@@ -28,6 +29,7 @@ class StepsLibrary(object):
         self.steps = {}
         self.step_ids = []
         self.working_dir = working_dir
+        self.python_names2step_names = {}
 
     def load(self, steps_dir=None, step_file=None, step_list=None):
         steps_to_load = load_steps(working_dir=self.working_dir,
@@ -38,11 +40,18 @@ class StepsLibrary(object):
         for n, step in steps_to_load.items():
             if n in self.steps.keys():
                 print('WARNING: step "{}" already in steps library'.format(n))
+            elif step.python_name in self.python_names2step_names.keys():
+                pn = self.python_names2step_names.get(step.python_name)
+                msg = 'step "{}.cwl" has the same python name as "{}.cwl". ' \
+                      'Please rename file "{}.cwl", so it can be ' \
+                      'loaded.'.format(n, pn, n)
+                warnings.warn(UserWarning(msg))
             else:
                 if step.is_workflow:
                     for substep in step.command_line_tool['steps']:
                         self.step_ids.append(name_in_workflow(substep['id']))
                 self.steps[n] = step
+                self.python_names2step_names[step.python_name] = n
 
     def get_step(self, name):
         return self.steps.get(name)
