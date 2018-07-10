@@ -704,17 +704,3 @@ class WorkflowGenerator(object):
                'add_input() function, redirecting...')
         warnings.warn(msg, DeprecationWarning)
         return self.add_input(**kwargs)
-
-
-def cwl_name(name):
-    """Transform python name to cwl name.
-
-    Args:
-        name (str): string to transform.
-
-    Returns:
-        transformed string.
-    """
-    name = name.replace('_', '-')
-
-    return name
