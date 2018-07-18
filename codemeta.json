@@ -1,0 +1,76 @@
+{
+    "@context": [
+        "https://doi.org/10.5063/schema/codemeta-2.0",
+        "http://schema.org"
+    ],
+    "@type": "SoftwareSourceCode",
+    "author": [
+        {
+            "@id": "https://orcid.org/0000-0002-8329-7000",
+            "@type": "Person",
+            "affiliation": {
+                "@type": "Organization",
+                "legalName": "Netherlands eScience Center"
+            },
+            "familyName": "van der Zwaan",
+            "givenName": "Janneke M."
+        },
+        {
+            "@type": "Person",
+            "affiliation": {
+                "@type": "Organization",
+                "legalName": "Nederlands eScience Center"
+            },
+            "familyName": "Andela",
+            "givenName": "Bouwe"
+        },
+        {
+            "@type": "Person",
+            "affiliation": {
+                "@type": "Organization",
+                "legalName": "Nederlands eScience Center"
+            },
+            "familyName": "de Vries",
+            "givenName": "Ben"
+        },
+        {
+            "@type": "Person",
+            "affiliation": {
+                "@type": "Organization",
+                "legalName": "Netherlands eScience Center"
+            },
+            "familyName": "Veen",
+            "givenName": "Lourens"
+        },
+        {
+            "@type": "Person",
+            "affiliation": {
+                "@type": "Organization",
+                "legalName": "Nederlands eScience Center"
+            },
+            "familyName": "van Haren",
+            "givenName": "Ronald"
+        },
+        {
+            "@type": "Person",
+            "affiliation": {
+                "@type": "Organization",
+                "legalName": "Nederlands eScience Center"
+            },
+            "familyName": "Verhoeven",
+            "givenName": "Stefan"
+        },
+        {
+            "@type": "Person",
+            "affiliation": {
+                "@type": "Organization",
+                "legalName": "Nederlands eScience Center"
+            },
+            "familyName": "van der Ploeg",
+            "givenName": "Atze"
+        }
+    ],
+    "codeRepository": "https://github.com/NLeSC/scriptcwl",
+    "license": "http://www.apache.org/licenses/LICENSE-2.0",
+    "name": "scriptcwl 0.7.1"
+}

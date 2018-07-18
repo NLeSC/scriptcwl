@@ -1,0 +1,37 @@
+{
+    "creators": [
+        {
+            "affiliation": "Netherlands eScience Center",
+            "name": "van der Zwaan, Janneke M.",
+            "orcid": "https://orcid.org/0000-0002-8329-7000"
+        },
+        {
+            "affiliation": "Nederlands eScience Center",
+            "name": "Andela, Bouwe"
+        },
+        {
+            "affiliation": "Nederlands eScience Center",
+            "name": "de Vries, Ben"
+        },
+        {
+            "affiliation": "Netherlands eScience Center",
+            "name": "Veen, Lourens"
+        },
+        {
+            "affiliation": "Nederlands eScience Center",
+            "name": "van Haren, Ronald"
+        },
+        {
+            "affiliation": "Nederlands eScience Center",
+            "name": "Verhoeven, Stefan"
+        },
+        {
+            "affiliation": "Nederlands eScience Center",
+            "name": "van der Ploeg, Atze"
+        }
+    ],
+    "license": {
+        "id": "Apache-2.0"
+    },
+    "title": "scriptcwl 0.7.1"
+}
