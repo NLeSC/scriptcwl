@@ -6,7 +6,7 @@ title: 'scriptcwl 0.7.2'
 doi: 10.5281/zenodo.1160725
 authors:
 - given-names: "Janneke M."
-  orcid: https://orcid.org/0000-0002-8329-7000
+  orcid: 0000-0002-8329-7000
   affiliation: Netherlands eScience Center
   family-names: Zwaan
   name-particle: "van der"
