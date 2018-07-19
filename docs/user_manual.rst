@@ -10,4 +10,5 @@ User Manual
 	setting_documentation
 	adding_workflow_steps
 	adding_outputs
+	printing_workflows
 	saving_workflows
