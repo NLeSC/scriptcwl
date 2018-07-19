@@ -6,7 +6,7 @@
     "@type": "SoftwareSourceCode",
     "author": [
         {
-            "@id": "https://orcid.org/0000-0002-8329-7000",
+            "@id": "0000-0002-8329-7000",
             "@type": "Person",
             "affiliation": {
                 "@type": "Organization",
@@ -72,5 +72,5 @@
     ],
     "codeRepository": "https://github.com/NLeSC/scriptcwl",
     "license": "http://www.apache.org/licenses/LICENSE-2.0",
-    "name": "scriptcwl 0.7.1"
+    "name": "scriptcwl 0.7.2"
 }

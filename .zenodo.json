@@ -3,7 +3,7 @@
         {
             "affiliation": "Netherlands eScience Center",
             "name": "van der Zwaan, Janneke M.",
-            "orcid": "https://orcid.org/0000-0002-8329-7000"
+            "orcid": "0000-0002-8329-7000"
         },
         {
             "affiliation": "Nederlands eScience Center",
@@ -33,5 +33,5 @@
     "license": {
         "id": "Apache-2.0"
     },
-    "title": "scriptcwl 0.7.1"
+    "title": "scriptcwl 0.7.2"
 }
