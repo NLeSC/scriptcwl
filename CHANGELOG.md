@@ -22,7 +22,7 @@
 * Method to convert a string to cwl file name
 
 ## 0.7.1
-qq
+
 ### Added
 
 * Load tools before workflows when a working directory is used (#94)
