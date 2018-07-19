@@ -2,7 +2,7 @@
 # Metadata for citation of this software according to the CFF format (https://citation-file-format.github.io/)
 cff-version: 1.0.3
 message: If you use this software, please cite it as below.
-title: 'scriptcwl 0.7.1'
+title: 'scriptcwl 0.7.2'
 doi: 10.5281/zenodo.1160725
 authors:
 - given-names: "Janneke M."
@@ -31,7 +31,7 @@ authors:
   affiliation: Nederlands eScience Center
   family-names: Ploeg
   name-particle: "van der"
-version: 0.7.1
+version: 0.7.2
 date-released: 2018-01-26
 repository-code: https://github.com/NLeSC/scriptcwl
 license: Apache-2.0

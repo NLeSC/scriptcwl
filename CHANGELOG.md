@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 0.7.2
 
 ### Added
 
@@ -16,15 +16,13 @@
 
 * Ensure workflows without a requirements section are loaded into the steps library
 * Raise real warning when duplicate cwl step (i.e. having the same file name as another step) is loaded
-* Loading order of tools, workflows and workflows with subworkflows when using a working dir (#94)
-* Hide cwltool logger messages
 
 ### Removed
 
 * Method to convert a string to cwl file name
 
 ## 0.7.1
-
+qq
 ### Added
 
 * Load tools before workflows when a working directory is used (#94)
