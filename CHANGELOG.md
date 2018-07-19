@@ -2,9 +2,26 @@
 
 ## Unreleased
 
+### Added
+
+* Allow for list of step outputs/wf inputs as step input (#101)
+* CFF files with citation metadata
+* Link between a step's python name (i.e. how it is called on the WorkflowGenerator object) to step names (#100)
+* Allow setting workflow labels
+* Allow setting a label for a workflow input
+* support for CommandInputEnumSchema as workflow input (#99)
+* User manual in documentation
+
 ### Changed
 
 * Ensure workflows without a requirements section are loaded into the steps library
+* Raise real warning when duplicate cwl step (i.e. having the same file name as another step) is loaded
+* Loading order of tools, workflows and workflows with subworkflows when using a working dir (#94)
+* Hide cwltool logger messages
+
+### Removed
+
+* Method to convert a string to cwl file name
 
 ## 0.7.1
 
