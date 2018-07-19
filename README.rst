@@ -92,7 +92,7 @@ Run tests (including coverage) with:
 
 .. code-block:: sh
 
-  python setup.py develop test
+  python setup.py test
 
 Useful tools
 ############
