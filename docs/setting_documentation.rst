@@ -16,3 +16,12 @@ To add documentation to your workflow, use the ``set_documentation()`` method:
 		answer: int
 	"""
 	wf.set_documentation(doc)
+
+Setting labels
+##############
+
+Instead of or in addition to documentation, it is also possible to set a label
+for a workflow:
+::
+
+	wf.set_label('Calculate special number')

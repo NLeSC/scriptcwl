@@ -1,0 +1,37 @@
+# YAML 1.2
+# Metadata for citation of this software according to the CFF format (https://citation-file-format.github.io/)
+cff-version: 1.0.3
+message: If you use this software, please cite it as below.
+title: 'scriptcwl 0.7.1'
+doi: 10.5281/zenodo.1160725
+authors:
+- given-names: "Janneke M."
+  orcid: https://orcid.org/0000-0002-8329-7000
+  affiliation: Netherlands eScience Center
+  family-names: Zwaan
+  name-particle: "van der"
+- given-names: Bouwe
+  affiliation: Nederlands eScience Center
+  family-names: Andela
+- given-names: Ben
+  affiliation: Nederlands eScience Center
+  family-names: Vries
+  name-particle: de
+- given-names: Lourens
+  affiliation: Netherlands eScience Center
+  family-names: Veen
+- given-names: Ronald
+  affiliation: Nederlands eScience Center
+  family-names: Haren
+  name-particle: van
+- given-names: Stefan
+  affiliation: Nederlands eScience Center
+  family-names: Verhoeven
+- given-names: Atze
+  affiliation: Nederlands eScience Center
+  family-names: Ploeg
+  name-particle: "van der"
+version: 0.7.1
+date-released: 2018-01-26
+repository-code: https://github.com/NLeSC/scriptcwl
+license: Apache-2.0

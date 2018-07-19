@@ -141,7 +141,7 @@ class WorkflowGenerator(object):
         self._wf_closed = True
 
     def __getattr__(self, name, **kwargs):
-        name = cwl_name(name)
+        name = self.steps_library.python_names2step_names.get(name, None)
         step = self._get_step(name)
         return partial(self._make_step, step, **kwargs)
 
@@ -309,6 +309,16 @@ class WorkflowGenerator(object):
 
         self.documentation = doc
 
+    def set_label(self, label):
+        """Set workflow label.
+
+        Args:
+            label (str): short description of workflow.
+        """
+        self._closed()
+
+        self.label = label
+
     def _get_step(self, name, make_copy=True):
         """Return step from steps library.
 
@@ -364,6 +374,10 @@ class WorkflowGenerator(object):
         obj['class'] = 'Workflow'
         try:
             obj['doc'] = self.documentation
+        except (AttributeError, ValueError):
+            pass
+        try:
+            obj['label'] = self.label
         except (AttributeError, ValueError):
             pass
         if self._has_requirements():
@@ -450,6 +464,12 @@ class WorkflowGenerator(object):
         return input_type
 
     def _get_source_type(self, ref):
+        if isinstance(ref, list):
+            return [self._get_source_type_single(r) for r in ref]
+        else:
+            return self._get_source_type_single(ref)
+
+    def _get_source_type_single(self, ref):
         if ref.refers_to_step_output():
             step = self.wf_steps[ref.step_name]
             return step.output_types[ref.output_name]
@@ -478,6 +498,21 @@ class WorkflowGenerator(object):
     def _type_check_reference(self, step, input_name, reference):
         input_type = self._get_input_type(step, input_name)
         source_type = self._get_source_type(reference)
+        if isinstance(source_type, list):
+            # all source_types must be equal
+            if len(set(source_type)) > 1:
+                inputs = ['{} ({})'.format(n, t)
+                          for n, t in zip(reference, source_type)]
+                msg = 'The types of the workflow inputs/step outputs for ' \
+                      '"{}" are not equal: {}.'.format(input_name,
+                                                       ', '.join(inputs))
+                raise ValueError(msg)
+
+            # continue type checking using the first item from the list
+            source_type = source_type[0]
+            input_type = input_type['items']
+            reference = reference[0]
+
         if self._types_match(source_type, input_type):
             return True
         else:
@@ -508,6 +543,15 @@ class WorkflowGenerator(object):
             if k in kwargs.keys():
                 if isinstance(kwargs[k], Reference):
                     step.set_input(k, six.text_type(kwargs[k]))
+                elif isinstance(kwargs[k], list):
+                    if all(isinstance(n, Reference) for n in kwargs[k]):
+                        step.set_input(k, kwargs[k])
+                    else:
+                        raise ValueError(
+                            'List of inputs contains an input with an '
+                            'incorrect type for keyword argument {} (should '
+                            'be a value returned by set_input or from adding '
+                            'a step).'.format(k))
                 else:
                     raise ValueError(
                         'Incorrect type (should be a value returned'
@@ -690,17 +734,3 @@ class WorkflowGenerator(object):
                'add_input() function, redirecting...')
         warnings.warn(msg, DeprecationWarning)
         return self.add_input(**kwargs)
-
-
-def cwl_name(name):
-    """Transform python name to cwl name.
-
-    Args:
-        name (str): string to transform.
-
-    Returns:
-        transformed string.
-    """
-    name = name.replace('_', '-')
-
-    return name

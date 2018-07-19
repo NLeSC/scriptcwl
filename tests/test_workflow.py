@@ -9,8 +9,12 @@ from scriptcwl.library import load_yaml
 def setup_workflowgenerator(tmpdir):
     toolsdir = tmpdir.join('tools').strpath
     workflows = tmpdir.join('workflows').strpath
+    filenames = tmpdir.join('file-names').strpath
+    misc = tmpdir.join('misc').strpath
     copytree('tests/data/tools', toolsdir)
     copytree('tests/data/workflows', workflows)
+    copytree('tests/data/file-names', filenames)
+    copytree('tests/data/misc', misc)
     wf = WorkflowGenerator()
     return wf
 
@@ -32,6 +36,12 @@ class TestWorkflowGenerator(object):
         step_keys = wf.steps_library.steps.keys()
         step_keys = sorted(step_keys)
         assert step_keys == ['echo', 'echo-wc', 'multiple-out-args', 'wc']
+
+    def test_load_duplicate_cwl_step(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        wf.load(steps_dir=tmpdir.join('tools').strpath)
+        with pytest.warns(UserWarning):
+            wf.load(step_file=tmpdir.join('tools', 'echo.cwl').strpath)
 
     def test_save_with_tools(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
@@ -541,3 +551,75 @@ class TestNamingWorkflowInputs(object):
             wf.add_input(msg='string', default='Hello World!')
             with pytest.raises(ValueError):
                 wf.add_input(msg='string', default='Hello World!')
+
+
+class TestWorkflowLabels(object):
+    def test_set_label(self):
+        with WorkflowGenerator() as wf:
+            wf.set_label('test')
+
+            obj = wf.to_obj()
+            assert obj['label'] == 'test'
+
+
+class TestWorkflowStepsWithSpecialFileNames(object):
+    def test_add_step_with_underscores(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('file-names/echo_with_underscores.cwl').strpath
+        wf.load(step_file=step_file)
+        msg = wf.add_input(msg='string')
+        wf.echo_with_underscores(message=msg)
+
+    def test_add_step_with_minuses(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('file-names/echo-with-minuses.cwl').strpath
+        wf.load(step_file=step_file)
+        msg = wf.add_input(msg='string')
+        wf.echo_with_minuses(message=msg)
+
+    def test_add_step_with_minuses_and_underscores(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        sf = tmpdir.join('file-names/echo-with-minuses_and_underscores.cwl')
+        step_file = sf.strpath
+        wf.load(step_file=step_file)
+        msg = wf.add_input(msg='string')
+        wf.echo_with_minuses_and_underscores(message=msg)
+
+    def test_load_step_with_duplicate_python_name(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        with pytest.warns(UserWarning):
+            wf.load(steps_dir=tmpdir.join('file-names').strpath)
+
+
+class TestWorkflowStepsListOfInputsFromWorkflowInputsOrStepOutputs(object):
+    def test_add_step_with_list_of_inputs(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('misc/echo2.cwl').strpath
+        wf.load(step_file=step_file)
+
+        str1 = wf.add_input(str1='string')
+        str2 = wf.add_input(str2='string')
+
+        wf.echo2(message=[str1, str2])
+
+    def test_add_step_with_list_of_inputs_unequal_types(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('misc/echo2.cwl').strpath
+        wf.load(step_file=step_file)
+
+        str1 = wf.add_input(str1='string')
+        str2 = wf.add_input(str2='int')
+
+        with pytest.raises(ValueError):
+            wf.echo2(message=[str1, str2])
+
+    def test_add_step_with_list_of_inputs_wrong_type(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('misc/echo2.cwl').strpath
+        wf.load(step_file=step_file)
+
+        str1 = wf.add_input(str1='int')
+        str2 = wf.add_input(str2='int')
+
+        with pytest.raises(ValueError):
+            wf.echo2(message=[str1, str2])
