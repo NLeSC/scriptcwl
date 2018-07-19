@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Added
+
+* Allow printing of workflows (#86)
+
 ## 0.7.2
 
 ### Added
