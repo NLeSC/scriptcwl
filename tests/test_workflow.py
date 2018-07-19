@@ -10,9 +10,11 @@ def setup_workflowgenerator(tmpdir):
     toolsdir = tmpdir.join('tools').strpath
     workflows = tmpdir.join('workflows').strpath
     filenames = tmpdir.join('file-names').strpath
+    misc = tmpdir.join('misc').strpath
     copytree('tests/data/tools', toolsdir)
     copytree('tests/data/workflows', workflows)
     copytree('tests/data/file-names', filenames)
+    copytree('tests/data/misc', misc)
     wf = WorkflowGenerator()
     return wf
 
@@ -587,3 +589,37 @@ class TestWorkflowStepsWithSpecialFileNames(object):
         wf = setup_workflowgenerator(tmpdir)
         with pytest.warns(UserWarning):
             wf.load(steps_dir=tmpdir.join('file-names').strpath)
+
+
+class TestWorkflowStepsListOfInputsFromWorkflowInputsOrStepOutputs(object):
+    def test_add_step_with_list_of_inputs(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('misc/echo2.cwl').strpath
+        wf.load(step_file=step_file)
+
+        str1 = wf.add_input(str1='string')
+        str2 = wf.add_input(str2='string')
+
+        wf.echo2(message=[str1, str2])
+
+    def test_add_step_with_list_of_inputs_unequal_types(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('misc/echo2.cwl').strpath
+        wf.load(step_file=step_file)
+
+        str1 = wf.add_input(str1='string')
+        str2 = wf.add_input(str2='int')
+
+        with pytest.raises(ValueError):
+            wf.echo2(message=[str1, str2])
+
+    def test_add_step_with_list_of_inputs_wrong_type(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        step_file = tmpdir.join('misc/echo2.cwl').strpath
+        wf.load(step_file=step_file)
+
+        str1 = wf.add_input(str1='int')
+        str2 = wf.add_input(str2='int')
+
+        with pytest.raises(ValueError):
+            wf.echo2(message=[str1, str2])
