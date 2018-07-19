@@ -1,7 +1,11 @@
 from __future__ import print_function
 
 import pytest
+import os
+
 from shutil import copytree
+from ruamel import yaml
+
 from scriptcwl import WorkflowGenerator
 from scriptcwl.library import load_yaml
 
@@ -233,6 +237,40 @@ class TestWorkflowGenerator(object):
         x = 3
         with pytest.raises(ValueError):
             wf.echo(message=x)
+
+
+class TestPrintWorkflowGenerator(object):
+    def test_print_wf_absolute_paths(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        wf.load(steps_dir=tmpdir.join('tools').strpath)
+
+        wf.set_documentation('Counts words of a message via echo and wc')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        actual = wf.__str__()
+
+        # make workflows contents relative to tests/data/tools directory
+        actual = yaml.safe_load(actual)
+
+        def fix_path(path):
+            res = path.rsplit(os.sep, 2)
+            res[0] = '..'
+            return (os.sep).join(res)
+
+        actual['steps']['echo']['run'] = \
+            fix_path(actual['steps']['echo']['run'])
+        actual['steps']['wc']['run'] = fix_path(actual['steps']['wc']['run'])
+
+        expected_wf_filename = 'tests/data/workflows/echo-wc.cwl'
+        expected = load_yaml(expected_wf_filename)
+
+        print('  actual:', actual)
+        print('expected:', expected)
+        assert actual == expected
 
 
 class TestWorkflowGeneratorWithScatteredStep(object):

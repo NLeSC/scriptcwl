@@ -12,7 +12,7 @@ from ruamel.yaml.comments import CommentedMap
 
 from .scriptcwl import load_cwl, quiet
 from .step import python_name
-from .yamlutils import save_yaml
+from .yamlutils import save_yaml, yaml2string
 from .library import StepsLibrary
 from .reference import Reference
 
@@ -144,6 +144,14 @@ class WorkflowGenerator(object):
         name = self.steps_library.python_names2step_names.get(name, None)
         step = self._get_step(name)
         return partial(self._make_step, step, **kwargs)
+
+    def __str__(self):
+        # use absolute paths for printing
+        return yaml2string(self,
+                           inline=False,
+                           pack=False,
+                           relpath=None,
+                           wd=False)
 
     def _closed(self):
         if self._wf_closed:

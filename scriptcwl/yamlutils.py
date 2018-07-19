@@ -30,14 +30,20 @@ def str_presenter(dmpr, data):
     return dmpr.represent_scalar('tag:yaml.org,2002:str', data)
 
 
+def yaml2string(wf, inline, pack, relpath, wd):
+    s = [u'#!/usr/bin/env cwl-runner',
+         yaml.dump(wf.to_obj(inline=inline, pack=pack, relpath=relpath, wd=wd),
+                   Dumper=yaml.RoundTripDumper)]
+    return u'\n'.join(s)
+
+
 def save_yaml(fname, wf, inline, pack, relpath, wd, encoding='utf-8'):
     with codecs.open(fname, 'wb', encoding=encoding) as yaml_file:
-        yaml_file.write('#!/usr/bin/env cwl-runner\n')
-        yaml_file.write(yaml.dump(wf.to_obj(inline=inline,
-                                            pack=pack,
-                                            relpath=relpath,
-                                            wd=wd),
-                                  Dumper=yaml.RoundTripDumper))
+        yaml_file.write(yaml2string(wf=wf,
+                                    inline=inline,
+                                    pack=pack,
+                                    relpath=relpath,
+                                    wd=wd))
 
 
 yaml.add_representer(str, str_presenter, Dumper=yaml.RoundTripDumper)
