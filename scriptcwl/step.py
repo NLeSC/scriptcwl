@@ -233,9 +233,12 @@ class Step(object):
             template = u'{} = wf.{}({}[, {}])'
         else:
             template = u'{} = wf.{}({})'
-        return template.format(u', '.join(self.output_names), self.python_name,
-                               u', '.join(self.input_names), u', '.join(
-                                   self.optional_input_names))
+        out_names = [python_name(n) for n in self.output_names]
+        in_names = [python_name(n) for n in self.input_names]
+        opt_in_names = [python_name(n) for n in self.optional_input_names]
+        return template.format(u', '.join(out_names), self.python_name,
+                               u', '.join(in_names), u', '.join(
+                                   opt_in_names))
 
     def __repr__(self):
         return str(self)
