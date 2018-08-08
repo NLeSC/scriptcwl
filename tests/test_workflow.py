@@ -623,3 +623,32 @@ class TestWorkflowStepsListOfInputsFromWorkflowInputsOrStepOutputs(object):
 
         with pytest.raises(ValueError):
             wf.echo2(message=[str1, str2])
+
+
+class TestWorkflowWithNonPythonStepInputAndOutputNames(object):
+    def test_add_step_with_non_python_input_and_output_names(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+
+        step_file = tmpdir.join('misc/non-python-names.cwl').strpath
+        wf.load(step_file=step_file)
+
+        msg1 = wf.add_input(msg1='string')
+        msg2 = wf.add_input(msg2='string?')
+
+        echo_out = wf.non_python_names(first_message=msg1,
+                                       optional_message=msg2)
+
+        wf.add_outputs(out=echo_out)
+
+    def test_type_checking_with_non_python_input_name(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+
+        step_file = tmpdir.join('misc/non-python-names.cwl').strpath
+        wf.load(step_file=step_file)
+
+        msg1 = wf.add_input(msg1='int')
+        msg2 = wf.add_input(msg2='string?')
+
+        with pytest.raises(ValueError):
+            wf.non_python_names(first_message=msg1,
+                                optional_message=msg2)

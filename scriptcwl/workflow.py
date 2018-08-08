@@ -526,40 +526,41 @@ class WorkflowGenerator(object):
                 msg = msg.format(
                         reference.input_name, source_type,
                         scattered,
-                        input_name, input_type)
+                        python_name(input_name), input_type)
             else:
                 msg = 'Step output "{}" of type "{}" is not'
                 msg += ' compatible with{} step input "{}" of type "{}"'
                 msg = msg.format(
                         reference, source_type,
                         scattered,
-                        input_name, input_type)
+                        python_name(input_name), input_type)
             raise ValueError(msg)
 
     def _make_step(self, step, **kwargs):
         self._closed()
 
         for k in step.get_input_names():
-            if k in kwargs.keys():
-                if isinstance(kwargs[k], Reference):
-                    step.set_input(k, six.text_type(kwargs[k]))
-                elif isinstance(kwargs[k], list):
-                    if all(isinstance(n, Reference) for n in kwargs[k]):
-                        step.set_input(k, kwargs[k])
+            p_name = python_name(k)
+            if p_name in kwargs.keys():
+                if isinstance(kwargs[p_name], Reference):
+                    step.set_input(p_name, six.text_type(kwargs[p_name]))
+                elif isinstance(kwargs[p_name], list):
+                    if all(isinstance(n, Reference) for n in kwargs[p_name]):
+                        step.set_input(p_name, kwargs[k])
                     else:
                         raise ValueError(
                             'List of inputs contains an input with an '
                             'incorrect type for keyword argument {} (should '
                             'be a value returned by set_input or from adding '
-                            'a step).'.format(k))
+                            'a step).'.format(p_name))
                 else:
                     raise ValueError(
                         'Incorrect type (should be a value returned'
                         'by set_inputs() or from adding a step) for keyword '
-                        'argument {}'.format(k))
+                        'argument {}'.format(p_name))
             elif k not in step.optional_input_names:
                 raise ValueError(
-                    'Expecting "{}" as a keyword argument.'.format(k))
+                    'Expecting "{}" as a keyword argument.'.format(p_name))
 
         if 'scatter' in kwargs.keys() or 'scatter_method' in kwargs.keys():
             # Check whether both required keyword arguments are present
@@ -598,8 +599,9 @@ class WorkflowGenerator(object):
 
         # Check types of references
         for k in step.get_input_names():
-            if k in kwargs.keys():
-                self._type_check_reference(step, k, kwargs[k])
+            p_name = python_name(k)
+            if p_name in kwargs.keys():
+                self._type_check_reference(step, k, kwargs[p_name])
 
         # Make sure the step has a unique name in the workflow (so command line
         # tools can be added to the same workflow multiple times).
