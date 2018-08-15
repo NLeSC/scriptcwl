@@ -76,12 +76,6 @@ class TestStepNameInWorkflow(object):
         assert step.name_in_workflow == 'echo'
 
 
-class TestRemoveShebangForInlineSteps(object):
-    def test_inline_step_without_shebang(self):
-        step = Step('tests/data/echo-no-shebang.cwl')
-        step.to_obj(inline=True)
-
-
 class TestPrintStep(object):
 
     def test_str_(self):

@@ -359,7 +359,7 @@ class WorkflowGenerator(object):
 
         return name
 
-    def to_obj(self, wd=False, inline=False, pack=False, relpath=None):
+    def to_obj(self, wd=False, pack=False, relpath=None):
         """Return the created workflow as a dict.
 
         The dict can be written to a yaml file.
@@ -392,8 +392,7 @@ class WorkflowGenerator(object):
 
         steps_obj = CommentedMap()
         for key in self.wf_steps:
-            steps_obj[key] = self.wf_steps[key].to_obj(inline=inline,
-                                                       relpath=relpath,
+            steps_obj[key] = self.wf_steps[key].to_obj(relpath=relpath,
                                                        pack=pack,
                                                        wd=wd)
         obj['steps'] = steps_obj
@@ -623,14 +622,13 @@ class WorkflowGenerator(object):
             return outputs[0]
         return outputs
 
-    def validate(self, inline=False):
+    def validate(self):
         """Validate workflow object.
 
         This method currently validates the workflow object with the use of
         cwltool. It writes the workflow to a tmp CWL file, reads it, validates
         it and removes the tmp file again. By default, the workflow is written
-        to file using absolute paths to the steps. Optionally, the steps can be
-        saved inline.
+        to file using absolute paths to the steps.
         """
         # define tmpfile
         (fd, tmpfile) = tempfile.mkstemp()
@@ -638,7 +636,7 @@ class WorkflowGenerator(object):
         try:
             # save workflow object to tmpfile,
             # do not recursively call validate function
-            self.save(tmpfile, inline=inline, validate=False, relative=False,
+            self.save(tmpfile, validate=False, relative=False,
                       wd=False)
             # load workflow from tmpfile
             document_loader, processobj, metadata, uri = load_cwl(tmpfile)
@@ -656,8 +654,8 @@ class WorkflowGenerator(object):
         (fd, tmpfile) = tempfile.mkstemp()
         os.close(fd)
         try:
-            self.save(tmpfile, validate=False, wd=False, inline=False,
-                      relative=False, pack=False)
+            self.save(tmpfile, validate=False, wd=False, relative=False,
+                      pack=False)
             document_loader, processobj, metadata, uri = load_cwl(tmpfile)
         finally:
             # cleanup tmpfile
@@ -678,8 +676,14 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
+        if inline:
+            msg = ('Inline saving is deprecated. Please save the workflow '
+                   'using pack=True. Setting pack to True.')
+            warnings.warn(msg, DeprecationWarning)
+            pack = True
+
         if validate:
-            self.validate(inline=inline)
+            self.validate()
 
         dirname = os.path.dirname(os.path.abspath(fname))
 
@@ -699,8 +703,8 @@ class WorkflowGenerator(object):
                 # save in working_dir
                 bn = os.path.basename(fname)
                 wd_file = os.path.join(self.working_dir, bn)
-                save_yaml(fname=wd_file, wf=self, inline=inline, pack=pack,
-                          relpath=relpath, wd=wd)
+                save_yaml(fname=wd_file, wf=self, pack=pack, relpath=relpath,
+                          wd=wd)
                 # and copy workflow file to other location (as though all steps
                 # are in the same directory as the workflow)
                 try:
@@ -708,7 +712,8 @@ class WorkflowGenerator(object):
                 except shutil.Error:
                     pass
         else:
-            save_yaml(fname=fname, wf=self, inline=inline, pack=pack,
+            # relative=True
+            save_yaml(fname=fname, wf=self, pack=pack,
                       relpath=relpath, wd=wd)
 
     def get_working_dir(self):

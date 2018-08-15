@@ -119,26 +119,17 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(wfcount=wced)
 
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
-        wf.save(wf_filename, inline=True)
 
-        # Strip absolute paths from ids
-        actual = load_yaml(wf_filename)
-        expected_wf_filename = 'tests/data/workflows/echo-wc_inline.cwl'
-        expected = load_yaml(expected_wf_filename)
+        with pytest.warns(DeprecationWarning):
+            wf.save(wf_filename, inline=True)
 
-        # Random id's will differ and that's ok, so just remove them
-        def remove_random_ids(step):
-            del(step['outputs'][0]['outputBinding']['glob'])
-            del(step['stdout'])
-
-        remove_random_ids(actual['steps']['wc']['run'])
-        remove_random_ids(actual['steps']['echo']['run'])
-        remove_random_ids(expected['steps']['wc']['run'])
-        remove_random_ids(expected['steps']['echo']['run'])
-
-        print('  actual:', actual)
-        print('expected:', expected)
-        assert actual == expected
+        # save with inline=True should result in a packed workflow (that isn't
+        # loaded).
+        with WorkflowGenerator() as wf2:
+            wf2.load(wf_filename)
+            # wf_filename shouldn't be in the steps library, because it is a
+            # packed workflow
+            assert len(wf2.steps_library.steps.keys()) == 0
 
     def test_save_with_pack(self, tmpdir):
         wf = WorkflowGenerator()
@@ -419,17 +410,6 @@ class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
 
         assert name != 'echo'
         assert name == echoed2.step_name
-
-    def test_validate_with_inline_tools(self):
-        wf = WorkflowGenerator()
-        wf.load('tests/data/tools')
-
-        wfmessage = wf.add_input(wfmessage='string')
-        echoed = wf.echo(message=wfmessage)
-        echoed2 = wf.echo(message=wfmessage)
-        wf.add_outputs(echoed2=echoed2)
-
-        wf.validate(inline=True)
 
 
 class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):

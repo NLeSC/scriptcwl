@@ -202,16 +202,14 @@ class Step(object):
 
         return embedded_clt
 
-    def to_obj(self, inline=False, wd=False, pack=False, relpath=None):
+    def to_obj(self, wd=False, pack=False, relpath=None):
         """Return the step as an dict that can be written to a yaml file.
 
         Returns:
             dict: yaml representation of the step.
         """
         obj = CommentedMap()
-        if inline:
-            obj['run'] = self._to_embedded_obj()
-        elif pack:
+        if pack:
             obj['run'] = self.orig
         elif relpath is not None:
             if self.from_url:
