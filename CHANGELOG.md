@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Changed
+
+* Inline saving of workflows is deprecated. When saving a workflow with `inline=True`, the workflow is saved as a packed workflow
+
 ## 0.7.2
 
 ### Added
