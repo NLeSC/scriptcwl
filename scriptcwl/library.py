@@ -48,9 +48,6 @@ class StepsLibrary(object):
                       'loaded.'.format(n, pn, n)
                 warnings.warn(UserWarning(msg))
             else:
-                if step.is_workflow:
-                    for substep in step.command_line_tool['steps']:
-                        self.step_ids.append(name_in_workflow(substep['id']))
                 self.steps[n] = step
                 self.python_names2step_names[step.python_name] = n
 
