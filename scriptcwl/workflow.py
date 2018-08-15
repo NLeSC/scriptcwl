@@ -703,7 +703,7 @@ class WorkflowGenerator(object):
                 # save in working_dir
                 bn = os.path.basename(fname)
                 wd_file = os.path.join(self.working_dir, bn)
-                save_yaml(fname=wd_file, wf=self, pack=pack, relpath=relpath,
+                save_yaml(fname=wd_file, wf=self, pack=pack, relpath=None,
                           wd=wd)
                 # and copy workflow file to other location (as though all steps
                 # are in the same directory as the workflow)
