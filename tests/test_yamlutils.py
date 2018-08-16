@@ -13,7 +13,7 @@ def test_multiline_output(tmpdir):
     wf = WorkflowGenerator()
     wf.set_documentation('Testing a multiline\ndocumentation string')
     tmpfile = os.path.join(str(tmpdir), 'test.cwl')
-    wf.save(tmpfile)
+    wf.save(tmpfile, mode='abs')
     with open(tmpfile) as f:
         contents = f.readlines()
         assert len(contents) > 7

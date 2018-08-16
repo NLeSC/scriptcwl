@@ -636,8 +636,7 @@ class WorkflowGenerator(object):
         try:
             # save workflow object to tmpfile,
             # do not recursively call validate function
-            self.save(tmpfile, validate=False, relative=False,
-                      wd=False)
+            self.save(tmpfile, mode='abs', validate=False)
             # load workflow from tmpfile
             document_loader, processobj, metadata, uri = load_cwl(tmpfile)
         finally:
@@ -654,8 +653,7 @@ class WorkflowGenerator(object):
         (fd, tmpfile) = tempfile.mkstemp()
         os.close(fd)
         try:
-            self.save(tmpfile, validate=False, wd=False, relative=False,
-                      pack=False)
+            self.save(tmpfile, mode='abs', validate=False)
             document_loader, processobj, metadata, uri = load_cwl(tmpfile)
         finally:
             # cleanup tmpfile
@@ -664,57 +662,79 @@ class WorkflowGenerator(object):
         with codecs.open(fname, 'wb', encoding=encoding) as f:
             f.write(print_pack(document_loader, processobj, uri, metadata))
 
-    def save(self, fname, validate=True, wd=False, inline=False,
-             relative=False, pack=False, encoding='utf-8'):
+    def save(self, fname, mode=None, validate=True, encoding='utf-8',
+             wd=False, inline=False, relative=False, pack=False):
         """Save the workflow to file.
 
         Save the workflow to a CWL file that can be run with a CWL runner.
 
         Args:
             fname (str): file to save the workflow to.
+            mode (str): one of  (rel, abs, wd, inline, pack)
             encoding (str): file encoding to use (default: ``utf-8``).
         """
         self._closed()
 
-        if inline:
-            msg = ('Inline saving is deprecated. Please save the workflow '
-                   'using pack=True. Setting pack to True.')
+        if mode is None:
+            mode = 'abs'
+            if pack:
+                mode = 'pack'
+            elif wd:
+                mode = 'wd'
+            elif relative:
+                mode = 'rel'
+
+            msg = 'Using deprecated save method. Please save the workflow ' \
+                  'with: wf.save(\'{}\', mode=\'{}\'). Redirecting to new ' \
+                  'save method.'.format(fname, mode)
             warnings.warn(msg, DeprecationWarning)
-            pack = True
+
+        modes = ('rel', 'abs', 'wd', 'inline', 'pack')
+        if mode not in modes:
+            msg = 'Illegal mode "{}". Choose one of ({}).'\
+                  .format(mode, ','.join(modes))
+            raise ValueError(msg)
 
         if validate:
             self.validate()
 
         dirname = os.path.dirname(os.path.abspath(fname))
-
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
-        relpath = None
-        if relative:
-            relpath = dirname
+        if mode == 'inline':
+            msg = ('Inline saving is deprecated. Please save the workflow '
+                   'using mode=\'pack\'. Setting mode to pack.')
+            warnings.warn(msg, DeprecationWarning)
+            mode = 'pack'
 
-        if pack:
+        if mode == 'rel':
+            relpath = dirname
+            save_yaml(fname=fname, wf=self, pack=False, relpath=relpath,
+                      wd=False)
+
+        if mode == 'abs':
+            save_yaml(fname=fname, wf=self, pack=False, relpath=None,
+                      wd=False)
+
+        if mode == 'pack':
             self._pack(fname, encoding)
-        elif wd:
+
+        if mode == 'wd':
             if self.get_working_dir() is None:
                 raise ValueError('Working directory not set.')
             else:
                 # save in working_dir
                 bn = os.path.basename(fname)
                 wd_file = os.path.join(self.working_dir, bn)
-                save_yaml(fname=wd_file, wf=self, pack=pack, relpath=None,
-                          wd=wd)
+                save_yaml(fname=wd_file, wf=self, pack=False, relpath=None,
+                          wd=True)
                 # and copy workflow file to other location (as though all steps
                 # are in the same directory as the workflow)
                 try:
                     shutil.copy2(wd_file, fname)
                 except shutil.Error:
                     pass
-        else:
-            # relative=True
-            save_yaml(fname=fname, wf=self, pack=pack,
-                      relpath=relpath, wd=wd)
 
     def get_working_dir(self):
         return self.working_dir

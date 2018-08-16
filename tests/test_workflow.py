@@ -43,6 +43,29 @@ class TestWorkflowGenerator(object):
         with pytest.warns(UserWarning):
             wf.load(step_file=tmpdir.join('tools', 'echo.cwl').strpath)
 
+    def test_save_with_tools_deprecated(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        wf.load(steps_dir=tmpdir.join('tools').strpath)
+        wf.set_documentation('Counts words of a message via echo and wc')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        wf_filename = tmpdir.join('workflows/echo-wc.cwl').strpath
+        with pytest.warns(DeprecationWarning):
+            wf.save(wf_filename, relative=True)
+
+        # make workflows contents relative to tests/data/tools directory
+        actual = load_yaml(wf_filename)
+        expected_wf_filename = 'tests/data/workflows/echo-wc.cwl'
+        expected = load_yaml(expected_wf_filename)
+
+        print('  actual:', actual)
+        print('expected:', expected)
+        assert actual == expected
+
     def test_save_with_tools(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
         wf.load(steps_dir=tmpdir.join('tools').strpath)
@@ -54,7 +77,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(wfcount=wced)
 
         wf_filename = tmpdir.join('workflows/echo-wc.cwl').strpath
-        wf.save(wf_filename, relative=True)
+        wf.save(wf_filename, mode='rel')
 
         # make workflows contents relative to tests/data/tools directory
         actual = load_yaml(wf_filename)
@@ -74,7 +97,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(wfcount=wced)
 
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
-        wf.save(wf_filename, relative=True)
+        wf.save(wf_filename, mode='rel')
 
         # make workflows contents relative to tests/data/tools directory
         actual = load_yaml(wf_filename)
@@ -97,7 +120,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(out_files=echoed)
 
         wf_filename = tmpdir.join('echo-scattered.cwl').strpath
-        wf.save(wf_filename, relative=True)
+        wf.save(wf_filename, mode='rel')
 
         # make workflows contents relative to tests/data/tools directory
         actual = load_yaml(wf_filename)
@@ -121,10 +144,30 @@ class TestWorkflowGenerator(object):
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
 
         with pytest.warns(DeprecationWarning):
-            wf.save(wf_filename, inline=True)
+            wf.save(wf_filename, mode='inline')
 
         # save with inline=True should result in a packed workflow (that isn't
         # loaded).
+        with WorkflowGenerator() as wf2:
+            wf2.load(wf_filename)
+            # wf_filename shouldn't be in the steps library, because it is a
+            # packed workflow
+            assert len(wf2.steps_library.steps.keys()) == 0
+
+    def test_save_with_pack_deprecated(self, tmpdir):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+        wf.set_documentation('Counts words of a message via echo and wc')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        wf_filename = tmpdir.join('echo-wc.cwl').strpath
+        with pytest.warns(DeprecationWarning):
+            wf.save(wf_filename, pack=True)
+
         with WorkflowGenerator() as wf2:
             wf2.load(wf_filename)
             # wf_filename shouldn't be in the steps library, because it is a
@@ -142,13 +185,34 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(wfcount=wced)
 
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
-        wf.save(wf_filename, pack=True)
+        wf.save(wf_filename, mode='pack')
 
         with WorkflowGenerator() as wf2:
             wf2.load(wf_filename)
             # wf_filename shouldn't be in the steps library, because it is a
             # packed workflow
             assert len(wf2.steps_library.steps.keys()) == 0
+
+    def test_save_with_wd_deprecated(self, tmpdir):
+        wf = WorkflowGenerator(working_dir=tmpdir.join('wd').strpath)
+        wf.load('tests/data/tools')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        wf_filename = tmpdir.join('echo-wc.cwl').strpath
+        with pytest.warns(DeprecationWarning):
+            wf.save(wf_filename, wd=True)
+
+        actual = load_yaml(wf_filename)
+        expected_wf_filename = 'tests/data/workflows/echo-wc_wd.cwl'
+        expected = load_yaml(expected_wf_filename)
+
+        print('  actual:', actual)
+        print('expected:', expected)
+        assert actual == expected
 
     def test_save_with_wd(self, tmpdir):
         wf = WorkflowGenerator(working_dir=tmpdir.join('wd').strpath)
@@ -160,7 +224,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(wfcount=wced)
 
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
-        wf.save(wf_filename, wd=True)
+        wf.save(wf_filename, mode='wd')
 
         actual = load_yaml(wf_filename)
         expected_wf_filename = 'tests/data/workflows/echo-wc_wd.cwl'
@@ -185,7 +249,7 @@ class TestWorkflowGenerator(object):
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
 
         with pytest.raises(ValueError):
-            wf.save(wf_filename, wd=True)
+            wf.save(wf_filename, mode='wd')
 
     def test_save_with_relative_url(self, tmpdir):
         wf = WorkflowGenerator()
@@ -198,7 +262,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(echoed=echoed)
 
         wf_filename = tmpdir.join('echo-wf.cwl').strpath
-        wf.save(wf_filename, relative=True)
+        wf.save(wf_filename, mode='rel')
 
     def test_add_shebang_to_saved_cwl_file(self, tmpdir):
         wf = WorkflowGenerator()
@@ -210,7 +274,7 @@ class TestWorkflowGenerator(object):
         wf.add_outputs(wfcount=wced)
 
         wf_filename = tmpdir.join('echo-wc.cwl').strpath
-        wf.save(wf_filename, validate=False)
+        wf.save(wf_filename, mode='rel', validate=False)
 
         with open(wf_filename) as f:
             shebang = f.readline()
