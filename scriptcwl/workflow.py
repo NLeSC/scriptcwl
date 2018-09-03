@@ -623,7 +623,7 @@ class WorkflowGenerator(object):
             return outputs[0]
         return outputs
 
-    def validate(self, inline=False):
+    def validate(self, inline=False, enable_ext=False):
         """Validate workflow object.
 
         This method currently validates the workflow object with the use of
@@ -639,14 +639,14 @@ class WorkflowGenerator(object):
             # save workflow object to tmpfile,
             # do not recursively call validate function
             self.save(tmpfile, inline=inline, validate=False, relative=False,
-                      wd=False)
+                      wd=False, enable_ext=enable_ext)
             # load workflow from tmpfile
-            document_loader, processobj, metadata, uri = load_cwl(tmpfile)
+            _dl, _po, _md, _uri = load_cwl(tmpfile, enable_ext=enable_ext)
         finally:
             # cleanup tmpfile
             os.remove(tmpfile)
 
-    def _pack(self, fname, encoding):
+    def _pack(self, fname, enable_ext, encoding):
         """Save workflow with ``--pack`` option
 
         This means that al tools and subworkflows are included in the workflow
@@ -667,7 +667,7 @@ class WorkflowGenerator(object):
             f.write(print_pack(document_loader, processobj, uri, metadata))
 
     def save(self, fname, validate=True, wd=False, inline=False,
-             relative=False, pack=False, encoding='utf-8'):
+             relative=False, pack=False, enable_ext=False, encoding='utf-8'):
         """Save the workflow to file.
 
         Save the workflow to a CWL file that can be run with a CWL runner.
@@ -678,8 +678,10 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
+        print('enable_ext:', enable_ext)
+
         if validate:
-            self.validate(inline=inline)
+            self.validate(inline=inline, enable_ext=enable_ext)
 
         dirname = os.path.dirname(os.path.abspath(fname))
 
@@ -691,7 +693,7 @@ class WorkflowGenerator(object):
             relpath = dirname
 
         if pack:
-            self._pack(fname, encoding)
+            self._pack(fname, encoding, enable_ext)
         elif wd:
             if self.get_working_dir() is None:
                 raise ValueError('Working directory not set.')

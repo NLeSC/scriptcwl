@@ -22,7 +22,7 @@ class Step(object):
     and validated using ``cwltool``.
     """
 
-    def __init__(self, fname):
+    def __init__(self, fname, enable_ext=False):
         if fname.startswith('http://') or fname.startswith('https://'):
             self.run = fname
             self.from_url = True
@@ -46,7 +46,8 @@ class Step(object):
         self.scattered_inputs = []
         self.python_names = {}
 
-        document_loader, processobj, metadata, uri = load_cwl(fname)
+        doc_loader, processobj, metadata, uri = load_cwl(fname,
+                                                         enable_ext=enable_ext)
         s = processobj
 
         self.command_line_tool = s
