@@ -84,4 +84,4 @@ API Reference
 .. toctree::
    :maxdepth: 2
 
-   scriptcwl <apidocs/scriptcwl.rst>
+   scriptcwl <apidocs/modules.rst>
