@@ -1,6 +1,9 @@
 CWL Tips and Tricks
 ===================
 
+Have a look at the `CWL User Guide: Recommended Practices
+<http://www.commonwl.org/user_guide/rec-practices/>`_.
+
 Generate yaml file with workflow inputs
 #######################################
 
