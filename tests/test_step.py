@@ -80,3 +80,15 @@ class TestRemoveShebangForInlineSteps(object):
     def test_inline_step_without_shebang(self):
         step = Step('tests/data/echo-no-shebang.cwl')
         step.to_obj(inline=True)
+
+
+class TestPrintStep(object):
+
+    def test_str_(self):
+        step = Step('tests/data/tools/echo.cwl')
+        assert str(step) == 'echoed = wf.echo(message)'
+
+    def test_str_non_python_names(self):
+        step = Step('tests/data/misc/non-python-names.cwl')
+        o = 'echo_out = wf.non_python_names(first_message[, optional_message])'
+        assert str(step) == o

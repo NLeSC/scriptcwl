@@ -118,6 +118,7 @@ class WorkflowGenerator(object):
         self.steps_library = StepsLibrary(working_dir=working_dir)
         self.has_workflow_step = False
         self.has_scatter_requirement = False
+        self.has_multiple_inputs = False
 
         self._wf_closed = False
 
@@ -191,7 +192,8 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        return bool(self.has_workflow_step or self.has_scatter_requirement)
+        return any([self.has_workflow_step, self.has_scatter_requirement,
+                   self.has_multiple_inputs])
 
     def inputs(self, name):
         """List input names and types of a step in the steps library.
@@ -395,6 +397,9 @@ class WorkflowGenerator(object):
                 {'class': 'SubworkflowFeatureRequirement'})
         if self.has_scatter_requirement:
             obj['requirements'].append({'class': 'ScatterFeatureRequirement'})
+        if self.has_multiple_inputs:
+            obj['requirements'].append(
+                {'class': 'MultipleInputFeatureRequirement'})
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
 
@@ -473,6 +478,7 @@ class WorkflowGenerator(object):
 
     def _get_source_type(self, ref):
         if isinstance(ref, list):
+            self.has_multiple_inputs = True
             return [self._get_source_type_single(r) for r in ref]
         else:
             return self._get_source_type_single(ref)
@@ -534,57 +540,46 @@ class WorkflowGenerator(object):
                 msg = msg.format(
                         reference.input_name, source_type,
                         scattered,
-                        input_name, input_type)
+                        python_name(input_name), input_type)
             else:
                 msg = 'Step output "{}" of type "{}" is not'
                 msg += ' compatible with{} step input "{}" of type "{}"'
                 msg = msg.format(
                         reference, source_type,
                         scattered,
-                        input_name, input_type)
+                        python_name(input_name), input_type)
             raise ValueError(msg)
 
     def _make_step(self, step, **kwargs):
         self._closed()
 
         for k in step.get_input_names():
-            if k in kwargs.keys():
-                if isinstance(kwargs[k], Reference):
-                    step.set_input(k, six.text_type(kwargs[k]))
-                elif isinstance(kwargs[k], list):
-                    if all(isinstance(n, Reference) for n in kwargs[k]):
-                        step.set_input(k, kwargs[k])
+            p_name = python_name(k)
+            if p_name in kwargs.keys():
+                if isinstance(kwargs[p_name], Reference):
+                    step.set_input(p_name, six.text_type(kwargs[p_name]))
+                elif isinstance(kwargs[p_name], list):
+                    if all(isinstance(n, Reference) for n in kwargs[p_name]):
+                        step.set_input(p_name, kwargs[k])
                     else:
                         raise ValueError(
                             'List of inputs contains an input with an '
                             'incorrect type for keyword argument {} (should '
                             'be a value returned by set_input or from adding '
-                            'a step).'.format(k))
+                            'a step).'.format(p_name))
                 else:
                     raise ValueError(
                         'Incorrect type (should be a value returned'
                         'by set_inputs() or from adding a step) for keyword '
-                        'argument {}'.format(k))
+                        'argument {}'.format(p_name))
             elif k not in step.optional_input_names:
                 raise ValueError(
-                    'Expecting "{}" as a keyword argument.'.format(k))
+                    'Expecting "{}" as a keyword argument.'.format(p_name))
 
         if 'scatter' in kwargs.keys() or 'scatter_method' in kwargs.keys():
-            # Check whether both required keyword arguments are present
-            msg = 'Expecting "{}" as a keyword argument.'
+            # Check whether 'scatter' keyword is present
             if not kwargs.get('scatter'):
-                raise ValueError(msg.format('scatter'))
-            if not kwargs.get('scatter_method'):
-                raise ValueError(msg.format('scatter_method'))
-
-            # Check validity of scatterMethod
-            scatter_methods = ['dotproduct', 'nested_crossproduct',
-                               'flat_crossproduct']
-            m = kwargs.get('scatter_method')
-            if m not in scatter_methods:
-                msg = 'Invalid scatterMethod "{}". Please use one of ({}).'
-                raise ValueError(msg.format(m, ', '.join(scatter_methods)))
-            step.scatter_method = m
+                raise ValueError('Expecting "scatter" as a keyword argument.')
 
             # Check whether the scatter variables are valid for this step
             scatter_vars = kwargs.get('scatter')
@@ -597,6 +592,21 @@ class WorkflowGenerator(object):
                     raise ValueError(msg.format(var))
                 step.scattered_inputs.append(var)
 
+            # Check whether 'scatter_method' keyword is present if there is
+            # more than 1 scatter variable
+            if not kwargs.get('scatter_method') and len(scatter_vars) > 1:
+                msg = 'Expecting "scatter_method" as a keyword argument.'
+                raise ValueError(msg)
+
+            # Check validity of scatterMethod
+            scatter_methods = ['dotproduct', 'nested_crossproduct',
+                               'flat_crossproduct']
+            m = kwargs.get('scatter_method')
+            if m and m not in scatter_methods:
+                msg = 'Invalid scatterMethod "{}". Please use one of ({}).'
+                raise ValueError(msg.format(m, ', '.join(scatter_methods)))
+            step.scatter_method = m
+
             # Update step output types (outputs are now arrays)
             for name, typ in step.output_types.items():
                 step.output_types[name] = {'type': 'array', 'items': typ}
@@ -606,8 +616,9 @@ class WorkflowGenerator(object):
 
         # Check types of references
         for k in step.get_input_names():
-            if k in kwargs.keys():
-                self._type_check_reference(step, k, kwargs[k])
+            p_name = python_name(k)
+            if p_name in kwargs.keys():
+                self._type_check_reference(step, k, kwargs[p_name])
 
         # Make sure the step has a unique name in the workflow (so command line
         # tools can be added to the same workflow multiple times).

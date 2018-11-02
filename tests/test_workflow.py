@@ -339,11 +339,12 @@ class TestWorkflowGeneratorWithScatteredStep(object):
     def test_missing_scatter_method_argument(self):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
+        wf.load('tests/data/misc')
 
         msgs = wf.add_input(wfmessages='string[]')
 
         with pytest.raises(ValueError):
-            wf.echo(message=msgs, scatter='message')
+            wf.echo3(msg1=msgs, msg2=msgs, scatter=['msg1', 'msg2'])
 
 
 class TestWorkflowGeneratorTypeChecking(object):
@@ -368,6 +369,13 @@ class TestWorkflowGeneratorTypeChecking(object):
 
         msgs = wf.add_input(wfmessages='string[]')
         wf.echo(message=msgs, scatter='message', scatter_method='dotproduct')
+
+    def test_step_with_scattered_input_no_scatter_method(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        msgs = wf.add_input(wfmessages='string[]')
+        wf.echo(message=msgs, scatter='message')
 
     def test_step_with_compatible_step_output(self):
         wf = WorkflowGenerator()
@@ -640,6 +648,11 @@ class TestWorkflowStepsListOfInputsFromWorkflowInputsOrStepOutputs(object):
 
         wf.echo2(message=[str1, str2])
 
+        assert wf.has_multiple_inputs
+        assert wf._has_requirements()
+        requirements = wf.to_obj()['requirements']
+        assert {'class': 'MultipleInputFeatureRequirement'} in requirements
+
     def test_add_step_with_list_of_inputs_unequal_types(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
         step_file = tmpdir.join('misc/echo2.cwl').strpath
@@ -661,3 +674,32 @@ class TestWorkflowStepsListOfInputsFromWorkflowInputsOrStepOutputs(object):
 
         with pytest.raises(ValueError):
             wf.echo2(message=[str1, str2])
+
+
+class TestWorkflowWithNonPythonStepInputAndOutputNames(object):
+    def test_add_step_with_non_python_input_and_output_names(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+
+        step_file = tmpdir.join('misc/non-python-names.cwl').strpath
+        wf.load(step_file=step_file)
+
+        msg1 = wf.add_input(msg1='string')
+        msg2 = wf.add_input(msg2='string?')
+
+        echo_out = wf.non_python_names(first_message=msg1,
+                                       optional_message=msg2)
+
+        wf.add_outputs(out=echo_out)
+
+    def test_type_checking_with_non_python_input_name(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+
+        step_file = tmpdir.join('misc/non-python-names.cwl').strpath
+        wf.load(step_file=step_file)
+
+        msg1 = wf.add_input(msg1='int')
+        msg2 = wf.add_input(msg2='string?')
+
+        with pytest.raises(ValueError):
+            wf.non_python_names(first_message=msg1,
+                                optional_message=msg2)

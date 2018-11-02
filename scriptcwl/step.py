@@ -44,6 +44,7 @@ class Step(object):
         self.is_workflow = False
         self.is_scattered = False
         self.scattered_inputs = []
+        self.python_names = {}
 
         document_loader, processobj, metadata, uri = load_cwl(fname)
         s = processobj
@@ -59,14 +60,17 @@ class Step(object):
                 if self._input_optional(inp):
                     self.optional_input_names.append(short_id)
                     self.optional_input_types[short_id] = inp['type']
+                    self.python_names[python_name(short_id)] = short_id
                 else:
                     self.input_names.append(short_id)
                     self.input_types[short_id] = inp['type']
+                    self.python_names[python_name(short_id)] = short_id
 
             for o in s['outputs']:
                 short_id = iri2fragment(o['id'])
                 self.output_names.append(short_id)
                 self.output_types[short_id] = o['type']
+                self.python_names[python_name(short_id)] = short_id
         else:
             if isinstance(s, CommentedSeq):
                 msg = 'Not loading "{}", because it is a packed workflow.'
@@ -83,7 +87,7 @@ class Step(object):
         """
         return self.input_names + self.optional_input_names
 
-    def set_input(self, name, value):
+    def set_input(self, p_name, value):
         """Set a Step's input variable to a certain value.
 
         The value comes either from a workflow input or output of a previous
@@ -98,8 +102,9 @@ class Step(object):
             ValueError: The name provided is not a valid input name for this
                 Step.
         """
-        if name not in self.get_input_names():
-            raise ValueError('Invalid input "{}"'.format(name))
+        name = self.python_names.get(p_name)
+        if p_name is None or name not in self.get_input_names():
+            raise ValueError('Invalid input "{}"'.format(p_name))
         self.step_inputs[name] = value
 
     def _set_name_in_workflow(self, name):
@@ -233,9 +238,12 @@ class Step(object):
             template = u'{} = wf.{}({}[, {}])'
         else:
             template = u'{} = wf.{}({})'
-        return template.format(u', '.join(self.output_names), self.python_name,
-                               u', '.join(self.input_names), u', '.join(
-                                   self.optional_input_names))
+        out_names = [python_name(n) for n in self.output_names]
+        in_names = [python_name(n) for n in self.input_names]
+        opt_in_names = [python_name(n) for n in self.optional_input_names]
+        return template.format(u', '.join(out_names), self.python_name,
+                               u', '.join(in_names), u', '.join(
+                                   opt_in_names))
 
     def __repr__(self):
         return str(self)
