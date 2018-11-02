@@ -602,6 +602,11 @@ class TestWorkflowStepsListOfInputsFromWorkflowInputsOrStepOutputs(object):
 
         wf.echo2(message=[str1, str2])
 
+        assert wf.has_multiple_inputs
+        assert wf._has_requirements()
+        requirements = wf.to_obj()['requirements']
+        assert {'class': 'MultipleInputFeatureRequirement'} in requirements
+
     def test_add_step_with_list_of_inputs_unequal_types(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
         step_file = tmpdir.join('misc/echo2.cwl').strpath

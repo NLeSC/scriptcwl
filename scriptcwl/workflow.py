@@ -118,6 +118,7 @@ class WorkflowGenerator(object):
         self.steps_library = StepsLibrary(working_dir=working_dir)
         self.has_workflow_step = False
         self.has_scatter_requirement = False
+        self.has_multiple_inputs = False
 
         self._wf_closed = False
 
@@ -183,7 +184,8 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        return bool(self.has_workflow_step or self.has_scatter_requirement)
+        return any([self.has_workflow_step, self.has_scatter_requirement,
+                   self.has_multiple_inputs])
 
     def inputs(self, name):
         """List input names and types of a step in the steps library.
@@ -387,6 +389,9 @@ class WorkflowGenerator(object):
                 {'class': 'SubworkflowFeatureRequirement'})
         if self.has_scatter_requirement:
             obj['requirements'].append({'class': 'ScatterFeatureRequirement'})
+        if self.has_multiple_inputs:
+            obj['requirements'].append(
+                {'class': 'MultipleInputFeatureRequirement'})
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
 
@@ -465,6 +470,7 @@ class WorkflowGenerator(object):
 
     def _get_source_type(self, ref):
         if isinstance(ref, list):
+            self.has_multiple_inputs = True
             return [self._get_source_type_single(r) for r in ref]
         else:
             return self._get_source_type_single(ref)
