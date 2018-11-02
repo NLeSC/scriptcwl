@@ -301,11 +301,12 @@ class TestWorkflowGeneratorWithScatteredStep(object):
     def test_missing_scatter_method_argument(self):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
+        wf.load('tests/data/misc')
 
         msgs = wf.add_input(wfmessages='string[]')
 
         with pytest.raises(ValueError):
-            wf.echo(message=msgs, scatter='message')
+            wf.echo3(msg1=msgs, msg2=msgs, scatter=['msg1', 'msg2'])
 
 
 class TestWorkflowGeneratorTypeChecking(object):
@@ -330,6 +331,13 @@ class TestWorkflowGeneratorTypeChecking(object):
 
         msgs = wf.add_input(wfmessages='string[]')
         wf.echo(message=msgs, scatter='message', scatter_method='dotproduct')
+
+    def test_step_with_scattered_input_no_scatter_method(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        msgs = wf.add_input(wfmessages='string[]')
+        wf.echo(message=msgs, scatter='message')
 
     def test_step_with_compatible_step_output(self):
         wf = WorkflowGenerator()

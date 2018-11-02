@@ -569,21 +569,9 @@ class WorkflowGenerator(object):
                     'Expecting "{}" as a keyword argument.'.format(p_name))
 
         if 'scatter' in kwargs.keys() or 'scatter_method' in kwargs.keys():
-            # Check whether both required keyword arguments are present
-            msg = 'Expecting "{}" as a keyword argument.'
+            # Check whether 'scatter' keyword is present
             if not kwargs.get('scatter'):
-                raise ValueError(msg.format('scatter'))
-            if not kwargs.get('scatter_method'):
-                raise ValueError(msg.format('scatter_method'))
-
-            # Check validity of scatterMethod
-            scatter_methods = ['dotproduct', 'nested_crossproduct',
-                               'flat_crossproduct']
-            m = kwargs.get('scatter_method')
-            if m not in scatter_methods:
-                msg = 'Invalid scatterMethod "{}". Please use one of ({}).'
-                raise ValueError(msg.format(m, ', '.join(scatter_methods)))
-            step.scatter_method = m
+                raise ValueError('Expecting "scatter" as a keyword argument.')
 
             # Check whether the scatter variables are valid for this step
             scatter_vars = kwargs.get('scatter')
@@ -595,6 +583,21 @@ class WorkflowGenerator(object):
                     msg = 'Invalid variable "{}" for scatter.'
                     raise ValueError(msg.format(var))
                 step.scattered_inputs.append(var)
+
+            # Check whether 'scatter_method' keyword is present if there is
+            # more than 1 scatter variable
+            if not kwargs.get('scatter_method') and len(scatter_vars) > 1:
+                msg = 'Expecting "scatter_method" as a keyword argument.'
+                raise ValueError(msg)
+
+            # Check validity of scatterMethod
+            scatter_methods = ['dotproduct', 'nested_crossproduct',
+                               'flat_crossproduct']
+            m = kwargs.get('scatter_method')
+            if m and m not in scatter_methods:
+                msg = 'Invalid scatterMethod "{}". Please use one of ({}).'
+                raise ValueError(msg.format(m, ', '.join(scatter_methods)))
+            step.scatter_method = m
 
             # Update step output types (outputs are now arrays)
             for name, typ in step.output_types.items():
