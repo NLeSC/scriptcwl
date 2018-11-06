@@ -88,6 +88,10 @@ autoclass_content = 'both'
 # -- Run apidoc plug-in manually, as readthedocs doesn't support it -------
 # See https://github.com/rtfd/readthedocs.org/issues/1139
 def run_apidoc(_):
+    here = os.path.dirname(__file__)
+    out = os.path.abspath(os.path.join(here, 'apidocs'))
+    src = os.path.abspath(os.path.join(here, '..', 'scriptcwl'))
+
     ignore_paths = []
 
     argv = [
@@ -95,8 +99,8 @@ def run_apidoc(_):
         "-T",
         "-e",
         "-M",
-        "-o", ".",
-        ".."
+        "-o", out,
+        src
     ] + ignore_paths
 
     try:
