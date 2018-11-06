@@ -8,15 +8,15 @@ To save a workflow call the ``WorkflowGenerator.save()`` method:
 
 By default, the paths in the ``run`` field of workflow steps are absolute. This means
 that a workflow created on one machine cannot be run on another machine. However,
-there are many options for creating portable workflows.
+there are multiple options for creating portable workflows.
 
 Saving workflows with relative paths
 ####################################
 
-To get relative paths in the ``run`` field of workflow steps, use ``relative=True``:
+To get relative paths in the ``run`` field of workflow steps, use ``mode='rel'``:
 ::
 
-  wf.save('workflow.cwl', relative=True)
+  wf.save('workflow.cwl', mode='rel')
 
 The paths in the ``run`` field are relative to where the workflow is saved. This
 option is convenient when you are creating workflows using a single directory
@@ -30,7 +30,7 @@ these directories may differ depending on where software is installed (for examp
 if you want to use the generic NLP steps from nlppln, but also need project specific
 data processing steps), it is possible to specify a working directory when creating
 the ``WorkflowGenerator`` object. If you this, all steps are copied to the working
-directory. When you save the workflow using ``wd=True``, the paths in the ``run``
+directory. When you save the workflow using ``mode='wd'``, the paths in the ``run``
 fields are set to the basename of the step (because all steps are in the same
 directory).
 ::
@@ -43,7 +43,7 @@ directory).
 
     # add inputs, steps and outputs
 
-    wf.save('workflow', wd=True)
+    wf.save('workflow', mode='wd')
 
 The workflow is saved in the working directory and then copied to
 the specified location. To be able to run the workflow, use the copy in the
@@ -54,15 +54,15 @@ Also, steps from urls are not copied to the working directory.
 Pack workflows
 ##############
 
-Another way to create workflows with all steps in one file is to save it with ``pack=True``:
+Another way to create workflows with all steps in one file is to save it with ``mode='pack'``:
 ::
 
-  wf.save('workflow.cwl', pack=True)
+  wf.save('workflow.cwl', mode='pack')
 
 Please note that packed workflows cannot be used as a building block in ``scriptcwl``.
 If you try to load a packed workflow, you will get a warning.
 
-With ``pack`` set to ``True``, the example workflow looks like:
+Saved With ``mode='pack'``, the example workflow looks like:
 ::
 
   {
