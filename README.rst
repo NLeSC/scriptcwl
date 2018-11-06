@@ -84,7 +84,6 @@ For development:
 
   git clone git@github.com:NLeSC/scriptcwl.git
   cd scriptcwl
-  git checkout develop
   pip install -r requirements.txt
   python setup.py develop
 
