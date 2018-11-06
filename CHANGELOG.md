@@ -10,11 +10,9 @@
 
 ### Changed
 
+* Using booleans to indicate how a workflow is saved is deprecated. Instead, a mode string should be used (e.g., `wf.save('wf.cwl', mode='rel')`) (#87)
+* Inline saving of workflows is deprecated. When saving a workflow with `mode='inline'`, the workflow is saved as a packed workflow (#92)
 * Make `scatter_method` optional when scattering over a single parameter (#103)
-
-### Removed
-
-* Inline saving of workflows is deprecated. When saving a workflow with `inline=True`, the workflow is saved as a packed workflow
 
 ## 0.7.2
 
