@@ -36,7 +36,8 @@ The workflow has two integers as inputs (``num1`` and ``num2``), and first adds
 these two numbers (``wf.add(x=num1, y=num2)``), and then multiplies the answer
 with the second input (``num2``). The result of that processing step is the output
 of the workflow. Finally, the workflow is saved to a file. The result looks like:
-::
+
+.. code-block:: none
 
   #!/usr/bin/env cwl-runner
   cwlVersion: v1.0
@@ -84,4 +85,4 @@ API Reference
 .. toctree::
    :maxdepth: 2
 
-   scriptcwl <apidocs/scriptcwl.rst>
+   scriptcwl <apidocs/modules.rst>

@@ -12,7 +12,7 @@ from ruamel.yaml.comments import CommentedMap
 
 from .scriptcwl import load_cwl, quiet
 from .step import python_name
-from .yamlutils import save_yaml
+from .yamlutils import save_yaml, yaml2string
 from .library import StepsLibrary
 from .reference import Reference
 
@@ -118,6 +118,7 @@ class WorkflowGenerator(object):
         self.steps_library = StepsLibrary(working_dir=working_dir)
         self.has_workflow_step = False
         self.has_scatter_requirement = False
+        self.has_multiple_inputs = False
 
         self._wf_closed = False
 
@@ -144,6 +145,13 @@ class WorkflowGenerator(object):
         name = self.steps_library.python_names2step_names.get(name, None)
         step = self._get_step(name)
         return partial(self._make_step, step, **kwargs)
+
+    def __str__(self):
+        # use absolute paths for printing
+        return yaml2string(self,
+                           pack=False,
+                           relpath=None,
+                           wd=False)
 
     def _closed(self):
         if self._wf_closed:
@@ -183,7 +191,8 @@ class WorkflowGenerator(object):
         """
         self._closed()
 
-        return bool(self.has_workflow_step or self.has_scatter_requirement)
+        return any([self.has_workflow_step, self.has_scatter_requirement,
+                   self.has_multiple_inputs])
 
     def inputs(self, name):
         """List input names and types of a step in the steps library.
@@ -387,6 +396,9 @@ class WorkflowGenerator(object):
                 {'class': 'SubworkflowFeatureRequirement'})
         if self.has_scatter_requirement:
             obj['requirements'].append({'class': 'ScatterFeatureRequirement'})
+        if self.has_multiple_inputs:
+            obj['requirements'].append(
+                {'class': 'MultipleInputFeatureRequirement'})
         obj['inputs'] = self.wf_inputs
         obj['outputs'] = self.wf_outputs
 
@@ -464,6 +476,7 @@ class WorkflowGenerator(object):
 
     def _get_source_type(self, ref):
         if isinstance(ref, list):
+            self.has_multiple_inputs = True
             return [self._get_source_type_single(r) for r in ref]
         else:
             return self._get_source_type_single(ref)
@@ -562,21 +575,9 @@ class WorkflowGenerator(object):
                     'Expecting "{}" as a keyword argument.'.format(p_name))
 
         if 'scatter' in kwargs.keys() or 'scatter_method' in kwargs.keys():
-            # Check whether both required keyword arguments are present
-            msg = 'Expecting "{}" as a keyword argument.'
+            # Check whether 'scatter' keyword is present
             if not kwargs.get('scatter'):
-                raise ValueError(msg.format('scatter'))
-            if not kwargs.get('scatter_method'):
-                raise ValueError(msg.format('scatter_method'))
-
-            # Check validity of scatterMethod
-            scatter_methods = ['dotproduct', 'nested_crossproduct',
-                               'flat_crossproduct']
-            m = kwargs.get('scatter_method')
-            if m not in scatter_methods:
-                msg = 'Invalid scatterMethod "{}". Please use one of ({}).'
-                raise ValueError(msg.format(m, ', '.join(scatter_methods)))
-            step.scatter_method = m
+                raise ValueError('Expecting "scatter" as a keyword argument.')
 
             # Check whether the scatter variables are valid for this step
             scatter_vars = kwargs.get('scatter')
@@ -588,6 +589,21 @@ class WorkflowGenerator(object):
                     msg = 'Invalid variable "{}" for scatter.'
                     raise ValueError(msg.format(var))
                 step.scattered_inputs.append(var)
+
+            # Check whether 'scatter_method' keyword is present if there is
+            # more than 1 scatter variable
+            if not kwargs.get('scatter_method') and len(scatter_vars) > 1:
+                msg = 'Expecting "scatter_method" as a keyword argument.'
+                raise ValueError(msg)
+
+            # Check validity of scatterMethod
+            scatter_methods = ['dotproduct', 'nested_crossproduct',
+                               'flat_crossproduct']
+            m = kwargs.get('scatter_method')
+            if m and m not in scatter_methods:
+                msg = 'Invalid scatterMethod "{}". Please use one of ({}).'
+                raise ValueError(msg.format(m, ', '.join(scatter_methods)))
+            step.scatter_method = m
 
             # Update step output types (outputs are now arrays)
             for name, typ in step.output_types.items():

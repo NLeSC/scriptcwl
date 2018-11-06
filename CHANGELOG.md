@@ -2,7 +2,17 @@
 
 ## Unreleased
 
+### Added
+
+* Add `MultipleInputFeatureRequirement` when a step gets a list of inputs (#105; see also #101)
+* Convert input and output names with dashes (-) to underscores (\_), so they are valid Python names
+* Allow printing of workflows (#86)
+
 ### Changed
+
+* Make `scatter_method` optional when scattering over a single parameter (#103)
+
+### Removed
 
 * Inline saving of workflows is deprecated. When saving a workflow with `inline=True`, the workflow is saved as a packed workflow
 

@@ -92,7 +92,7 @@ Run tests (including coverage) with:
 
 .. code-block:: sh
 
-  python setup.py develop test
+  python setup.py test
 
 Useful tools
 ############
@@ -104,6 +104,23 @@ for existing command line tools written in Python:
 * `argparse2tool <https://github.com/erasche/argparse2tool#cwl-specific-functionality>`_: Generate CWL CommandLineTool wrappers (and/or Galaxy tool descriptions) from Python programs that use argparse. Also supports the `click <http://click.pocoo.org>`_ argument parser.
 * `pypi2cwl <https://github.com/common-workflow-language/pypi2cwl>`_: Automatically run argparse2cwl on any package in PyPi.
 * `python-cwlgen <https://github.com/common-workflow-language/python-cwlgen>`_: Generate CommandLineTool and DockerRequirement programmatically
+
+License
+#######
+
+Copyright (c) 2016-2018, Netherlands eScience Center, University of Twente
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 .. |codacy_grade| image:: https://api.codacy.com/project/badge/Grade/8f383bca18384d8187c10c27affa9d53
                      :target: https://www.codacy.com/app/jvdzwaan/scriptcwl?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NLeSC/scriptcwl&amp;utm_campaign=Badge_Grade

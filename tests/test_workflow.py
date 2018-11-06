@@ -1,7 +1,11 @@
 from __future__ import print_function
 
 import pytest
+import os
+
 from shutil import copytree
+from ruamel import yaml
+
 from scriptcwl import WorkflowGenerator
 from scriptcwl.library import load_yaml
 
@@ -290,6 +294,40 @@ class TestWorkflowGenerator(object):
             wf.echo(message=x)
 
 
+class TestPrintWorkflowGenerator(object):
+    def test_print_wf_absolute_paths(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+        wf.load(steps_dir=tmpdir.join('tools').strpath)
+
+        wf.set_documentation('Counts words of a message via echo and wc')
+
+        wfmessage = wf.add_input(wfmessage='string')
+        echoed = wf.echo(message=wfmessage)
+        wced = wf.wc(file2count=echoed)
+        wf.add_outputs(wfcount=wced)
+
+        actual = wf.__str__()
+
+        # make workflows contents relative to tests/data/tools directory
+        actual = yaml.safe_load(actual)
+
+        def fix_path(path):
+            res = path.rsplit(os.sep, 2)
+            res[0] = '..'
+            return (os.sep).join(res)
+
+        actual['steps']['echo']['run'] = \
+            fix_path(actual['steps']['echo']['run'])
+        actual['steps']['wc']['run'] = fix_path(actual['steps']['wc']['run'])
+
+        expected_wf_filename = 'tests/data/workflows/echo-wc.cwl'
+        expected = load_yaml(expected_wf_filename)
+
+        print('  actual:', actual)
+        print('expected:', expected)
+        assert actual == expected
+
+
 class TestWorkflowGeneratorWithScatteredStep(object):
     def test_scatter_method_incorrect(self):
         wf = WorkflowGenerator()
@@ -356,11 +394,12 @@ class TestWorkflowGeneratorWithScatteredStep(object):
     def test_missing_scatter_method_argument(self):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
+        wf.load('tests/data/misc')
 
         msgs = wf.add_input(wfmessages='string[]')
 
         with pytest.raises(ValueError):
-            wf.echo(message=msgs, scatter='message')
+            wf.echo3(msg1=msgs, msg2=msgs, scatter=['msg1', 'msg2'])
 
 
 class TestWorkflowGeneratorTypeChecking(object):
@@ -385,6 +424,13 @@ class TestWorkflowGeneratorTypeChecking(object):
 
         msgs = wf.add_input(wfmessages='string[]')
         wf.echo(message=msgs, scatter='message', scatter_method='dotproduct')
+
+    def test_step_with_scattered_input_no_scatter_method(self):
+        wf = WorkflowGenerator()
+        wf.load('tests/data/tools')
+
+        msgs = wf.add_input(wfmessages='string[]')
+        wf.echo(message=msgs, scatter='message')
 
     def test_step_with_compatible_step_output(self):
         wf = WorkflowGenerator()
@@ -645,6 +691,11 @@ class TestWorkflowStepsListOfInputsFromWorkflowInputsOrStepOutputs(object):
         str2 = wf.add_input(str2='string')
 
         wf.echo2(message=[str1, str2])
+
+        assert wf.has_multiple_inputs
+        assert wf._has_requirements()
+        requirements = wf.to_obj()['requirements']
+        assert {'class': 'MultipleInputFeatureRequirement'} in requirements
 
     def test_add_step_with_list_of_inputs_unequal_types(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
