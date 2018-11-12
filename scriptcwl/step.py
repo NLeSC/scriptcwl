@@ -227,7 +227,9 @@ class Step(object):
         obj['out'] = self.output_names
         if self.is_scattered:
             obj['scatter'] = self.scattered_inputs
-            obj['scatterMethod'] = self.scatter_method
+            # scatter_method is optional when scattering over a single variable
+            if self.scatter_method is not None:
+                obj['scatterMethod'] = self.scatter_method
 
         return obj
 

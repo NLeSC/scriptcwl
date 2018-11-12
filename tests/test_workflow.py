@@ -432,6 +432,8 @@ class TestWorkflowGeneratorTypeChecking(object):
         msgs = wf.add_input(wfmessages='string[]')
         wf.echo(message=msgs, scatter='message')
 
+        wf.validate()
+
     def test_step_with_compatible_step_output(self):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
