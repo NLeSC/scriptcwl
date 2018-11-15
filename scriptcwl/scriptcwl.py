@@ -1,7 +1,10 @@
 import sys
 import os
+import logging
 
 from contextlib import contextmanager
+
+logger = logging.getLogger(__name__)
 
 
 # Helper function to make the import of cwltool.load_tool quiet
@@ -30,6 +33,7 @@ with quiet():
 def load_cwl(fname):
     """Load and validate CWL file using cwltool
     """
+    logger.debug('Loading CWL file "{}"'.format(fname))
     # Fetching, preprocessing and validating cwl
     (document_loader, workflowobj, uri) = fetch_document(fname)
     (document_loader, _, processobj, metadata, uri) = \
