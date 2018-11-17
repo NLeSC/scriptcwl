@@ -9,7 +9,7 @@ scriptcwl is a Python package for creating workflows in
 be done interactively using `Jupyter Notebooks <http://jupyter.org/>`_. The full
 documentation can be found on `Read the Docs <http://scriptcwl.readthedocs.io/en/latest/>`_.
 
-.. image:: https://github.com/NLeSC/scriptcwl/blob/develop/docs/add-multiply-example-workflow.png?raw=true
+.. image:: docs/images/add-multiply-example-workflow.png
     :alt: add multiply example workflow
     :align: center
 
