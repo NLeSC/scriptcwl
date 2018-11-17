@@ -10,8 +10,8 @@ be done interactively using `Jupyter Notebooks <http://jupyter.org/>`_. The full
 documentation can be found on `Read the Docs <http://scriptcwl.readthedocs.io/en/latest/>`_.
 
 .. image:: docs/images/add-multiply-example-workflow.png
-    :alt: add multiply example workflow
-    :align: center
+   :alt: add multiply example workflow
+   :align: center
 
 Given CWL ``CommandLineTools`` for ``add`` and ``multiply`` (these are available
 in `scriptcwl <https://github.com/NLeSC/scriptcwl/tree/master/scriptcwl/examples>`_),
