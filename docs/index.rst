@@ -8,7 +8,7 @@ Welcome to the Scriptcwl Documentation!
 
 Scriptcwl is a Python package for creating `Common Workflow Language (CWL) <http://www.commonwl.org/>`_ workflows.
 
-.. image:: add-multiply-example-workflow.png
+.. image:: images/add-multiply-example-workflow.png
      :alt: add multiply example workflow
      :align: center
 

@@ -22,7 +22,7 @@ All steps required for this workflow are available through `nlppln <https://gith
 Workflow
 ########
 
-.. image:: nlppln-anonymize-workflow.png
+.. image:: images/nlppln-anonymize-workflow.png
   :alt: add multiply example workflow
   :align: center
 
