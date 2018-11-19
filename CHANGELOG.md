@@ -7,6 +7,7 @@
 * Add `MultipleInputFeatureRequirement` when a step gets a list of inputs (#105; see also #101)
 * Convert input and output names with dashes (-) to underscores (\_), so they are valid Python names
 * Allow printing of workflows (#86)
+* Logging (for debugging)
 
 ### Changed
 

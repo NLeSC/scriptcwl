@@ -12,3 +12,4 @@ User Manual
 	adding_outputs
 	printing_workflows
 	saving_workflows
+	enable_logging
