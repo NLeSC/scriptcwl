@@ -335,6 +335,8 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
         msgs = wf.add_input(wfmessages='string[]')
 
+        wf.validate()
+
         with pytest.raises(ValueError):
             wf.echo(message=msgs, scatter='message', scatter_method='blah')
 
@@ -351,6 +353,9 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
             echoed = wf.echo(
                 message=msgs, scatter='message', scatter_method=method)
+
+            wf.validate()
+
             assert echoed.step_name == 'echo'
             assert echoed.output_name == 'echoed'
 
@@ -379,6 +384,9 @@ class TestWorkflowGeneratorWithScatteredStep(object):
 
             echoed = wf.echo(
                 message=msgs, scatter='message', scatter_method=method)
+
+            wf.validate()
+
             assert echoed.step_name == 'echo'
             assert echoed.output_name == 'echoed'
 
@@ -410,6 +418,8 @@ class TestWorkflowGeneratorTypeChecking(object):
         wfmessage = wf.add_input(wfmessage='string')
         echoed = wf.echo(message=wfmessage)
 
+        wf.validate()
+
     def test_step_with_incompatible_input(self):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
@@ -424,6 +434,8 @@ class TestWorkflowGeneratorTypeChecking(object):
 
         msgs = wf.add_input(wfmessages='string[]')
         wf.echo(message=msgs, scatter='message', scatter_method='dotproduct')
+
+        wf.validate()
 
     def test_step_with_scattered_input_no_scatter_method(self):
         wf = WorkflowGenerator()
@@ -442,12 +454,17 @@ class TestWorkflowGeneratorTypeChecking(object):
         echoed = wf.echo(message=wfmessage)
         wced = wf.wc(file2count=echoed)
 
+        wf.validate()
+
     def test_step_with_incompatible_step_output(self):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
 
         infile = wf.add_input(infile='File')
         wced = wf.wc(file2count=infile)
+
+        wf.validate()
+
         with pytest.raises(ValueError):
             echoed = wf.echo(message=wced)
 
@@ -460,6 +477,7 @@ class TestWorkflowGeneratorTypeChecking(object):
                          scatter_method='dotproduct')
         wced = wf.wc(file2count=echoed, scatter='file2count',
                      scatter_method='dotproduct')
+        wf.validate()
 
     def test_scattered_step_with_scalar_input(self):
         wf = WorkflowGenerator()
@@ -479,6 +497,8 @@ class TestWorkflowGeneratorTypeChecking(object):
         wfmessage = wf.add_input(message='string?')
         echod = wf.echo(message=wfmessage)
 
+        wf.validate()
+
     def test_required_to_optional(self):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
@@ -492,6 +512,8 @@ class TestWorkflowGeneratorTypeChecking(object):
                 in_files=wf_infiles, out_dir=wf_outdir,
                 counselors=wf_counselors)
 
+        wf.validate()
+
     def test_optional_to_optional_type(self):
         wf = WorkflowGenerator()
         wf.load('tests/data/tools')
@@ -502,6 +524,8 @@ class TestWorkflowGeneratorTypeChecking(object):
         out_files, meta_out = wf.multiple_out_args(
                 in_files=wf_infiles, out_dir=wf_outdir,
                 counselors=wf_counselors)
+
+        wf.validate()
 
 
 class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
@@ -522,6 +546,8 @@ class TestWorkflowGeneratorWithStepsAddedMultipleTimes(object):
 
         assert name != 'echo'
         assert name == echoed2.step_name
+
+        wf.validate()
 
 
 class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
@@ -551,6 +577,9 @@ class TestWorkflowGeneratorWithLabelsForInputParameters(object):
         wf = WorkflowGenerator()
 
         wf.add_input(input1='string', label='test label')
+
+        wf.validate()
+
         obj = wf.to_obj()['inputs']['input1']
         assert obj['type'] == 'string'
         assert obj['label'] == 'test label'
@@ -573,6 +602,9 @@ class TestWorkflowGeneratorWithEnumAsInputParameter(object):
         wf = WorkflowGenerator()
 
         wf.add_input(input1='enum', symbols=['one', 'two', 'three'])
+
+        wf.validate()
+
         obj = wf.to_obj()['inputs']['input1']
         assert obj['type']['type'] == 'enum'
         assert obj['type']['symbols'] == ['one', 'two', 'three']
@@ -662,12 +694,16 @@ class TestWorkflowStepsWithSpecialFileNames(object):
         msg = wf.add_input(msg='string')
         wf.echo_with_underscores(message=msg)
 
+        wf.validate()
+
     def test_add_step_with_minuses(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
         step_file = tmpdir.join('file-names/echo-with-minuses.cwl').strpath
         wf.load(step_file=step_file)
         msg = wf.add_input(msg='string')
         wf.echo_with_minuses(message=msg)
+
+        wf.validate()
 
     def test_add_step_with_minuses_and_underscores(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
@@ -676,6 +712,8 @@ class TestWorkflowStepsWithSpecialFileNames(object):
         wf.load(step_file=step_file)
         msg = wf.add_input(msg='string')
         wf.echo_with_minuses_and_underscores(message=msg)
+
+        wf.validate()
 
     def test_load_step_with_duplicate_python_name(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
@@ -693,6 +731,8 @@ class TestWorkflowStepsListOfInputsFromWorkflowInputsOrStepOutputs(object):
         str2 = wf.add_input(str2='string')
 
         wf.echo2(message=[str1, str2])
+
+        wf.validate()
 
         assert wf.has_multiple_inputs
         assert wf._has_requirements()
@@ -736,6 +776,8 @@ class TestWorkflowWithNonPythonStepInputAndOutputNames(object):
                                        optional_message=msg2)
 
         wf.add_outputs(out=echo_out)
+
+        wf.validate()
 
     def test_type_checking_with_non_python_input_name(self, tmpdir):
         wf = setup_workflowgenerator(tmpdir)
