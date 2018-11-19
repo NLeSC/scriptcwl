@@ -40,6 +40,31 @@ You can also add a label to a workflow input:
 
 Again, this means ``label`` cannot be used as a name for a workflow input parameter.
 
+Arrays and other complex input types
+####################################
+
+Arrays of workflow inputs can be specified with ``[]``:
+::
+
+  numbers = wf.add_input(numbers='int[]')
+
+You can also specify the input using a dictionary with two keys: ``{'type':
+'array', 'items': 'int'}``. In this case, it is necessary to wrap the array
+declaration in a dictionary with a ``type`` key:
+::
+
+  array_of_ints = dict(type=dict(type='array', items='int'))
+  numbers = wf.add_input(numbers=array_of_ints)
+
+This way you also can specify more complex inputs. For example, to create an
+array of arrays of strings, do:
+::
+
+  inp = dict(type=dict(type='array', items=dict(type='array', items='string')))
+  strings = wf.add_input(my_array_of_array_of_strings=inp)
+
+Use ``print(wf)`` and ``wf.validate()`` to make sure your inputs are correct.
+
 Enums
 #####
 
