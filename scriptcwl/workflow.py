@@ -245,44 +245,55 @@ class WorkflowGenerator(object):
                                  "with {}".format(kwargs))
             return item
 
-        symbols = []
+        symbols = None
+        input_dict = CommentedMap()
+
+        if 'default' in kwargs:
+            input_dict['default'] = kwargs.pop('default')
+        if 'label' in kwargs:
+            input_dict['label'] = kwargs.pop('label')
+        if 'symbols' in kwargs:
+            symbols = kwargs.pop('symbols')
+
+        name, input_type = _get_item(kwargs)
+
+        if input_type == 'enum':
+            typ = CommentedMap()
+            typ['type'] = 'enum'
+            # make sure symbols is set
+            if symbols is None:
+                raise ValueError("Please specify the enum's symbols.")
+            # make sure symbols is not empty
+            if symbols == []:
+                raise ValueError("The enum's symbols cannot be empty.")
+            # make sure the symbols are a list
+            if type(symbols) != list:
+                raise ValueError('Symbols should be a list.')
+            # make sure symbols is a list of strings
+            symbols = [str(s) for s in symbols]
+
+            typ['symbols'] = symbols
+            input_dict['type'] = typ
+        else:
+            # Set the 'type' if we can't use simple notation (because there is
+            # a default value or a label)
+            if bool(input_dict):
+                input_dict['type'] = input_type
+
         msg = '"{}" is already used as a workflow input. Please use a ' +\
               'different name.'
-        if 'default' in kwargs or 'label' in kwargs or 'symbols' in kwargs:
-            input_dict = CommentedMap()
-            if 'default' in kwargs:
-                input_dict['default'] = kwargs.pop('default')
-            if 'label' in kwargs:
-                input_dict['label'] = kwargs.pop('label')
-            if 'symbols' in kwargs:
-                symbols = kwargs.pop('symbols')
+        if name in self.wf_inputs:
+            raise ValueError(msg.format(name))
 
-            name, input_type = _get_item(kwargs)
+        # Add 'type' for complex input types, so the user doesn't have to do it
+        if isinstance(input_type, dict):
+            input_dict['type'] = input_type
 
-            if input_type == 'enum':
-                typ = CommentedMap()
-                typ['type'] = 'enum'
-                # make sure symbols are set
-                if symbols == []:
-                    raise ValueError("The enum's symbols cannot be empty.")
-                # make sure the symbols are a list
-                if type(symbols) != list:
-                    raise ValueError('Symbols should be a list.')
-                # make sure symbols is a list of strings
-                symbols = [str(s) for s in symbols]
-                typ['symbols'] = symbols
-                input_dict['type'] = typ
-            else:
-                input_dict['type'] = input_type
-            if name in self.wf_inputs:
-                raise ValueError(msg.format(name))
+        # Make sure we can use the notation without 'type' if the input allows
+        # it.
+        if bool(input_dict):
             self.wf_inputs[name] = input_dict
         else:
-            name, input_type = _get_item(kwargs)
-            if input_type == 'enum':
-                raise ValueError("Please specify the enum's symbols.")
-            if name in self.wf_inputs:
-                raise ValueError(msg.format(name))
             self.wf_inputs[name] = input_type
 
         return Reference(input_name=name)

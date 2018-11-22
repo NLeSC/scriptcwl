@@ -6,6 +6,8 @@ import os
 from shutil import copytree
 from ruamel import yaml
 
+from schema_salad.validate import ValidationException
+
 from scriptcwl import WorkflowGenerator
 from scriptcwl.library import load_yaml
 
@@ -556,6 +558,7 @@ class TestWorkflowGeneratorWithDefaultValuesForInputParameters(object):
 
         wf.add_input(input1='string', default='test')
         obj = wf.to_obj()['inputs']['input1']
+        print(wf)
         assert obj['type'] == 'string'
         assert obj['default'] == 'test'
 
@@ -816,3 +819,11 @@ class TestArraysAndOtherComplexWFInputTypes(object):
         wf.add_input(my_array_of_array_of_strings=complex_input)
 
         wf.validate()
+
+    def test_array_dictionary_with_additional_type_declaration(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+
+        wf.add_input(arr=dict(type=dict(type='array', items='int')))
+
+        with pytest.raises(ValidationException):
+            wf.validate()
