@@ -791,3 +791,28 @@ class TestWorkflowWithNonPythonStepInputAndOutputNames(object):
         with pytest.raises(ValueError):
             wf.non_python_names(first_message=msg1,
                                 optional_message=msg2)
+
+
+class TestArraysAndOtherComplexWFInputTypes(object):
+    def test_array_bracket_notation(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+
+        wf.add_input(arr='int[]')
+
+        wf.validate()
+
+    def test_array_dictionary(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+
+        wf.add_input(arr=dict(type='array', items='int'))
+
+        wf.validate()
+
+    def test_array_of_arrays_of_strings(self, tmpdir):
+        wf = setup_workflowgenerator(tmpdir)
+
+        complex_input = dict(type='array', items=dict(type='array',
+                                                      items='string'))
+        wf.add_input(my_array_of_array_of_strings=complex_input)
+
+        wf.validate()
