@@ -1,7 +1,0 @@
---index-url https://pypi.python.org/simple/
-
--e .
-tox
-pytest
-pytest-cov
-codacy-coverage
