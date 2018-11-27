@@ -71,7 +71,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'six',
-        'cwltool>=1.0.20170727112954,<=1.0.20180721142728',
+        'cwltool>=1.0.20170727112954',
         'click'],
     setup_requires=[
         # dependency for `python setup.py test`
