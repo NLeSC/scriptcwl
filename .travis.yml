@@ -6,7 +6,7 @@ python:
   - "3.6"
 env:
   - CWLTOOL_VERSION=1.0.20180721142728
-  - CWLTOOL_VERSION=1.0.20181012180214
+  - CWLTOOL_VERSION=1.0.20181102182747
 install:
 - pip install -q cwltool==$CWLTOOL_VERSION
 - python setup.py -q install
