@@ -15,7 +15,6 @@ Installation
 
         git clone git@github.com:NLeSC/scriptcwl.git
         cd scriptcwl
-        pip install -r requirements.txt
         python setup.py develop
 
     Run tests (including coverage) with:
