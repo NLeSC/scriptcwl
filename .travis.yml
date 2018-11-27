@@ -8,7 +8,7 @@ env:
   - CWLTOOL_VERSION=1.0.20180721142728
   - CWLTOOL_VERSION=1.0.20181012180214
 install:
-- pip install -q cwltool==CWLTOOL_VERSION
+- pip install -q cwltool==$CWLTOOL_VERSION
 - python setup.py -q install
 #- pip install 'setuptools>=18.5'
 #- pip install -r requirements.txt
