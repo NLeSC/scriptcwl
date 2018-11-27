@@ -6,9 +6,8 @@ python:
   - "3.6"
 install:
 - pip install 'setuptools>=18.5'
-- pip install tox-travis
 - pip install -r requirements.txt
-script: tox
+script: python setup.py test
 after_success:
   - python-codacy-coverage -r coverage.xml
 sudo: false
