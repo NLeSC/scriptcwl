@@ -35,9 +35,39 @@ def load_cwl(fname):
     """
     logger.debug('Loading CWL file "{}"'.format(fname))
     # Fetching, preprocessing and validating cwl
-    (document_loader, workflowobj, uri) = fetch_document(fname)
-    (document_loader, _, processobj, metadata, uri) = \
-        validate_document(document_loader, workflowobj, uri)
+    try:
+        (document_loader, workflowobj, uri) = fetch_document(fname)
+        (document_loader, _, processobj, metadata, uri) = \
+            validate_document(document_loader, workflowobj, uri)
+    except TypeError:
+        from cwltool.context import LoadingContext, getdefault
+        from cwltool import workflow
+        from cwltool.resolver import tool_resolver
+        from cwltool.load_tool import resolve_tool_uri
+
+        loadingContext = LoadingContext()
+        loadingContext.construct_tool_object = getdefault(
+            loadingContext.construct_tool_object, workflow.default_make_tool)
+        loadingContext.resolver = getdefault(loadingContext.resolver,
+                                             tool_resolver)
+
+        uri, tool_file_uri = resolve_tool_uri(
+            fname, resolver=loadingContext.resolver,
+            fetcher_constructor=loadingContext.fetcher_constructor)
+
+        document_loader, workflowobj, uri = fetch_document(
+                uri, resolver=loadingContext.resolver,
+                fetcher_constructor=loadingContext.fetcher_constructor)
+        document_loader, avsc_names, processobj, metadata, uri = \
+            validate_document(
+                document_loader, workflowobj, uri,
+                loadingContext.overrides_list, {},
+                enable_dev=loadingContext.enable_dev,
+                strict=loadingContext.strict,
+                preprocess_only=False,
+                fetcher_constructor=loadingContext.fetcher_constructor,
+                skip_schemas=False,
+                do_validate=loadingContext.do_validate)
 
     return document_loader, processobj, metadata, uri
 
