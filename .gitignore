@@ -23,3 +23,5 @@ htmlcov
 
 docs/_build
 docs/apidocs
+
+build
