@@ -8,6 +8,7 @@
 * Convert input and output names with dashes (-) to underscores (\_), so they are valid Python names
 * Allow printing of workflows (#86)
 * Logging (for debugging)
+* Support newer versions of cwltool (#108)
 
 ### Changed
 
