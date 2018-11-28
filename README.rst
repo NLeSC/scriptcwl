@@ -17,7 +17,7 @@ Given CWL ``CommandLineTools`` for ``add`` and ``multiply`` (these are available
 in `scriptcwl <https://github.com/NLeSC/scriptcwl/tree/master/scriptcwl/examples>`_),
 a CWL specification of this workflow can be written as:
 
-::
+.. code-block:: python
 
   from scriptcwl import WorkflowGenerator
 
