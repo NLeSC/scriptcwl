@@ -84,5 +84,6 @@ setup(
         'pytest',
         'pytest-cov',
         'pycodestyle',
+        'codacy-coverage',
     ],
 )
