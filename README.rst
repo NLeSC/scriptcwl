@@ -16,6 +16,7 @@ documentation can be found on `Read the Docs <http://scriptcwl.readthedocs.io/en
 Given CWL ``CommandLineTools`` for ``add`` and ``multiply`` (these are available
 in `scriptcwl <https://github.com/NLeSC/scriptcwl/tree/master/scriptcwl/examples>`_),
 a CWL specification of this workflow can be written as:
+
 ::
 
   from scriptcwl import WorkflowGenerator
