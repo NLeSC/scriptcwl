@@ -6,6 +6,8 @@ from contextlib import contextmanager
 
 logger = logging.getLogger(__name__)
 
+legacy_cwltool = False
+
 
 # Helper function to make the import of cwltool.load_tool quiet
 @contextmanager
@@ -27,7 +29,14 @@ def quiet():
 
 with quiet():
     # all is quiet in this scope
-    from cwltool.load_tool import fetch_document, validate_document
+    from cwltool.load_tool import fetch_document
+
+    try:
+        from cwltool.load_tool import resolve_and_validate_document
+    except ImportError:
+        from cwltool.load_tool import validate_document
+
+        legacy_cwltool = True
 
 
 def load_cwl(fname):
@@ -35,39 +44,51 @@ def load_cwl(fname):
     """
     logger.debug('Loading CWL file "{}"'.format(fname))
     # Fetching, preprocessing and validating cwl
-    try:
-        (document_loader, workflowobj, uri) = fetch_document(fname)
-        (document_loader, _, processobj, metadata, uri) = \
-            validate_document(document_loader, workflowobj, uri)
-    except TypeError:
-        from cwltool.context import LoadingContext, getdefault
-        from cwltool import workflow
-        from cwltool.resolver import tool_resolver
-        from cwltool.load_tool import resolve_tool_uri
 
-        loadingContext = LoadingContext()
-        loadingContext.construct_tool_object = getdefault(
-            loadingContext.construct_tool_object, workflow.default_make_tool)
-        loadingContext.resolver = getdefault(loadingContext.resolver,
-                                             tool_resolver)
+    # Older versions of cwltool
+    if legacy_cwltool:
+        try:
+            (document_loader, workflowobj, uri) = fetch_document(fname)
+            (document_loader, _, processobj, metadata, uri) = \
+                validate_document(document_loader, workflowobj, uri)
+        except TypeError:
+            from cwltool.context import LoadingContext, getdefault
+            from cwltool import workflow
+            from cwltool.resolver import tool_resolver
+            from cwltool.load_tool import resolve_tool_uri
 
-        uri, tool_file_uri = resolve_tool_uri(
-            fname, resolver=loadingContext.resolver,
-            fetcher_constructor=loadingContext.fetcher_constructor)
+            loadingContext = LoadingContext()
+            loadingContext.construct_tool_object = getdefault(
+                loadingContext.construct_tool_object,
+                workflow.default_make_tool)
+            loadingContext.resolver = getdefault(loadingContext.resolver,
+                                                 tool_resolver)
 
-        document_loader, workflowobj, uri = fetch_document(
-                uri, resolver=loadingContext.resolver,
+            uri, tool_file_uri = resolve_tool_uri(
+                fname, resolver=loadingContext.resolver,
                 fetcher_constructor=loadingContext.fetcher_constructor)
-        document_loader, avsc_names, processobj, metadata, uri = \
-            validate_document(
-                document_loader, workflowobj, uri,
-                loadingContext.overrides_list, {},
-                enable_dev=loadingContext.enable_dev,
-                strict=loadingContext.strict,
-                preprocess_only=False,
-                fetcher_constructor=loadingContext.fetcher_constructor,
-                skip_schemas=False,
-                do_validate=loadingContext.do_validate)
+
+            document_loader, workflowobj, uri = fetch_document(
+                    uri, resolver=loadingContext.resolver,
+                    fetcher_constructor=loadingContext.fetcher_constructor)
+            document_loader, avsc_names, processobj, metadata, uri = \
+                validate_document(
+                    document_loader, workflowobj, uri,
+                    loadingContext.overrides_list, {},
+                    enable_dev=loadingContext.enable_dev,
+                    strict=loadingContext.strict,
+                    preprocess_only=False,
+                    fetcher_constructor=loadingContext.fetcher_constructor,
+                    skip_schemas=False,
+                    do_validate=loadingContext.do_validate)
+    # Recent versions of cwltool
+    else:
+        (loading_context, workflowobj, uri) = fetch_document(fname)
+        loading_context, uri = resolve_and_validate_document(loading_context,
+                                                             workflowobj, uri)
+        document_loader = loading_context.loader
+        processobj = workflowobj
+        metadata = loading_context.metadata
 
     return document_loader, processobj, metadata, uri
 
