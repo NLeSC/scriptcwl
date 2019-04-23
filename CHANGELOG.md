@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Added
+
+* Support even newer versions of cwltool (<=1.0.20190228155703)
+
 ## 0.8.0
 
 ### Added
