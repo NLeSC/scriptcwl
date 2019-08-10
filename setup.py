@@ -85,5 +85,6 @@ setup(
         'pytest-cov',
         'pycodestyle',
         'codacy-coverage',
+        'pytest-datafiles',
     ],
 )

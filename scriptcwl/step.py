@@ -23,6 +23,7 @@ class Step(object):
     """
 
     def __init__(self, fname):
+        fname = str(fname)
         if fname.startswith('http://') or fname.startswith('https://'):
             self.run = fname
             self.from_url = True

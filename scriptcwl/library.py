@@ -137,7 +137,13 @@ def load_yaml(filename):
         content = myfile.read()
         if "win" in sys.platform:
             content = content.replace("\\", "/")
-        return yaml.safe_load(content)
+
+        try:
+            obj = yaml.safe_load(content)
+        # packed workflow, will be ignored later
+        except yaml.parser.ParserError:
+            obj = {}
+        return obj
 
 
 def sort_loading_order(step_files):
