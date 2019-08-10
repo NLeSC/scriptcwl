@@ -25,3 +25,5 @@ docs/_build
 docs/apidocs
 
 build
+
+.DS_Store
