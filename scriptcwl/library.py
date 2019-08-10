@@ -140,7 +140,13 @@ def load_yaml(filename):
 
         try:
             obj = yaml.safe_load(content)
+
+            # packed workflow, will be ignored later
+            if obj.get('$graph'):
+                obj = {}
         # packed workflow, will be ignored later
+        # (it seems in some cases a packed workflow gives an ParserError, while
+        # in other cases it is loaded correctly)
         except yaml.parser.ParserError:
             obj = {}
         return obj
