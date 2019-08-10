@@ -5,6 +5,12 @@
 ### Added
 
 * Support even newer versions of cwltool (<=1.0.20190228155703)
+* Support for Python 3.7
+
+### Removed
+
+* Support for Python 2
+* Support for Python 3.4
 
 ## 0.8.0
 
