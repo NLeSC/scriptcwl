@@ -1,6 +1,8 @@
 # Change Log
 
-## Unreleased
+## 0.8.1
+
+Released on August 11, 2019.
 
 ### Added
 

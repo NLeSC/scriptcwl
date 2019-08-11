@@ -72,5 +72,5 @@
     ],
     "codeRepository": "https://github.com/NLeSC/scriptcwl",
     "license": "http://www.apache.org/licenses/LICENSE-2.0",
-    "name": "scriptcwl 0.8.0"
+    "name": "scriptcwl 0.8.1"
 }
