@@ -7,6 +7,10 @@
 * Support even newer versions of cwltool (<=1.0.20190228155703)
 * Support for Python 3.7
 
+### Changed
+
+* Ignore packed workflows when sorting for loading order
+
 ### Removed
 
 * Support for Python 2
