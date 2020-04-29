@@ -50,9 +50,6 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7'
 
@@ -71,7 +68,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'six',
-        'cwltool>=1.0.20170727112954',
+        'cwltool==1.0.20180721142728',
         'click'],
     setup_requires=[
         # dependency for `python setup.py test`
