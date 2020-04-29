@@ -27,3 +27,5 @@ docs/apidocs
 build
 
 .DS_Store
+.idea/
+venv/
